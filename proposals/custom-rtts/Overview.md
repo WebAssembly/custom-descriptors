@@ -623,8 +623,8 @@ Note that the bits now have the following meanings:
 ```
 bit 0: source nullability
 bit 1: target nullability
-bit 3: source exactness
-bit 4: target exactness
+bit 2: source exactness
+bit 3: target exactness
 ```
 
 The other new instructions are encoded as follows:

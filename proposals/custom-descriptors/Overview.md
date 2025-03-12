@@ -529,17 +529,17 @@ we insert optional descriptor and describes clauses between `comptype` and `subt
 and is included below only to clarify the interaction between proposals.)
 
 ```
-descriptorcomptype ::=
+describedcomptype ::=
   | 0x4D x:typeidx ct:comptype => (descriptor x ct)
   | ct:comptype => ct
 
-describescomptype ::=
-  | 0x4C x:typeidx ct:descriptorcomptype => (describes x ct)
-  | ct:descriptorcomptype => ct
+describingcomptype ::=
+  | 0x4C x:typeidx ct:describedcomptype => (describes x ct)
+  | ct:describedcomptype => ct
 
 sharecomptype ::=
-  | 0x65 ct:describescomptype => (shared ct)
-  | ct:describescomptype => ct
+  | 0x65 ct:describingcomptype => (shared ct)
+  | ct:describingcomptype => ct
 
 subtype ::=
   | 0x50 x*:vec(typeidx) ct:sharecomptype => sub x* ct

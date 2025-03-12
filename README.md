@@ -1,9 +1,9 @@
-# Custom RTTs
+# Custom Descriptors
 
-This repository contains the WebAssembly proposal for custom RTTs and JS interop for Wasm GC structs.
+This repository contains the WebAssembly proposal for custom descriptors and JS interop for Wasm GC structs.
 It is based on the [SpecTec fork](https://github.com/Wasm-DSL/spectec) of the spec repository,
 which is in turn based on the `wasm-3.0` branch of [github.com/WebAssembly/spec/](https://github.com/WebAssembly/spec/).
-See the [overview](proposals/custom-rtts/Overview.md) for more information.
+See the [overview](proposals/custom-descriptors/Overview.md) for more information.
 
 Original `README` from upstream repository follows...
 

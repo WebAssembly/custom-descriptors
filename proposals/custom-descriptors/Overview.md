@@ -301,6 +301,16 @@ as having "hidden" subtypes of `any` and `extern`,
 respectively.
 This preserves our ability to assign them more specific types in the future.
 
+In fact, non-nullable exact references to most abstract heap types are uninhabited.
+The only exceptions are:
+
+ - `(ref exact i31)` and `(ref exact (shared i31))`, which are inhabited by i31 references.
+ - `(ref exact exn)`, which is inhabited by exception references.
+ - `(ref exact (shared waitqueue))`,
+   which is inhabited by waitqueue references from the shared-everything threads proposal
+
+Note that this will prevent us from ever introducing more specific subtypes of `i31`, `exn`, and `waitqueue`.
+
 When allocating types with custom descriptors,
 `struct.new` and `struct.new_default` take exact references to the descriptors
 as their first operands.

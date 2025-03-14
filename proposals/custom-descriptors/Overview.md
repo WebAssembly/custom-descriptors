@@ -291,25 +291,17 @@ we have:
 where `bot` is the bottom type
 (e.g. `none`, `nofunc`, `noextern`, `noexnt`, or `nocont`) of `ht`'s hierarchy.
 
-All instructions that create reference to a particular heap type
-(e.g. `ref.func`, `struct.new`, `array.new`, `ref.i31`, `ref.null`,  etc.)
+All instructions that create reference to a particular defined heap type
+(e.g. `ref.func`, `struct.new`, `array.new`,  etc.)
 are refined to produce exact references to that heap type.
-In contrast, `any.convert_extern` and `extern.convert_any` never produce exact references.
-`(ref exact any)` and `(ref exact extern)` are uninhabited.
-Internalized host references and externalized internal references are modeled
-as having "hidden" subtypes of `any` and `extern`,
-respectively.
+In contrast, instructions that produce references to abstract heap types
+generally do not produce exact references.
 This preserves our ability to assign them more specific types in the future.
-
-In fact, non-nullable exact references to most abstract heap types are uninhabited.
-The only exceptions are:
-
- - `(ref exact i31)` and `(ref exact (shared i31))`, which are inhabited by i31 references.
- - `(ref exact exn)`, which is inhabited by exception references.
- - `(ref exact (shared waitqueue))`,
-   which is inhabited by waitqueue references from the shared-everything threads proposal
-
-Note that this will prevent us from ever introducing more specific subtypes of `i31`, `exn`, and `waitqueue`.
+For example, `ref.i31` produces `(ref i31)`, not `(ref exact i31)`,
+and casting an `i31` reference (or anything else) to `(ref exact i31)` will fail.
+The only exception to this rule is that `ref.null ht` is typed `(ref null exact ht)`.
+This allows `ref.null none` to be used where a `(ref null exact $Foo)` is expected.
+As a general rule, non-nullable exact references to abstract heap types are uninhabited.
 
 When allocating types with custom descriptors,
 `struct.new` and `struct.new_default` take exact references to the descriptors

@@ -426,6 +426,10 @@ of an Exported GC Object `O` is updated to perform the following steps
    1. Return `null`.
  1. Return the prototype stored in `u`.
 
+> Note: it would also be good to ensure a `DescriptorOptions` is opaque and can
+> only be used once to avoid having to keep the configuration data live for the
+> lifetime of the custom descriptor. TODO.
+
 The only new capability required in the WebAssembly embedding interface is the
 ability to inspect a reference's heap type.
 The algorithm also needs to access the value's descriptor and its fields,

@@ -378,21 +378,68 @@ C |- br_on_cast_desc_fail l rt_1 rt_2 : t* rt_1 (ref null exact_1 y) -> t* rt_2
 In JS engines,
 WebAssembly RTTs correspond to JS shape descriptors.
 Custom descriptors act as first-class handles to the engine-managed RTTs,
-so they can serve as extension points for the JS reflection of the Wasm objects they describe.
+so they can serve as extension points for the JS reflection of the Wasm objects they describe,
+and in particular they can allow JS prototypes to be associated with the described objects.
+To make this work, we allow information about the intended JS reflection of Wasm objects
+to be imported into a Wasm module and held by custom descriptors.
+The `[[GetPrototypeOf]]` algorithm for a WebAssembly object can then look up this information
+on the object's custom descriptor. The details of how this works are described below.
 
-We introduce a new `WebAssembly.setDescriptorPrototype()` API
-that takes a custom descriptor instance and a prototype object.
-The provided prototype will be attached to the descriptor's RTT
-and will become the prototype for the JS reflection
-of all Wasm objects the custom descriptor describes.
+We introduce a new `WebAssembly.DescriptorOptions` type
+that holds relevant information about the JS reflection of Wasm objects.
+A `DescriptorOptions` is constructed with an option bag containing
+an object to be used as a prototype. Other options may be added in the future,
+for example to expose Wasm struct fields as own properties.
 
-The following is a full example that uses `WebAssembly.setDescriptorPrototype()`
+```webidl
+dictionary DescriptorOptionsOptions {
+  object? prototype;
+};
+
+[LegacyNamespace=WebAssembly, Exposed=*]
+interface DescriptorOptions {
+  constructor(DescriptorOptionsOptions options);
+}
+```
+
+A `DescriptorOptions` object has a `[[WebAssemblyDescriptorOptions]]`
+internal slot with the value `true`.
+This allows it to be identified by the `[[GetPrototypeOf]]` algorithm.
+Its constructor copies all of the options into the constructed `DescriptorOptions`.
+
+The specification of the `[[GetPrototypeOf]]` internal method
+of an Exported GC Object `O` is updated to perform the following steps
+(which will be made more precise in the final spec):
+
+ 1. If `O.[[ObjectKind]]` is not "struct":
+   1. Return `null`.
+ 1. Let `store` be the surrounding agent's associated store
+ 1. Look up the object's heap type from the store.
+ 1. If the heap type does not have a descriptor clause:
+   1. Return `null`.
+ 1. Get the descriptor value and descriptor type.
+ 1. If the descriptor type has has no fields or its first field is not immutable or does not match `externref`:
+   1. Return `null`.
+ 1. Get the value `v` of the first field.
+ 1. Let `u` be `ToJSValue(v)`.
+ 1. If `u` does not have a `[[WebAssemblyDescriptorOptions]]` internal slot:
+   1. Return `null`.
+ 1. Return the prototype stored in `u`.
+
+> Note: it would also be good to ensure a `DescriptorOptions` is opaque and can
+> only be used once to avoid having to keep the configuration data live for the
+> lifetime of the custom descriptor. TODO.
+
+The only new capability required in the WebAssembly embedding interface is the
+ability to inspect a reference's heap type.
+The algorithm also needs to access the value's descriptor and its fields,
+but in principle it could do that by synthesizing a new Wasm instance
+exporting the functions necessary to perform that access,
+so those would not be fundamentally new capabilities.
+
+The following is a full example that uses `WebAssembly.DescriptorOptions`
 to allow JS to call `get()` and `inc()` methods on counter objects implemented in
 WebAssembly.
-
-> Note: If there is demand for it,
-> a similar API could configure property names that JS could use to access fields
-> of the described WebAssembly objects.
 
 ```wasm
 ;; counter.wasm
@@ -400,17 +447,21 @@ WebAssembly.
   (rec
     (type $counter (descriptor $counter.vtable (struct (field $val i32))))
     (type $counter.vtable (describes $counter (struct
+      (field $proto (ref extern))
       (field $get (ref $get_t))
       (field $inc (ref $inc_t))
-    ))
+    )))
     (type $get_t (func (param (ref null $counter)) (result i32)))
     (type $inc_t (func (param (ref null $counter))))
   )
 
+  (import "env" "counter.proto" (global $counter.proto (ref extern)))
+
   (elem declare func $counter.get $counter.inc)
 
-  (global $counter.vtable (export "counter.vtable") (ref exact $counter.vtable)
+  (global $counter.vtable (ref exact $counter.vtable)
     (struct.new $counter.vtable
+      (global.get $counter.proto)
       (ref.func $counter.get)
       (ref.func $counter.inc)
     )
@@ -440,12 +491,21 @@ WebAssembly.
 
 ```js
 // counter.js
-var {module, instance} = await WebAssembly.instantiateStreaming(fetch('counter.wasm'));
 
-WebAssembly.setDescriptorPrototype(instance.exports['counter.vtable'], {
-  get: function() { instance.exports['counter.get'](this); },
-  inc: function() { return instance.exports['counter.get'](this); }
+var counterProto = {};
+
+var counterOpts = new WebAssembly.DescriptorOptions({
+  prototype: counterProto
 });
+
+var {module, instance} = await WebAssembly.instantiateStreaming(fetch('counter.wasm'), {
+  env: {
+    "counter.proto": counterOpts
+  }
+});
+
+counterProto.get = function() { return instance.exports['counter.get'](this); };
+counterProto.inc = function() { instance.exports['counter.inc'](this); };
 
 var counter = instance.exports['counter'];
 
@@ -453,6 +513,9 @@ console.log(counter.get()); // 0
 counter.inc();
 console.log(counter.get()); // 1
 ```
+
+> Note: Other API designs are also possible.
+> See the discussion at https://github.com/WebAssembly/custom-rtts/issues/2.
 
 ## Declarative Prototype Initialization
 

@@ -305,10 +305,27 @@ As a general rule, non-nullable exact references to abstract heap types are unin
 
 When allocating types with custom descriptors,
 `struct.new` and `struct.new_default` take exact references to the descriptors
-as their first operands.
+as their last operands.
 This makes the unsound program above invalid.
 
-> TODO: Provide new validation rules for `struct.new` and `struct.new_default`.
+```
+struct.new x
+C |- struct.new x : t* (ref null exact y) -> (ref exact x)
+ -- C.types[x] ~ descriptor y (struct (field t)*)
+```
+
+```
+struct.new_default x
+C |- struct.new_default x : (ref null exact y) -> (ref exact x)
+ -- C.types[x] ~ descriptor y (struct (field t)*)
+ -- defaultable(t)*
+```
+
+> Note: The descriptors could alternatively be the first operands.
+> They are chosen to be the last operands here because in a hypothetical future
+> where we have variants of these instructions that do not take type immediates,
+> the descriptors would have to be on top of the stack to determine the type of
+> the allocation. This is consistent with GC accessor instructions.
 
 ## New Instructions
 

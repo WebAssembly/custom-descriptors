@@ -536,7 +536,115 @@ console.log(counter.get()); // 1
 
 ## Declarative Prototype Initialization
 
-TODO
+We expect toolchains to need to configure thousands of JS prototypes and tens of thousands of methods,
+so to reduce startup latency we want a declarative method of constructing, importing,
+and populating the `DescriptorOptions` objects.
+
+The declarative API must support these features:
+
+ - Constructing new prototype objects
+ - Using existing prototype objects provided at instantiation time
+ - Creating prototype chains
+ - Synthesizing and attaching methods (including getters and setters) to prototypes
+
+We define a new custom section to be specified as part of the JS embedding.
+This custom section will be used in the constructor of `WebAssembly.Instance`
+to populate the imports with additional `DescriptorOptions` before core instantiation
+and to populate the prototypes using exported functions after core instantiation.
+
+```
+descindex       ::= u32
+
+descriptorsec   ::= section_0(descriptordata)
+
+descriptordata  ::= n:name (if n = 'descriptors')
+                    modulename:name
+                    vec(descriptorentry)
+
+descriptorentry ::= 0x00 importentry
+                  | 0x01 declentry
+
+importentry     ::= importname:name descconfig
+
+declentry       ::= protoconfig descconfig
+
+protoconfig     ::= v:vec(descindex) (if |v| <= 1)
+
+descconfig      ::= exportnames vec(methodconfig)
+
+exportnames     ::= vec(name)
+
+methodconfig    ::= kind:methodkind
+                    methodname:name
+                    exportname:name
+
+methodkind      ::= 0x00 => static
+                  | 0x01 => method
+                  | 0x02 => getter
+                  | 0x03 => setter
+```
+
+The descriptors custom section starts with `modulename`,
+which is the module name from which the configured `DescriptorOptions` values
+will be imported by the Wasm module.
+A module may import configured `DescriptorOptions` values
+from multiple different module names
+by including multiple descriptors sections.
+
+Following the `modulename` is a sequence of `descriptorentry`,
+each of which describes a single `DescriptorOptions` value.
+Each value can either be imported,
+meaning that it is provided as an argument to instantiation,
+or it is declared,
+meaning that the instantiation procedure will create it.
+A declared value can optionally specify the index of a previous value
+to serve as the parent in the configured prototype chain.
+Imported values are assumed to already have their prototype chain configured.
+
+Each configured descriptor is has a vector of export names.
+These are the names from which the Wasm module will import the descriptor values.
+
+Whether imported or declared,
+each `descriptorentry` contains a vector of `methodconfig`
+describing the methods that should be attached to the prototype
+after instantiation.
+Each configured method can be either a static method,
+normal method, a getter, or a setter.
+Methods also have two associated names: the first their property name
+in the configured prototype and the second
+the name of the exported function they wrap.
+
+Static methods do not pass their receiver as an argument to the exported function:
+
+```js
+function methodname() { return exports[exportname](...arguments); }
+```
+
+All other methods pass the receiver as the first argument:
+
+```js
+function methodname() { return exports[exportname](this, ...arguments); }
+```
+
+Getters and setters are additionally configured as getters and setters
+when they are attached to the prototype.
+
+When constructing a WebAssembly instance,
+the descriptors sections are first processed
+to create any new declared `DescriptorOptions`.
+Descriptor values imported by these sections are read from the main imports
+argument passed to instantiation using the module names
+given at the beginning of the sections.
+
+The imports for core Wasm instantiation are then determined,
+giving the exports from the descriptors sections precedence.
+
+After core instantiation,
+the methods are populated based on the core exports.
+
+If there is a decoding error in a descriptors section
+or if at any point a required import or export is missing,
+an error will be thrown.
 
 ## Type Section Field Deduplication
 

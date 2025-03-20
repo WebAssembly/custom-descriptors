@@ -593,10 +593,9 @@ methodconfig    ::= kind:methodkind
                     methodname:name
                     exportname:name
 
-methodkind      ::= 0x00 => static
-                  | 0x01 => method
-                  | 0x02 => getter
-                  | 0x03 => setter
+methodkind      ::= 0x00 => method
+                  | 0x01 => getter
+                  | 0x02 => setter
 ```
 
 The descriptors custom section starts with `modulename`,
@@ -623,19 +622,13 @@ Whether imported or declared,
 each `descriptorentry` contains a vector of `methodconfig`
 describing the methods that should be attached to the prototype
 after instantiation.
-Each configured method can be either a static method,
+Each configured method can be either a
 normal method, a getter, or a setter.
 Methods also have two associated names: the first their property name
 in the configured prototype and the second
 the name of the exported function they wrap.
 
-Static methods do not pass their receiver as an argument to the exported function:
-
-```js
-function methodname() { return exports[exportname](...arguments); }
-```
-
-All other methods pass the receiver as the first argument:
+All methods pass the receiver as the first argument:
 
 ```js
 function methodname() { return exports[exportname](this, ...arguments); }

@@ -607,7 +607,7 @@ A declared value can optionally specify the index of a previous value
 to serve as the parent in the configured prototype chain.
 Imported values are assumed to already have their prototype chain configured.
 
-Each configured descriptor is has a vector of export names.
+Each configured descriptor has a vector of export names.
 These are the names from which the Wasm module will import the descriptor values.
 
 Whether imported or declared,

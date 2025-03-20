@@ -567,6 +567,8 @@ This custom section will be used in the constructor of `WebAssembly.Instance`
 to populate the imports with additional `DescriptorOptions` before core instantiation
 and to populate the prototypes using exported functions after core instantiation.
 
+### Custom Section
+
 ```
 descindex       ::= u32
 
@@ -650,6 +652,8 @@ Instead, they are added to the `exports` object.
 The configured prototype is added as the `prototype` property of the generated function
 and the generated function is added as the `constructor` property of the configured prototype.
 
+### Instantiation
+
 When constructing a WebAssembly instance,
 the descriptors sections are first processed
 to create any new declared `DescriptorOptions`.
@@ -670,6 +674,8 @@ the unpopulated prototypes that do not yet have the method properties.
 If there is a decoding error in a descriptors section
 or if at any point a required import or export is missing,
 an error will be thrown.
+
+> TODO: Describe the effect of the descriptors section on Module.imports and Module.exports.
 
 ## Type Section Field Deduplication
 

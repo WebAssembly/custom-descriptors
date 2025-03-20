@@ -584,7 +584,7 @@ Exact heap types are introduced with a prefix byte:
 heaptype :: ... | 0x62 x:u32 => exact x
 ```
 
-Note that the type index being encoded as a `u32` instead of a `u33`
+Note that the type index being encoded as a `u32` instead of an `s33`
 intentionally makes it impossible to encode an exact abstract heap type.
 
 ### Instructions

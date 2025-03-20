@@ -227,7 +227,7 @@ This may be relaxed in the future.
 )
 ```
 
-## Exact Reference Types
+## Exact Types
 
 Allocating an instance of a type with a custom descriptor necessarily
 requires supplying a custom descriptor value.
@@ -264,59 +264,65 @@ describes precisely the allocated type.
 A better solution would be to allow userspace to perform that check if necessary,
 but also be able to statically prove via the type system that it is not necessary.
 
-To facilitate that we introduce exact reference types,
-which are inhabited by references to a particular heap type (and possibly the null value),
-but not any of the heap type's strict subtypes.
-
-Exact reference types can be nullable with the form `(ref null exact ht)`
-or non-nullable with the form `(ref exact ht)`.
-
-For any heap type `ht`:
+To facilitate that we introduce exact heap types,
+which are subtypes of their base heap types
+but not supertypes of their base heap types' declared subtypes.
 
 ```
-(ref ht) <: (ref null ht)
-(ref null exact ht) <: (ref null ht)
-(ref exact ht) <: (ref ht)
-(ref exact ht) <: (ref null exact ht)
+heaptype ::= absheaptype | exact typeidx | typeidx
 ```
 
-Furthermore, to ensure that each type hierarchy remains a lattice,
-we have:
+The subtyping rules for heap types are extended:
+
 
 ```
-(ref null exact bot) <: (ref null exact ht)
-(ref exact bot) <: (ref exact ht)
+C |- (exact typeidx_1) <: typeidx_1
+
 ```
 
-where `bot` is the bottom type
-(e.g. `none`, `nofunc`, `noextern`, `noexnt`, or `nocont`) of `ht`'s hierarchy.
+Notably, by the existing, unmodified rules for `none`, `nofunc`, etc.
+it is the case that e.g. `none <: (exact $some_struct)`.
+Given these types:
 
-All instructions that create reference to a particular defined heap type
+```
+(type $super (sub (struct)))
+(type $sub (sub $super (struct)))
+```
+
+We have the following relationships:
+
+```
+none <: (exact $sub) <: $sub <: $super <: struct <: eq <: any
+(exact $super) <: $super <: ...
+```
+
+But no version of `$sub` is in a subtyping relation with `(exact $super)`.
+
+
+All instructions that create references to a particular defined heap type
 (e.g. `ref.func`, `struct.new`, `array.new`,  etc.)
-are refined to produce exact references to that heap type.
-In contrast, instructions that produce references to abstract heap types
-generally do not produce exact references.
-This preserves our ability to assign them more specific types in the future.
-For example, `ref.i31` produces `(ref i31)`, not `(ref exact i31)`,
-and casting an `i31` reference (or anything else) to `(ref exact i31)` will fail.
-The only exception to this rule is that `ref.null ht` is typed `(ref null exact ht)`.
-This allows `ref.null none` to be used where a `(ref null exact $Foo)` is expected.
-As a general rule, non-nullable exact references to abstract heap types are uninhabited.
+are refined to produce references to the exact version of that heap type.
+
+Since only defined types have exact versions,
+instructions like `ref.i31` or `any.convert_extern` that produce
+references to abstract heap types do not produce references to exact types.
 
 When allocating types with custom descriptors,
-`struct.new` and `struct.new_default` take exact references to the descriptors
+`struct.new` and `struct.new_default` take references to the exact descriptors
 as their last operands.
 This makes the unsound program above invalid.
 
 ```
 struct.new x
-C |- struct.new x : t* (ref null exact y) -> (ref exact x)
+
+C |- struct.new x : t* (ref null (exact y)) -> (ref (exact x))
  -- C.types[x] ~ descriptor y (struct (field t)*)
 ```
 
 ```
 struct.new_default x
-C |- struct.new_default x : (ref null exact y) -> (ref exact x)
+
+C |- struct.new_default x : (ref null (exact y)) -> (ref (exact x))
  -- C.types[x] ~ descriptor y (struct (field t)*)
  -- defaultable(t)*
 ```
@@ -335,16 +341,16 @@ a reference to the custom descriptor value can be retrieved with `ref.get_desc`.
 ```
 ref.get_desc typeidx
 
-C |- ref.get_desc x : (ref exact_1 null x) -> (ref exact_1 y)
+C |- ref.get_desc x : (ref null (exact_1 x)) -> (ref (exact_1 y))
 -- C.types[x] ~ descriptor y ct
 ```
 
-If the provided reference is exact,
+If the provided reference is to an exact heap type,
 then the type of the custom descriptor is known precisely,
 so the result can be exact as well.
 Otherwise, the subtyping rules described above ensure that there will be some custom descriptor value
 and that it will be a subtype of the custom descriptor type for `x`,
-so the result can be a non-null inexact reference.
+so the result can be a non-null reference to the inexact descriptor type.
 
 Being able to retrieve a custom descriptor means you can then compare it for equality
 with an expected custom descriptor value.
@@ -362,8 +368,8 @@ then the type of the cast output can also be exact.
 ```
 ref.cast_desc reftype
 
-C |- ref.cast_desc rt : (ref null ht) (ref null exact_1 y) -> rt
--- rt = (ref null? exact_1 x)
+C |- ref.cast_desc rt : (ref null ht) (ref null (exact_1 y)) -> rt
+-- rt = (ref null? (exact_1 x))
 -- C |- C.types[x] <: ht
 -- C.types[x] ~ descriptor y ct
 ```
@@ -371,22 +377,22 @@ C |- ref.cast_desc rt : (ref null ht) (ref null exact_1 y) -> rt
 ```
 br_on_cast_desc labelidx reftype reftype
 
-C |- br_on_cast_desc l rt_1 rt_2 : t* rt_1 (ref null exact_1 y) -> t* (rt_1 \ rt_2)
+C |- br_on_cast_desc l rt_1 rt_2 : t* rt_1 (ref null (exact_1 y)) -> t* (rt_1 \ rt_2)
 -- C.labels[l] = t* rt
 -- C |- rt_2 <: rt
 -- C |- rt_2 <: rt_1
--- rt_2 = (ref null? exact_1 x)
+-- rt_2 = (ref null? (exact_1 x))
 -- C.types[x] ~ descriptor y ct
 ```
 
 ```
 br_on_cast_desc_fail labelidx reftype reftype
 
-C |- br_on_cast_desc_fail l rt_1 rt_2 : t* rt_1 (ref null exact_1 y) -> t* rt_2
+C |- br_on_cast_desc_fail l rt_1 rt_2 : t* rt_1 (ref null (exact_1 y)) -> t* rt_2
 -- C.labels[l] = t* rt
 -- C |- rt_1 \ rt_2 <: rt
 -- C |- rt_2 <: rt_1
--- rt_2 = (ref null? exact_1 x)
+-- rt_2 = (ref null? (exact_1 x))
 -- C.types[x] ~ descriptor y ct
 ```
 
@@ -476,7 +482,7 @@ WebAssembly.
 
   (elem declare func $counter.get $counter.inc)
 
-  (global $counter.vtable (ref exact $counter.vtable)
+  (global $counter.vtable (ref (exact $counter.vtable))
     (struct.new $counter.vtable
       (global.get $counter.proto)
       (ref.func $counter.get)
@@ -678,111 +684,33 @@ subtype ::=
   | ct:sharecomptype => sub final eps ct
 ```
 
-### Exact Reference Types
+### Exact Types
 
-Rather than use two new opcodes in the type opcode space
-to represent nullable and non-nullable exact reference types,
-we introduce just a single new prefix opcode that encode both:
+Exact heap types are introduced with a prefix byte:
 
 ```
-reftype :: ...
-  | 0x62 0x64 ht:heaptype => ref exact ht
-  | 0x62 0x63 ht:heaptype => ref null exact ht
+heaptype :: ... | 0x62 x:u32 => exact x
 ```
 
-To make the most of the existing shorthands for nullable abstract heap types,
-we also allow using the exact prefix with those shorthands:
-
-```
-reftype :: ...
-  | 0x62 ht:absheaptype => ref null exact ht
-```
-
-Similarly, we allow combining `exact` with the established shorthands in the text format.
-For example `(exact anyref)` is a shorthand for `(ref null exact any)`.
+Note that the type index being encoded as a `u32` instead of an `s33`
+intentionally makes it impossible to encode an exact abstract heap type.
 
 ### Instructions
 
-The existing `ref.test`, `ref.cast`, `br_on_cast` and `br_on_cast_fail` instructions
-need to be able to work with exact reference types.
-`ref.test` and `ref.cast` currently have two opcodes each:
-one for nullable target types and one for non-nullable target types.
-Rather than introducing two new opcodes for each of these instructions
-to allow for nullable exact and non-nullable exact target types,
-we introduce one new opcode for each that takes a full reference type
-rather than a heap type as its immediate.
+All existing instructions that take heap type immediates work without
+modification with the encoding of exact heap types.
 
-```
-instr ::= ...
-  | 0xFB 32:u32 rt:reftype => ref.test rt
-  | 0xFB 33:u32 rt:reftype => ref.cast rt
-```
-
-(`0xFB 31` is already used by `ref.i31_shared` in the shared-everything-threads proposal.)
-
-Note that these new encodings can be used instead of the existing encodings
-to represent casts to inexact reference types.
-
-> Note: We could alternatively restrict the new encoding to be usable only with exact types,
-> but this artificial restriction does not seem useful.
-
-> Note: We could alternatively continue the existing encoding scheme,
-> at the cost of using 4 new opcodes instead of 2.
-
-`br_on_cast` and `br_on_cast_fail` already encode the nullability of their
-input and output types in a "castflags" u8 immediate. Castflags is extended to encode
-exactness as well:
-
-```
-castflags ::= ...
-  | 4:u8 => (exact, eps)
-  | 5:u8 => (null exact, eps)
-  | 6:u8 => (exact, null)
-  | 7:u8 => (null exact, null)
-  | 8:u8 => (eps, exact)
-  | 9:u8 => (null, exact)
-  | 10:u8 => (eps, null exact)
-  | 11:u8 => (null, null exact)
-  | 12:u8 => (exact, exact)
-  | 13:u8 => (null exact, exact)
-  | 14:u8 => (exact, null exact)
-  | 15:u8 => (null exact, null exact)
-```
-
-Note that the bits now have the following meanings:
-
-```
-bit 0: source nullability
-bit 1: target nullability
-bit 2: source exactness
-bit 3: target exactness
-```
-
-The other new instructions are encoded as follows:
+The new instructions are encoded as follows:
 
 ```
 instr ::= ...
   | 0xFB 34:u32 x:typeidx => ref.get_desc x
-  | 0xFB 35:u32 rt:reftype => ref.cast_desc reftype
-  | 0xFB 36:u32 (null_1? exact_1?, null_2? exact_2?):castflags
+  | 0xFB 35:u32 ht:heaptype => ref.cast_desc (ref ht)
+  | 0xFB 36:u32 ht:heaptype => ref.cast_desc (ref null ht)
+  | 0xFB 37:u32 (null_1?, null_2?):castflags
         l:labelidx ht_1:heaptype ht_2:heaptype =>
-      br_on_cast_desc l (ref null_1? exact_1? ht_1) (ref null_2? exact_2? ht_2)
-  | 0xFB 37:u32 (null_1? exact_1?, null_2? exact_2?):castflags
+      br_on_cast_desc l (ref null_1? ht_1) (ref null_2? ht_2)
+  | 0xFB 38:u32 (null_1?, null_2?):castflags
         l:labelidx ht_1:heaptype ht_2:heaptype =>
-      br_on_cast_desc_fail l (ref null_1? exact_1? ht_1) (ref null_2? exact_2? ht_2)
+      br_on_cast_desc_fail l (ref null_1? ht_1) (ref null_2? ht_2)
 ```
-
-## Minimal Initial Prototyping for JS Interop
-
-A truly minimal prototype for experimenting with JS interop can skip
-implementing most of the new features in this proposal:
-
- - Arbitrary fields on custom descriptors.
-   A minimal prototype can allow `descriptor` clauses only on empty structs.
- - Exact reference types.
-   A minimal prototype can instead bake an RTT exactness check into the
-   semantics of `struct.new` and `struct.new_default` to ensure soundness.
- - New instructions.
-   A minimal prototype only needs to update `struct.new` and `struct.new_default`
-   to take references to custom descriptors as necessary.
-   It does not need to implement `ref.get_desc` or any of the new casts.

@@ -658,7 +658,7 @@ argument passed to instantiation using the module names
 given at the beginning of the sections.
 
 The imports for core Wasm instantiation are then determined,
-giving the exports from the descriptors sections precedence.
+giving precedence to the exports from the descriptors sections.
 
 After core instantiation,
 the methods are populated based on the core exports.

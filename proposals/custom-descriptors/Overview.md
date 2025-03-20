@@ -596,6 +596,7 @@ methodconfig    ::= kind:methodkind
 methodkind      ::= 0x00 => method
                   | 0x01 => getter
                   | 0x02 => setter
+                  | 0x03 => constructor
 ```
 
 The descriptors custom section starts with `modulename`,
@@ -623,7 +624,7 @@ each `descriptorentry` contains a vector of `methodconfig`
 describing the methods that should be attached to the prototype
 after instantiation.
 Each configured method can be either a
-normal method, a getter, or a setter.
+normal method, a getter, a setter, or a constructor.
 Methods also have two associated names: the first their property name
 in the configured prototype and the second
 the name of the exported function they wrap.
@@ -636,6 +637,18 @@ function methodname() { return exports[exportname](this, ...arguments); }
 
 Getters and setters are additionally configured as getters and setters
 when they are attached to the prototype.
+
+Constructors are a little different.
+They do not pass the receiver as a parameter to the exported function:
+
+```js
+function methodname() { return exports[exportname](...arguments); }
+```
+
+Furthermore, they are not installed on the configured prototype.
+Instead, they are added to the `exports` object.
+The configured prototype is added as the `prototype` property of the generated function
+and the generated function is added as the `constructor` property of the configured prototype.
 
 When constructing a WebAssembly instance,
 the descriptors sections are first processed

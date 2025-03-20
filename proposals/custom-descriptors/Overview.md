@@ -543,7 +543,11 @@ console.log(counter.get()); // 1
 ## Declarative Prototype Initialization
 
 We expect toolchains to need to configure thousands of JS prototypes and tens of thousands of methods,
-so to reduce startup latency we want a declarative method of constructing, importing,
+so we expect there to be startup latency problems
+if all the configuration is done directly via the raw `DescriptorOptions` API
+and JS glue code as shown above.
+
+The proposed solution is to provide a declarative method of constructing, importing,
 and populating the `DescriptorOptions` objects.
 
 The declarative API must support these features:
@@ -553,7 +557,12 @@ The declarative API must support these features:
  - Creating prototype chains
  - Synthesizing and attaching methods (including getters and setters) to prototypes
 
-We define a new custom section to be specified as part of the JS embedding.
+Furthermore, the design goals are to be:
+
+ - Polyfillable by generated JS glue using the underlying `DescriptorOptions` JS API,
+   i.e. to not introduce any new expressivity.
+
+We define such an API in the form of a new custom section to be specified as part of the JS embedding.
 This custom section will be used in the constructor of `WebAssembly.Instance`
 to populate the imports with additional `DescriptorOptions` before core instantiation
 and to populate the prototypes using exported functions after core instantiation.

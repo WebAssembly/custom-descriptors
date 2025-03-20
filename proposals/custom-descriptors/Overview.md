@@ -656,6 +656,10 @@ giving the exports from the descriptors sections precedence.
 
 After core instantiation,
 the methods are populated based on the core exports.
+Since this does not happen until after core instantiation,
+when the exports have been made available,
+imports called by the start function will be able to observe
+the unpopulated prototypes that do not yet have the method properties.
 
 If there is a decoding error in a descriptors section
 or if at any point a required import or export is missing,

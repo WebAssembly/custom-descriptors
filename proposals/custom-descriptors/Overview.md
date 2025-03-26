@@ -676,7 +676,12 @@ or if at any point a required import or export is missing,
 an error will be thrown.
 
 > TODO: Describe the effect of the descriptors section on Module.imports and Module.exports.
+
 > TODO: Make sure the prototypes can be read from the exports for further manual configuration.
+
+> TODO: Consider supporting declarative static methods attached to constructors instead of methods.
+
+> TODO: Declarative support for installing Symbol.hasInstance methods to support instanceof.
 
 ## Type Section Field Deduplication
 

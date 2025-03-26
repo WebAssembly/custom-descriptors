@@ -542,7 +542,146 @@ console.log(counter.get()); // 1
 
 ## Declarative Prototype Initialization
 
-TODO
+We expect toolchains to need to configure thousands of JS prototypes and tens of thousands of methods,
+so we expect there to be startup latency problems
+if all the configuration is done directly via the raw `DescriptorOptions` API
+and JS glue code as shown above.
+
+The proposed solution is to provide a declarative method of constructing, importing,
+and populating the `DescriptorOptions` objects.
+
+The declarative API must support these features:
+
+ - Constructing new prototype objects
+ - Using existing prototype objects provided at instantiation time
+ - Creating prototype chains
+ - Synthesizing and attaching methods (including getters and setters) to prototypes
+
+Furthermore, the design goals are to be:
+
+ - Polyfillable by generated JS glue using the underlying `DescriptorOptions` JS API,
+   i.e. to not introduce any new expressivity.
+
+We define such an API in the form of a new custom section to be specified as part of the JS embedding.
+This custom section will be used in the constructor of `WebAssembly.Instance`
+to populate the imports with additional `DescriptorOptions` before core instantiation
+and to populate the prototypes using exported functions after core instantiation.
+
+### Custom Section
+
+```
+descindex       ::= u32
+
+descriptorsec   ::= section_0(descriptordata)
+
+descriptordata  ::= n:name (if n = 'descriptors')
+                    modulename:name
+                    vec(descriptorentry)
+
+descriptorentry ::= 0x00 importentry
+                  | 0x01 declentry
+
+importentry     ::= importname:name descconfig
+
+declentry       ::= protoconfig descconfig
+
+protoconfig     ::= v:vec(descindex) (if |v| <= 1)
+
+descconfig      ::= exportnames vec(methodconfig)
+
+exportnames     ::= vec(name)
+
+methodconfig    ::= kind:methodkind
+                    methodname:name
+                    exportname:name
+
+methodkind      ::= 0x00 => method
+                  | 0x01 => getter
+                  | 0x02 => setter
+                  | 0x03 => constructor
+```
+
+The descriptors custom section starts with `modulename`,
+which is the module name from which the configured `DescriptorOptions` values
+will be imported by the Wasm module.
+A module may import configured `DescriptorOptions` values
+from multiple different module names
+by including multiple descriptors sections.
+
+Following the `modulename` is a sequence of `descriptorentry`,
+each of which describes a single `DescriptorOptions` value.
+Each value can either be imported,
+meaning that it is provided as an argument to instantiation,
+or it is declared,
+meaning that the instantiation procedure will create it.
+A declared value can optionally specify the index of a previous value
+to serve as the parent in the configured prototype chain.
+Imported values are assumed to already have their prototype chain configured.
+
+Each configured descriptor has a vector of export names.
+These are the names from which the Wasm module will import the descriptor values.
+
+Whether imported or declared,
+each `descriptorentry` contains a vector of `methodconfig`
+describing the methods that should be attached to the prototype
+after instantiation.
+Each configured method can be either a
+normal method, a getter, a setter, or a constructor.
+Methods also have two associated names: the first their property name
+in the configured prototype and the second
+the name of the exported function they wrap.
+
+All methods pass the receiver as the first argument:
+
+```js
+function methodname() { return exports[exportname](this, ...arguments); }
+```
+
+Getters and setters are additionally configured as getters and setters
+when they are attached to the prototype.
+
+Constructors are a little different.
+They do not pass the receiver as a parameter to the exported function:
+
+```js
+function methodname() { return exports[exportname](...arguments); }
+```
+
+Furthermore, they are not installed on the configured prototype.
+Instead, they are added to the `exports` object.
+The configured prototype is added as the `prototype` property of the generated function
+and the generated function is added as the `constructor` property of the configured prototype.
+
+### Instantiation
+
+When constructing a WebAssembly instance,
+the descriptors sections are first processed
+to create any new declared `DescriptorOptions`.
+Descriptor values imported by these sections are read from the main imports
+argument passed to instantiation using the module names
+given at the beginning of the sections.
+
+The imports for core Wasm instantiation are then determined,
+giving precedence to the exports from the descriptors sections.
+
+After core instantiation,
+the methods are populated based on the core exports.
+Since this does not happen until after core instantiation,
+when the exports have been made available,
+imports called by the start function will be able to observe
+the unpopulated prototypes that do not yet have the method properties.
+
+If there is a decoding error in a descriptors section
+or if at any point a required import or export is missing,
+an error will be thrown.
+
+> TODO: Describe the effect of the descriptors section on Module.imports and Module.exports.
+
+> TODO: Make sure the prototypes can be read from the exports for further manual configuration.
+
+> TODO: Consider supporting declarative static methods attached to constructors instead of methods.
+
+> TODO: Declarative support for installing Symbol.hasInstance methods to support instanceof.
 
 ## Type Section Field Deduplication
 

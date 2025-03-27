@@ -567,6 +567,10 @@ This custom section will be used in the constructor of `WebAssembly.Instance`
 to populate the imports with additional `DescriptorOptions` before core instantiation
 and to populate the prototypes using exported functions after core instantiation.
 
+The custom section essentially describes (and is polyfillable by) wrapper modules
+updating the imports object before core Wasm instantiation
+and updating the exports object after instantiation.
+
 ### Custom Section
 
 ```
@@ -575,6 +579,7 @@ descindex       ::= u32
 descriptorsec   ::= section_0(descriptordata)
 
 descriptordata  ::= n:name (if n = 'descriptors')
+                    version:u32 (if version = 0)
                     modulename:name
                     vec(descriptorentry)
 
@@ -601,25 +606,41 @@ methodkind      ::= 0x00 => method
                   | 0x03 => constructor
 ```
 
-The descriptors custom section starts with `modulename`,
-which is the module name from which the configured `DescriptorOptions` values
-will be imported by the Wasm module.
+The descriptors custom section starts with a version number,
+which is intended to help tools and engines manage
+backward-incompatible changes to this custom section format
+during proposal development.
+It will be removed from the final version of the custom section.
+
+Next comes `modulename`, which serves two purposes.
+It is the module name used to look up user-provided prototypes on the import object
+for use in configuring `DescriptorOptions` objects,
+and it is also the module name where the configured `DescriptorOptions`
+are written back to the import object to be looked up by core instantiation.
 A module may import configured `DescriptorOptions` values
 from multiple different module names
 by including multiple descriptors sections.
 
 Following the `modulename` is a sequence of `descriptorentry`,
-each of which describes a single `DescriptorOptions` value.
-Each value can either be imported,
-meaning that it is provided as an argument to instantiation,
-or it is declared,
-meaning that the instantiation procedure will create it.
-A declared value can optionally specify the index of a previous value
-to serve as the parent in the configured prototype chain.
-Imported values are assumed to already have their prototype chain configured.
+each of which describes a declared `DescriptorOptions` value or an imported prototype
+for use in the prototype chain of subsequent declared `DescriptorOptions`.
+A declaration value can optionally specify the index of a previous entry
+to provide the parent in the configured prototype chain.
+If the previous entry is an `importentry`, the `modulename` and `importname`
+are used to look up the prototype in the imports object.
+Otherwise, if the previous entry is a `declentry`,
+the prototype is looked up from the declared `DescriptorOptions`.
 
-Each configured descriptor has a vector of export names.
-These are the names from which the Wasm module will import the descriptor values.
+Each declared descriptor has a vector of export names.
+After the descriptor is created,
+it is written into the import object under `modulename` with each of these export names.
+The core Wasm module will then import the descriptors using these names.
+Typically there will be no more than one name in the vector.
+The vector may be empty if the descriptor only exists
+to declaratively populate links in the prototype chain used by other descriptors.
+
+> Note: alternatively, instead of mutating the imports object, we could populate
+> a new imports object to pass on to core instantiation.
 
 Whether imported or declared,
 each `descriptorentry` contains a vector of `methodconfig`

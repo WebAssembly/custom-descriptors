@@ -649,9 +649,9 @@ describing the methods that should be attached to the prototype
 after instantiation.
 Each configured method can be either a
 normal method, a getter, a setter, or a constructor.
-Methods each have two associated names: the first their property name
-in the configured prototype and the second
-the name of the exported function they wrap.
+Methods each have two associated names:
+the first is their property name in the configured prototype
+and the second is the name of the exported function they wrap.
 
 All methods pass the receiver as the first argument:
 

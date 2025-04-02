@@ -592,18 +592,18 @@ declentry       ::= protoconfig descconfig
 
 protoconfig     ::= v:vec(descindex) (if |v| <= 1)
 
-descconfig      ::= exportnames vec(methodconfig)
+descconfig      ::= exportnames:vec(name) methods:vec(methodconfig)
 
-exportnames     ::= vec(name)
+methodconfig    ::= 0x00 methodnames => method
+                  | 0x01 methodnames => getter
+                  | 0x02 methodnames => setter
+                  | 0x03 methodnames vec(methodnames) => constructor
 
-methodconfig    ::= kind:methodkind
-                    methodname:name
-                    exportname:name
+staticmethods   ::= hasinstance:vec(name) methods:vec(methodnames)
+                        (if |hasinstance| <= 1)
 
-methodkind      ::= 0x00 => method
-                  | 0x01 => getter
-                  | 0x02 => setter
-                  | 0x03 => constructor
+methodnames     ::= methodname:name exportname:name
+
 ```
 
 The descriptors custom section starts with a version number,
@@ -624,12 +624,14 @@ by including multiple descriptors sections.
 Following the `modulename` is a sequence of `descriptorentry`,
 each of which describes a declared `DescriptorOptions` value or an imported prototype
 for use in the prototype chain of subsequent declared `DescriptorOptions`.
-A declaration value can optionally specify the index of a previous entry
+A declaration can optionally specify the index of a previous entry
 to provide the parent in the configured prototype chain.
 If the previous entry is an `importentry`, the `modulename` and `importname`
 are used to look up the prototype in the imports object.
 Otherwise, if the previous entry is a `declentry`,
 the prototype is looked up from the declared `DescriptorOptions`.
+If there is no configured parent,
+the parent of the new prototype is `Object.prototype`.
 
 Each declared descriptor has a vector of export names.
 After the descriptor is created,
@@ -648,7 +650,7 @@ describing the methods that should be attached to the prototype
 after instantiation.
 Each configured method can be either a
 normal method, a getter, a setter, or a constructor.
-Methods also have two associated names: the first their property name
+Methods each have two associated names: the first their property name
 in the configured prototype and the second
 the name of the exported function they wrap.
 
@@ -670,8 +672,19 @@ function methodname() { return exports[exportname](...arguments); }
 
 Furthermore, they are not installed on the configured prototype.
 Instead, they are added to the `exports` object.
-The configured prototype is added as the `prototype` property of the generated function
+The configured prototype is added as the `prototype` property of the generated constructor function
 and the generated function is added as the `constructor` property of the configured prototype.
+
+Constructor declarations also contain additional methods
+that will be installed as properties of the constructor itself
+rather than the prototype.
+First is the optional `hasinstance` method,
+which has an `exportname` but no `methodname`
+because its method name is always `[Symbol.hasInstance]`.
+The receiver is passed as the first and only argument to the exported `hasinstance` function.
+Next is a vector of static methods.
+Like the constructor function itself,
+these methods do not pass their receiver as an argument.
 
 ### Instantiation
 

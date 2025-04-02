@@ -586,23 +586,22 @@ descriptordata  ::= n:name (if n = 'descriptors')
 descriptorentry ::= 0x00 importentry
                   | 0x01 declentry
 
-importentry     ::= importname:name descconfig
+importentry      ::= importname:name descconfig
 
-declentry       ::= protoconfig descconfig
+declentry        ::= protoconfig descconfig
 
-protoconfig     ::= v:vec(descindex) (if |v| <= 1)
+protoconfig      ::= v:vec(descindex) (if |v| <= 1)
 
-descconfig      ::= exportnames:vec(name) methods:vec(methodconfig)
+descconfig       ::= exportnames:vec(name) methods:vec(methodconsconfig)
 
-methodconfig    ::= 0x00 methodnames => method
-                  | 0x01 methodnames => getter
-                  | 0x02 methodnames => setter
-                  | 0x03 methodnames vec(methodnames) => constructor
+methodnames      ::= methodname:name exportname:name
 
-staticmethods   ::= hasinstance:vec(name) methods:vec(methodnames)
-                        (if |hasinstance| <= 1)
+methodconfig     ::= 0x00 methodnames => method
+                   | 0x01 methodnames => getter
+                   | 0x02 methodnames => setter
 
-methodnames     ::= methodname:name exportname:name
+methodconsconfig ::= methodconfig
+                   | 0x03 methodnames vec(methodconfig) => constructor
 
 ```
 
@@ -675,16 +674,11 @@ Instead, they are added to the `exports` object.
 The configured prototype is added as the `prototype` property of the generated constructor function
 and the generated function is added as the `constructor` property of the configured prototype.
 
-Constructor declarations also contain additional methods
+Constructor declarations also contain additional methods, getters, and setters
 that will be installed as properties of the constructor itself
 rather than the prototype.
-First is the optional `hasinstance` method,
-which has an `exportname` but no `methodname`
-because its method name is always `[Symbol.hasInstance]`.
-The receiver is passed as the first and only argument to the exported `hasinstance` function.
-Next is a vector of static methods.
 Like the constructor function itself,
-these methods do not pass their receiver as an argument.
+these "static" methods, getters, and setters do not pass their receiver as an argument.
 
 ### Instantiation
 

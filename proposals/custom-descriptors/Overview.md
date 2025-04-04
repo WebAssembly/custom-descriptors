@@ -680,6 +680,10 @@ rather than the prototype.
 Like the constructor function itself,
 these "static" methods, getters, and setters do not pass their receiver as an argument.
 
+All methods, getters, and setters, whether static or not,
+are installed as writable, configurable, and non-enumerable properties.
+This matches the behavior of ES6 class methods.
+
 ### Instantiation
 
 When constructing a WebAssembly instance,

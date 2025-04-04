@@ -684,6 +684,12 @@ All methods, getters, and setters, whether static or not,
 are installed as writable, configurable, and non-enumerable properties.
 This matches the behavior of ES6 class methods.
 
+(Also note that all WebAssembly objects are non-extensible
+in the sense that they have fixed layout.
+See https://github.com/syg/proposal-nonextensible-applies-to-private.
+This does not have anything to do with the rest of the proposal,
+but we can plan to add it to the JS embedding spec along with everything else here.)
+
 ### Instantiation
 
 When constructing a WebAssembly instance,

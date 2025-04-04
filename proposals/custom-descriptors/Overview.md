@@ -530,7 +530,7 @@ var {module, instance} = await WebAssembly.instantiateStreaming(fetch('counter.w
 counterProto.get = function() { return instance.exports['counter.get'](this); };
 counterProto.inc = function() { instance.exports['counter.inc'](this); };
 
-var counter = instance.exports['counter'];
+var counter = instance.exports['counter'].value;
 
 console.log(counter.get()); // 0
 counter.inc();

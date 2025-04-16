@@ -180,16 +180,40 @@ let check_str_type (c : context) (st : str_type) at =
   | DefArrayT rt -> check_array_type c rt at
   | DefFuncT ft -> check_func_type c ft at
 
+let check_described_type (c : context) (dt : described_type) at =
+  match dt with
+  | DescriptorT (ht, st) -> check_heap_type c ht at; check_str_type c st at
+  | NoDescriptorT st -> check_str_type c st at
+
+let check_describing_type (c : context) (dt : describing_type) at =
+  match dt with
+  | DescribesT (ht, dt) -> check_heap_type c ht at; check_described_type c dt at
+  | NoDescribesT dt -> check_described_type c dt at
+
+(* TODO: check validity of descriptor and describes clauses *)
+
 let check_sub_type (c : context) (sut : sub_type) at =
-  let SubT (_fin, hts, st) = sut in
+  let SubT (_fin, hts, dt) = sut in
   List.iter (fun ht -> check_heap_type c ht at) hts;
-  check_str_type c st at
+  check_describing_type c dt at
 
 let check_sub_type_sub (c : context) (sut : sub_type) x at =
-  let SubT (_fin, hts, st) = sut in
+  let SubT (_fin, hts, dt) = sut in
+  let dt = match dt with
+    | DescribesT (_, dt) -> dt
+    | NoDescribesT dt -> dt in
+  let st = match dt with
+    | DescriptorT (_, st) -> st
+    | NoDescriptorT st -> st in
   List.iter (fun hti ->
     let xi = match hti with VarHT (StatX xi) -> xi | _ -> assert false in
-    let SubT (fini, _, sti) = unroll_def_type (type_ c (xi @@ at)) in
+    let SubT (fini, _, dti) = unroll_def_type (type_ c (xi @@ at)) in
+    let dti = match dti with
+      | DescribesT (_, dt) -> dt
+      | NoDescribesT dt -> dt in
+    let sti = match dti with
+      | DescriptorT (_, st) -> st
+      | NoDescriptorT st -> st in
     require (xi < x) at ("forward use of type " ^ I32.to_string_u xi ^
       " in sub type definition");
     require (fini = NoFinal) at ("sub type " ^ I32.to_string_u x ^
@@ -605,7 +629,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_result_type) : infer_in
 
   | TableFill x ->
     let TableT (at, _lim, rt) = table c x in
-    [NumT (num_type_of_addr_type at); RefT rt; 
+    [NumT (num_type_of_addr_type at); RefT rt;
       NumT (num_type_of_addr_type at)] --> [], []
 
   | TableCopy (x, y) ->

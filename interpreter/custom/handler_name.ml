@@ -402,7 +402,14 @@ let check_error at msg = raise (Custom.Invalid (at, msg))
 let check (m : module_) (fmt : format) =
   let subtypes =
     List.concat (List.map (fun {it = RecT ss; _} -> ss) m.it.types) in
-  let comptypes = List.map (fun (SubT (_, _, ct)) -> ct) subtypes in
+  let comptypes = List.map (fun (SubT (_, _, dt)) ->
+                      let dt = match dt with
+                        | DescribesT (_, dt) -> dt
+                        | NoDescribesT dt -> dt in
+                      let ct = match dt with
+                        | DescriptorT (_, ct) -> ct
+                        | NoDescriptorT ct -> ct in
+                      ct) subtypes in
   IdxMap.iter (fun x name ->
     if I32.ge_u x (Lib.List32.length m.it.funcs) then
       check_error name.at ("custom @name: invalid function index " ^

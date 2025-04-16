@@ -41,7 +41,15 @@ and str_type =
   | DefArrayT of array_type
   | DefFuncT of func_type
 
-and sub_type = SubT of final * heap_type list * str_type
+and described_type =
+  | DescriptorT of heap_type * str_type
+  | NoDescriptorT of str_type
+
+and describing_type =
+  | DescribesT of heap_type * described_type
+  | NoDescribesT of described_type
+
+and sub_type = SubT of final * heap_type list * describing_type
 and rec_type = RecT of sub_type list
 and def_type = DefT of rec_type * int32
 
@@ -223,9 +231,19 @@ let subst_str_type s = function
   | DefArrayT at -> DefArrayT (subst_array_type s at)
   | DefFuncT ft -> DefFuncT (subst_func_type s ft)
 
+let subst_described_type s = function
+  | DescriptorT (ht, st) ->
+    DescriptorT (subst_heap_type s ht, subst_str_type s st)
+  | NoDescriptorT st -> NoDescriptorT (subst_str_type s st)
+
+let subst_describing_type s = function
+  | DescribesT (ht, dt) ->
+    DescribesT (subst_heap_type s ht, subst_described_type s dt)
+  | NoDescribesT dt -> NoDescribesT (subst_described_type s dt)
+
 let subst_sub_type s = function
-  | SubT (fin, hts, st) ->
-    SubT (fin, List.map (subst_heap_type s) hts, subst_str_type s st)
+  | SubT (fin, hts, dt) ->
+    SubT (fin, List.map (subst_heap_type s) hts, subst_describing_type s dt)
 
 let subst_rec_type s = function
   | RecT sts -> RecT (List.map (subst_sub_type s) sts)
@@ -298,9 +316,13 @@ let unroll_def_type (dt : def_type) : sub_type =
   Lib.List32.nth sts i
 
 let expand_def_type (dt : def_type) : str_type =
-  let SubT (_, _, st) = unroll_def_type dt in
-  st
-
+  let SubT (_, _, dt) = unroll_def_type dt in
+  let dt = match dt with
+    | DescribesT (_, dt) -> dt
+    | NoDescribesT dt -> dt in
+  match dt with
+  | DescriptorT (_, st) -> st
+  | NoDescriptorT st -> st
 
 (* String conversion *)
 
@@ -403,12 +425,22 @@ and string_of_str_type = function
   | DefArrayT at -> "array " ^ string_of_array_type at
   | DefFuncT ft -> "func " ^ string_of_func_type ft
 
+and string_of_described_type = function
+  | DescriptorT (ht, st) ->
+    "(descriptor " ^ string_of_heap_type ht ^ " " ^ string_of_str_type st ^ ")"
+  | NoDescriptorT st -> string_of_str_type st
+
+and string_of_describing_type = function
+  | DescribesT (ht, dt) ->
+    "(describes " ^ string_of_heap_type ht ^ " " ^ string_of_described_type dt ^ ")"
+  | NoDescribesT dt -> string_of_described_type dt
+
 and string_of_sub_type = function
-  | SubT (Final, [], st) -> string_of_str_type st
-  | SubT (fin, hts, st) ->
+  | SubT (Final, [], dt) -> string_of_describing_type dt
+  | SubT (fin, hts, dt) ->
     String.concat " "
       (("sub" ^ string_of_final fin) :: List.map string_of_heap_type hts) ^
-    " (" ^ string_of_str_type st ^ ")"
+    " (" ^ string_of_describing_type dt ^ ")"
 
 and string_of_rec_type = function
   | RecT [st] -> string_of_sub_type st

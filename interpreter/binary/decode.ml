@@ -259,17 +259,33 @@ let str_type s =
   | -0x22 -> DefArrayT (array_type s)
   | _ -> error s (pos s - 1) "malformed definition type"
 
+let described_type s =
+  match peek s with
+  | Some i when i = -0x33 land 0x7f ->
+     skip 1 s;
+     let x = var_type u32 s in
+     DescriptorT (VarHT x, str_type s)
+  | _ -> NoDescriptorT (str_type s)
+
+let describing_type s =
+  match peek s with
+  | Some i when i = -0x34 land 0x7f ->
+     skip 1 s;
+     let x = var_type u32 s in
+     DescribesT (VarHT x, described_type s)
+  | _ -> NoDescribesT (described_type s)
+
 let sub_type s =
   match peek s with
   | Some i when i = -0x30 land 0x7f ->
     skip 1 s;
     let xs = vec (var_type u32) s in
-    SubT (NoFinal, List.map (fun x -> VarHT x) xs, str_type s)
+    SubT (NoFinal, List.map (fun x -> VarHT x) xs, describing_type s)
   | Some i when i = -0x31 land 0x7f ->
     skip 1 s;
     let xs = vec (var_type u32) s in
-    SubT (Final, List.map (fun x -> VarHT x) xs, str_type s)
-  | _ -> SubT (Final, [], str_type s)
+    SubT (Final, List.map (fun x -> VarHT x) xs, describing_type s)
+  | _ -> SubT (Final, [], describing_type s)
 
 let rec_type s =
   match peek s with

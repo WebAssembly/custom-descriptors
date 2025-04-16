@@ -106,11 +106,21 @@ let str_type st =
   | DefArrayT at -> array_type at
   | DefFuncT ft -> func_type ft
 
+let described_type dt =
+  match dt with
+  | DescriptorT (ht, st) -> Node ("descriptor", [atom heap_type ht; str_type st])
+  | NoDescriptorT st -> str_type st
+
+let describing_type dt =
+  match dt with
+  | DescribesT (ht, dt) -> Node ("describes", [atom heap_type ht; described_type dt])
+  | NoDescribesT dt -> described_type dt
+
 let sub_type = function
-  | SubT (Final, [], st) -> str_type st
-  | SubT (fin, xs, st) ->
+  | SubT (Final, [], dt) -> describing_type dt
+  | SubT (fin, xs, dt) ->
     Node (String.concat " "
-      (("sub" ^ final fin ):: List.map heap_type xs), [str_type st])
+      (("sub" ^ final fin ):: List.map heap_type xs), [describing_type dt])
 
 let rec_type i j st =
   Node ("type $" ^ nat (i + j), [sub_type st])

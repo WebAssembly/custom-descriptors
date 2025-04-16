@@ -238,7 +238,7 @@ let anon_fields (c : context) x n loc =
 
 
 let inline_func_type (c : context) ft loc =
-  let st = SubT (Final, [], DefFuncT ft) in
+  let st = SubT (Final, [], NoDescribesT (NoDescriptorT (DefFuncT ft))) in
   match
     Lib.List.index_where (function
       | DefT (RecT [st'], 0l) -> st = st'
@@ -299,7 +299,7 @@ let parse_annots (m : module_) : Custom.section list =
 %token ANYREF NULLREF EQREF I31REF STRUCTREF ARRAYREF
 %token FUNCREF NULLFUNCREF EXNREF NULLEXNREF EXTERNREF NULLEXTERNREF
 %token ANY NONE EQ I31 REF NOFUNC EXN NOEXN EXTERN NOEXTERN NULL
-%token MUT FIELD STRUCT ARRAY SUB FINAL REC
+%token MUT FIELD STRUCT ARRAY DESCRIPTOR DESCRIBES SUB FINAL REC
 %token UNREACHABLE NOP DROP SELECT
 %token BLOCK END IF THEN ELSE LOOP
 %token BR BR_IF BR_TABLE
@@ -466,12 +466,22 @@ str_type :
   | LPAR ARRAY array_type RPAR { fun c x -> DefArrayT ($3 c) }
   | LPAR FUNC func_type RPAR { fun c x -> DefFuncT ($3 c) }
 
+described_type :
+  | str_type { fun c x -> NoDescriptorT ($1 c x) }
+  | LPAR DESCRIPTOR var str_type RPAR
+    { fun c x -> DescriptorT ((fun y -> VarHT (StatX y.it)) ($3 c type_), ($4 c x)) }
+
+describing_type :
+  | described_type { fun c x -> NoDescribesT ($1 c x) }
+  | LPAR DESCRIBES var described_type RPAR
+    { fun c x -> DescribesT ((fun y -> VarHT (StatX y.it)) ($3 c type_), ($4 c x)) }
+
 sub_type :
-  | str_type { fun c x -> SubT (Final, [], $1 c x) }
-  | LPAR SUB var_list str_type RPAR
+  | describing_type { fun c x -> SubT (Final, [], $1 c x) }
+  | LPAR SUB var_list describing_type RPAR
     { fun c x -> SubT (NoFinal,
         List.map (fun y -> VarHT (StatX y.it)) ($3 c type_), $4 c x) }
-  | LPAR SUB FINAL var_list str_type RPAR
+  | LPAR SUB FINAL var_list describing_type RPAR
     { fun c x -> SubT (Final,
         List.map (fun y -> VarHT (StatX y.it)) ($4 c type_), $5 c x) }
 

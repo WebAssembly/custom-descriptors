@@ -145,6 +145,12 @@ However, the following new subtyping rules are introduced:
  - A declared supertype of a type without a `describes` clause must also
    not have a `describes` clause.
 
+ - With shared-everything-threads,
+   a shared described type must have a shared descriptor type and vice versa,
+   and an unshared described type must have an unshared descriptor type and vice versa.
+   > Note: this could be relaxed to allow unshared described types to have shared descriptor types
+   > (but not vice versa) if there is demand for this in the future.
+
 The first two rules,
 governing types with or without `descriptor` clauses,
 are necessary to ensure the soundness of the `ref.get_desc` instruction described below.

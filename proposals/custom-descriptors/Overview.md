@@ -371,6 +371,8 @@ return the provided reference with the type described by the descriptor.
 If the type of the descriptor is exact,
 then the type of the cast output can also be exact.
 
+If the provided descriptor is a null value, these instructions trap.
+
 ```
 ref.cast_desc reftype
 

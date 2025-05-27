@@ -388,7 +388,9 @@ br_on_cast_desc labelidx reftype reftype
 C |- br_on_cast_desc l rt_1 rt_2 : t* rt_1 (ref null (exact_1 y)) -> t* (rt_1 \ rt_2)
 -- C.labels[l] = t* rt
 -- C |- rt_2 <: rt
--- C |- rt_2 <: rt_1
+-- C |- rt_1 <: rt'
+-- C |- rt_2 <: rt'
+-- C |- rt' : ok
 -- rt_2 = (ref null? (exact_1 x))
 -- C.types[x] ~ descriptor y ct
 ```
@@ -399,10 +401,18 @@ br_on_cast_desc_fail labelidx reftype reftype
 C |- br_on_cast_desc_fail l rt_1 rt_2 : t* rt_1 (ref null (exact_1 y)) -> t* rt_2
 -- C.labels[l] = t* rt
 -- C |- rt_1 \ rt_2 <: rt
--- C |- rt_2 <: rt_1
+-- C |- rt_1 <: rt'
+-- C |- rt_2 <: rt'
+-- C |- rt' : ok
 -- rt_2 = (ref null? (exact_1 x))
 -- C.types[x] ~ descriptor y ct
 ```
+
+Note that the constraint `C |- rt_2 <: rt_1` on branching cast instructions before this proposal
+is relaxed to the constraint that `rt_1` and `rt_2` share some arbitrary valid supertype `rt'`,
+i.e. that `rt_1` and `rt_2` must be in the same heap type hierarchy.
+This relaxation is applied not only to the new `br_on_cast_desc` and `br_on_cast_desc_fail` instructions,
+but also the existing `br_on_cast` and `br_on_cast_fail` instructions.
 
 ## JS Prototypes
 

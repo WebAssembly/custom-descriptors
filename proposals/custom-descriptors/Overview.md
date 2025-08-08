@@ -589,7 +589,7 @@ The second parameter is an array of functions to be installed as methods and con
 
 The third parameter is an array of bytes encoding how the functions should be installed.
 
-The last parameter is an object on which the configured constructor will be installed,
+The last parameter is an object on which the configured constructors will be installed,
 since they cannot be added to the module's exports object.
 
 The configuration data is interpreted according to this grammar:
@@ -611,36 +611,43 @@ constructorconfig ::= constructorname:name
 parentidx ::= s32 ;; -1 for no parent, otherwise parent index
 ```
 
-If any of the arguments are null,
-of if the data does not conform to this grammar,
-or if the total number of `protoconfig`s does not match the length of the prototypes array,
-or if the total number of `methodconfig`s and `constructorconfig`s does not match the length of the functions array,
-then `configureAll` throws an error.
+The function `configureAll` parses this data stream
+and consumes elements of the "prototypes" and "functions" array in order.
+Each time it moves on to the next `protoconfig`,
+it takes the next entry in the "prototypes" array as the current prototype;
+each time it moves on to the next `methodconfig` or `constructorconfig`,
+it takes the next entry in the "functions" array as the current function.
 
-> TODO: Detail the thrown error.
+For each top-level `methodconfig` inside a `protoconfig`,
+`configureAll` wraps the current function
+to take its JS-side receiver as its Wasm-side first parameter.
+The wrapper is installed with the given name and type (method, getter, or setter)
+on the current prototype.
 
-After parsing the configuration data,
-`configureAll` iterates through the `protoconfigs`.
-Each `protoconfig` corresponds to a prototype in the prototypes list.
-For each `methodconfig` in the `protoconfig`,
-the next function is taken from the functions array,
-wrapped to take its receiver as its first parameter,
-and installed as a method, getter, or setter with the given name on the current prototype.
+If a `protoconfig` has a `constructorconfig`,
+the current function is wrapped
+to be able to be optionally called with `new` in JS.
+The wrapper is set as the current constructor,
+installed as the "constructor" property of the current prototype,
+and installed with the given name on the constructors object.
 
-If the `protoconfig` has a `constructorconfig`,
-the next function from the functions array is wrapped to be callable with `new`,
-is installed with the given name on the constructors object,
-and is set as the `"constructor"` property on the current prototype.
-Each `methodconfig` inside the `constructorconfig` takes a function from the functions list
-and sets it as a static method, getter, or setter with the given name
-on the wrapper of the current constructor.
+For each `methodconfig` inside a `constructorconfig`,
+the current function is not wrapped.
+It is installed with the given name and type on the current constructor.
 
 If the `protoconfig` has a `parentidx` other than -1,
-the prototype of the current configured prototype
+the prototype of the current prototype
 is set to the object at the given index in the prototypes array.
 The index must be less than the current prototype index
 and the parent prototype must be a valid prototype,
 i.e. it must be a JS object or null.
+
+Errors are detected lazily,
+so user-visible partial modifications may have occured
+before an error is thrown.
+Errors messages should include the relevant index into the data array.
+
+> TODO: Detail the thrown errors.
 
 > TODO: The wrappers for making a function callable with `new`
 > and for taking the receiver as a first parameter should be separated out into

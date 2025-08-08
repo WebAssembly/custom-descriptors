@@ -599,7 +599,7 @@ data ::= vec(protoconfig)
 
 protoconfig ::= vec(methodconfig)
                 vec(constructorconfig) (with size <= 1)
-                vec(parentidx)         (with size <= 1)
+                parentidx
 
 methodconfig ::= 0x00 name ;; method
                | 0x01 name ;; getter
@@ -608,7 +608,7 @@ methodconfig ::= 0x00 name ;; method
 constructorconfig ::= constructorname:name
                       vec(methodconfig)
 
-parentidx ::= u32               
+parentidx ::= s32 ;; -1 for no parent, otherwise parent index
 ```
 
 If any of the arguments are null,
@@ -635,10 +635,12 @@ Each `methodconfig` inside the `constructorconfig` takes a function from the fun
 and sets it as a static method, getter, or setter with the given name
 on the wrapper of the current constructor.
 
-If the `protoconfig` has a `parentidx`, the prototype of the current configured
-prototype is set to the object at the given index in the prototypes array. The
-index must be less than the current prototype index and the parent prototype
-must be a valid prototype, i.e. it must be a JS object or null.
+If the `protoconfig` has a `parentidx` other than -1,
+the prototype of the current configured prototype
+is set to the object at the given index in the prototypes array.
+The index must be less than the current prototype index
+and the parent prototype must be a valid prototype,
+i.e. it must be a JS object or null.
 
 > TODO: The wrappers for making a function callable with `new`
 > and for taking the receiver as a first parameter should be separated out into
@@ -705,8 +707,8 @@ and additionally expose a constructor:
   ;; \07      length of name "Counter"
   ;; Counter    constructor name
   ;; \00      no static methods
-  ;; \00    no parent prototype
-  (data $data "\01\02\00\03get\00\03inc\01\07Counter\00\00")
+  ;; \7f    no parent prototype (-1 s32)
+  (data $data "\01\02\00\03get\00\03inc\01\07Counter\00\7f")
 
   (global $counter.vtable (ref (exact $counter.vtable))
     (struct.new $counter.vtable

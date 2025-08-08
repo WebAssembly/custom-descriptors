@@ -767,7 +767,7 @@ Here is the corresponding JS file:
 let protoFactory = new Proxy({}, {
     get(target, prop, receiver) {
         // Always return a fresh, empty object.
-        return {};
+        return new WebAssembly.DescriptorOptions({ prototype: {} });
     }
 });
 

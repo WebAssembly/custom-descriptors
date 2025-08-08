@@ -486,7 +486,7 @@ WebAssembly.
 ;; counter.wasm
 (module
   (rec
-    (type $counter (descriptor $counter.vtable (struct (field $val i32))))
+    (type $counter (descriptor $counter.vtable (struct (field $val (mut i32)))))
     (type $counter.vtable (describes $counter (struct
       (field $proto (ref extern))
       (field $get (ref $get_t))
@@ -555,9 +555,6 @@ counter.inc();
 console.log(counter.get()); // 1
 ```
 
-> Note: Other API designs are also possible.
-> See the discussion at https://github.com/WebAssembly/custom-rtts/issues/2.
-
 ## Declarative Prototype Initialization
 
 We expect toolchains to need to configure thousands of JS prototypes and tens of thousands of methods,
@@ -580,164 +577,263 @@ Furthermore, the design goals are to be:
  - Polyfillable by generated JS glue using the underlying `DescriptorOptions` JS API,
    i.e. to not introduce any new expressivity.
 
-We define such an API in the form of a new custom section to be specified as part of the JS embedding.
-This custom section will be used in the constructor of `WebAssembly.Instance`
-to populate the imports with additional `DescriptorOptions` before core instantiation
-and to populate the prototypes using exported functions after core instantiation.
+We define such an API in the form of a new compile-time import
+similar to the JS string builtins.
+This new builtin can be called from the start function to populate the prototypes
+in imported `DescriptorOptions` objects.
 
-The custom section essentially describes (and is polyfillable by) wrapper modules
-updating the imports object before core Wasm instantiation
-and updating the exports object after instantiation.
+### Configuration API
 
-### Custom Section
+The name of the new builtin module is `"wasm:js-prototypes"`.
+It is enabled by including `"js-prototypes"` in the `builtins` option list
+passed to `WebAssembly.compile` and other functions that take `compileOptions`.
 
-```
-descindex       ::= u32
+The new builtin module contains one function, `"configureAll"`.
+This function has type `$configureAll` as described below:
 
-descriptorsec   ::= section_0(descriptordata)
-
-descriptordata  ::= n:name (if n = 'descriptors')
-                    version:u32 (if version = 0)
-                    modulename:name
-                    vec(descriptorentry)
-
-descriptorentry ::= 0x00 importentry
-                  | 0x01 declentry
-
-importentry      ::= importname:name descconfig
-
-declentry        ::= protoconfig descconfig
-
-protoconfig      ::= v:vec(descindex) (if |v| <= 1)
-
-descconfig       ::= exportnames:vec(name) methods:vec(methodconsconfig)
-
-methodnames      ::= methodname:name exportname:name
-
-methodconfig     ::= 0x00 methodnames => method
-                   | 0x01 methodnames => getter
-                   | 0x02 methodnames => setter
-
-methodconsconfig ::= methodconfig
-                   | 0x03 methodnames vec(methodconfig) => constructor
-
+```wasm
+(type $prototypes (array (mut externref)))
+(type $functions (array (mut funcref)))
+(type $data (array (mut i8)))
+(type $configureAll (func (param (ref null $prototypes))
+                          (param (ref null $functions))
+                          (param (ref null $data))
+                          (param externref)))
 ```
 
-The descriptors custom section starts with a version number,
-which is intended to help tools and engines manage
-backward-incompatible changes to this custom section format
-during proposal development.
-It will be removed from the final version of the custom section.
+The first parameter is an array of imported prototypes to be configured.
 
-Next comes `modulename`, which serves two purposes.
-It is the module name used to look up user-provided prototypes on the import object
-for use in configuring `DescriptorOptions` objects,
-and it is also the module name where the configured `DescriptorOptions`
-are written back to the import object to be looked up by core instantiation.
-A module may import configured `DescriptorOptions` values
-from multiple different module names
-by including multiple descriptors sections.
+The second parameter is an array of functions to be installed as methods and constructors.
 
-Following the `modulename` is a sequence of `descriptorentry`,
-each of which describes a declared `DescriptorOptions` value or an imported prototype
-for use in the prototype chain of subsequent declared `DescriptorOptions`.
-A declaration can optionally specify the index of a previous entry
-to provide the parent in the configured prototype chain.
-If the previous entry is an `importentry`, the `modulename` and `importname`
-are used to look up the prototype in the imports object.
-Otherwise, if the previous entry is a `declentry`,
-the prototype is looked up from the declared `DescriptorOptions`.
-If there is no configured parent,
-the parent of the new prototype is `Object.prototype`.
+The third parameter is an array of bytes encoding how the functions should be installed.
 
-Each declared descriptor has a vector of export names.
-After the descriptor is created,
-it is written into the import object under `modulename` with each of these export names.
-The core Wasm module will then import the descriptors using these names.
-Typically there will be no more than one name in the vector.
-The vector may be empty if the descriptor only exists
-to declaratively populate links in the prototype chain used by other descriptors.
+The last parameter is an object on which the configured constructors will be installed,
+since they cannot be added to the module's exports object.
 
-> Note: alternatively, instead of mutating the imports object, we could populate
-> a new imports object to pass on to core instantiation.
+The configuration data is interpreted according to this grammar:
 
-Whether imported or declared,
-each `descriptorentry` contains a vector of `methodconfig`
-describing the methods that should be attached to the prototype
-after instantiation.
-Each configured method can be either a
-normal method, a getter, a setter, or a constructor.
-Methods each have two associated names:
-the first is their property name in the configured prototype
-and the second is the name of the exported function they wrap.
+```
+data ::= vec(protoconfig)
 
-All methods pass the receiver as the first argument:
+protoconfig ::= vec(methodconfig)
+                vec(constructorconfig) (with size <= 1)
+                parentidx
+
+methodconfig ::= 0x00 name ;; method
+               | 0x01 name ;; getter
+               | 0x02 name ;; setter
+
+constructorconfig ::= constructorname:name
+                      vec(methodconfig)
+
+parentidx ::= s32 ;; -1 for no parent, otherwise parent index
+```
+
+The function `configureAll` parses this data stream
+and consumes elements of the "prototypes" and "functions" array in order.
+Each time it moves on to the next `protoconfig`,
+it takes the next entry in the "prototypes" array as the current prototype;
+each time it moves on to the next `methodconfig` or `constructorconfig`,
+it takes the next entry in the "functions" array as the current function.
+
+For each top-level `methodconfig` inside a `protoconfig`,
+`configureAll` wraps the current function
+to take its JS-side receiver as its Wasm-side first parameter.
+The wrapper is installed with the given name and type (method, getter, or setter)
+on the current prototype.
+
+If a `protoconfig` has a `constructorconfig`,
+the current function is wrapped
+to be able to be optionally called with `new` in JS.
+The wrapper is set as the current constructor,
+installed as the "constructor" property of the current prototype,
+and installed with the given name on the constructors object.
+
+For each `methodconfig` inside a `constructorconfig`,
+the current function is not wrapped.
+It is installed with the given name and type on the current constructor.
+
+If the `protoconfig` has a `parentidx` other than -1,
+the prototype of the current prototype
+is set to the object at the given index in the prototypes array.
+The index must be less than the current prototype index
+and the parent prototype must be a valid prototype,
+i.e. it must be a JS object or null.
+
+Errors are detected lazily,
+so user-visible partial modifications may have occured
+before an error is thrown.
+Errors messages should include the relevant index into the data array.
+
+> TODO: Detail the thrown errors.
+
+> TODO: The wrappers for making a function callable with `new`
+> and for taking the receiver as a first parameter should be separated out into
+> their own user-facing APIs.
+
+### Usage
+
+Although `configureAll` can be called at any point during execution,
+it is expected to be called by the start function as part of instantiation.
+Here is the counter module from before, updated to use `configureAll`
+and additionally expose a constructor:
+
+```wasm
+;; counter.wasm
+
+(module
+  (rec
+    (type $counter (descriptor $counter.vtable (struct (field $val (mut i32)))))
+    (type $counter.vtable (describes $counter (struct
+      (field $proto (ref extern))
+      (field $get (ref $get_t))
+      (field $inc (ref $inc_t))
+    )))
+    (type $get_t (func (param (ref null $counter)) (result i32)))
+    (type $inc_t (func (param (ref null $counter))))
+  )
+  (type $new_t (func (param i32) (result (ref $counter))))
+
+  ;; Types for prototype configuration
+  (type $prototypes (array (mut externref)))
+  (type $functions (array (mut funcref)))
+  (type $data (array (mut i8)))
+  (type $configureAll (func (param (ref null $prototypes))
+                            (param (ref null $functions))
+                            (param (ref null $data))
+                            (param externref)))
+
+  (import "protos" "counter.proto" (global $counter.proto (ref extern)))
+
+  ;; The object where configured constructors will be installed.
+  (import "env" "constructors" (global $constructors externref))
+
+  (import "wasm:js-prototypes" "configureAll"
+    (func $configureAll (type $configureAll)))
+
+  ;; Segments used to create arrays passed to $configureAll
+  (elem $prototypes externref
+    (global.get $counter.proto)
+  )
+  (elem $functions funcref
+    (ref.func $counter.get)
+    (ref.func $counter.inc)
+    (ref.func $counter.new)
+  )
+  ;; \01  one protoconfig
+  ;; \02    two methodconfigs
+  ;; \00      method (not getter or setter)
+  ;; \03        length of name "get"
+  ;; get        method name
+  ;; \00      method (not getter or setter)
+  ;; \03        length of name "inc"
+  ;; inc        method name
+  ;; \01    one constructorconfig
+  ;; \07      length of name "Counter"
+  ;; Counter    constructor name
+  ;; \00      no static methods
+  ;; \7f    no parent prototype (-1 s32)
+  (data $data "\01\02\00\03get\00\03inc\01\07Counter\00\7f")
+
+  (global $counter.vtable (ref (exact $counter.vtable))
+    (struct.new $counter.vtable
+      (global.get $counter.proto)
+      (ref.func $counter.get)
+      (ref.func $counter.inc)
+    )
+  )
+
+  (func $counter.get (type $get_t) (param (ref null $counter)) (result i32)
+    (struct.get $counter $val (local.get 0))
+  )
+
+  (func $counter.inc (type $inc_t) (param (ref null $counter))
+    (struct.set $counter $val
+      (local.get 0)
+      (i32.add
+        (struct.get $counter $val (local.get 0))
+        (i32.const 1)
+      )
+    )
+  )
+
+  (func $counter.new (type $new_t) (param i32) (result (ref $counter))
+    (struct.new $counter
+      (local.get 0)
+      (global.get $counter.vtable)
+    )
+  )
+
+  (func $start
+    (call $configureAll
+      (array.new_elem $prototypes $prototypes
+        (i32.const 0)
+        (i32.const 1)
+      )
+      (array.new_elem $functions $functions
+        (i32.const 0)
+        (i32.const 3)
+      )
+      (array.new_data $data $data
+        (i32.const 0)
+        (i32.const 23)
+      )
+      (global.get $constructors)
+    )
+  )
+
+  (start $start)
+)
+```
+
+Here is the corresponding JS file:
 
 ```js
-function methodname() { return exports[exportname](this, ...arguments); }
+// counter.mjs
+
+let protoFactory = new Proxy({}, {
+    get(target, prop, receiver) {
+        // Always return a fresh, empty object.
+        return new WebAssembly.DescriptorOptions({ prototype: {} });
+    }
+});
+
+let constructors = {};
+
+let imports = {
+    "protos": protoFactory,
+    "env": { constructors },
+};
+
+let compileOptions = { builtins: ["js-prototypes"] };
+
+let buffer = readbuffer("counter.wasm");
+
+let { module, instance } =
+    await WebAssembly.instantiate(buffer, imports, compileOptions);
+
+let Counter = constructors.Counter;
+
+let count = new Counter(0);
+
+console.log(count.get());
+count.inc();
+console.log(count.get());
+
+console.log(count instanceof Counter);
 ```
 
-Getters and setters are additionally configured as getters and setters
-when they are attached to the prototype.
+Note that the empty prototype object is created by a `Proxy`
+that simply returns a fresh empty object whenever a property is accessed.
+This is not necessary in this small example,
+but it is the recommended way to import thousands
+of empty prototype objects with minimal code size overhead.
 
-Constructors are a little different.
-They do not pass the receiver as a parameter to the exported function:
-
-```js
-function methodname() { return exports[exportname](...arguments); }
-```
-
-Furthermore, they are not installed on the configured prototype.
-Instead, they are added to the `exports` object.
-The configured prototype is added as the `prototype` property of the generated constructor function
-and the generated function is added as the `constructor` property of the configured prototype.
-
-Constructor declarations also contain additional methods, getters, and setters
-that will be installed as properties of the constructor itself
-rather than the prototype.
-Like the constructor function itself,
-these "static" methods, getters, and setters do not pass their receiver as an argument.
-
-All methods, getters, and setters, whether static or not,
-are installed as writable, configurable, and non-enumerable properties.
-This matches the behavior of ES6 class methods.
-
-(Also note that all WebAssembly objects are non-extensible
-in the sense that they have fixed layout.
-See https://github.com/syg/proposal-nonextensible-applies-to-private.
-This does not have anything to do with the rest of the proposal,
-but we can plan to add it to the JS embedding spec along with everything else here.)
-
-### Instantiation
-
-When constructing a WebAssembly instance,
-the descriptors sections are first processed
-to create any new declared `DescriptorOptions`.
-Descriptor values imported by these sections are read from the main imports
-argument passed to instantiation using the module names
-given at the beginning of the sections.
-
-The imports for core Wasm instantiation are then determined,
-giving precedence to the exports from the descriptors sections.
-
-After core instantiation,
-the methods are populated based on the core exports.
-Since this does not happen until after core instantiation,
-when the exports have been made available,
-imports called by the start function will be able to observe
-the unpopulated prototypes that do not yet have the method properties.
-
-If there is a decoding error in a descriptors section
-or if at any point a required import or export is missing,
-an error will be thrown.
-
-> TODO: Describe the effect of the descriptors section on Module.imports and Module.exports.
-
-> TODO: Make sure the prototypes can be read from the exports for further manual configuration.
-
-> TODO: Consider supporting declarative static methods attached to constructors instead of methods.
-
-> TODO: Declarative support for installing Symbol.hasInstance methods to support instanceof.
+Note as well that the arguments passed to `$configureAll`
+are arrays allocated with `array.new_elem`.
+It is of course not necessary to allocate the arrays this way,
+but engines may recognize and optimize this pattern
+to avoid allocating the arrays and copying the data.
 
 ## Type Section Field Deduplication
 

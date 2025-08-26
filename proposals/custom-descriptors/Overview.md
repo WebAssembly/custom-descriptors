@@ -724,6 +724,10 @@ and additionally expose a constructor:
     (ref.func $counter.new)
   )
   ;; \01  one protoconfig
+  ;; \01    one constructorconfig
+  ;; \07      length of name "Counter"
+  ;; Counter    constructor name
+  ;; \00      no static methods
   ;; \02    two methodconfigs
   ;; \00      method (not getter or setter)
   ;; \03        length of name "get"
@@ -731,12 +735,8 @@ and additionally expose a constructor:
   ;; \00      method (not getter or setter)
   ;; \03        length of name "inc"
   ;; inc        method name
-  ;; \01    one constructorconfig
-  ;; \07      length of name "Counter"
-  ;; Counter    constructor name
-  ;; \00      no static methods
   ;; \7f    no parent prototype (-1 s32)
-  (data $data "\01\02\00\03get\00\03inc\01\07Counter\00\7f")
+  (data $data "\01\01\07Counter\00\02\00\03get\00\03inc\7f")
 
   (global $counter.vtable (ref (exact $counter.vtable))
     (struct.new $counter.vtable

@@ -719,9 +719,9 @@ and additionally expose a constructor:
     (global.get $counter.proto)
   )
   (elem $functions funcref
+    (ref.func $counter.new)
     (ref.func $counter.get)
     (ref.func $counter.inc)
-    (ref.func $counter.new)
   )
   ;; \01  one protoconfig
   ;; \01    one constructorconfig

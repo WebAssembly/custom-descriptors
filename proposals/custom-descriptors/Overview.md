@@ -615,16 +615,16 @@ The configuration data is interpreted according to this grammar:
 ```
 data ::= vec(protoconfig)
 
-protoconfig ::= vec(methodconfig)
-                vec(constructorconfig) (with size <= 1)
+protoconfig ::= vec(constructorconfig) (with size <= 1)
+                vec(methodconfig)
                 parentidx
+
+constructorconfig ::= constructorname:name
+                      vec(methodconfig)
 
 methodconfig ::= 0x00 name ;; method
                | 0x01 name ;; getter
                | 0x02 name ;; setter
-
-constructorconfig ::= constructorname:name
-                      vec(methodconfig)
 
 parentidx ::= s32 ;; -1 for no parent, otherwise parent index
 ```
@@ -633,14 +633,8 @@ The function `configureAll` parses this data stream
 and consumes elements of the "prototypes" and "functions" array in order.
 Each time it moves on to the next `protoconfig`,
 it takes the next entry in the "prototypes" array as the current prototype;
-each time it moves on to the next `methodconfig` or `constructorconfig`,
+each time it moves on to the next `constructorconfig` or `methodconfig`,
 it takes the next entry in the "functions" array as the current function.
-
-For each top-level `methodconfig` inside a `protoconfig`,
-`configureAll` wraps the current function
-to take its JS-side receiver as its Wasm-side first parameter.
-The wrapper is installed with the given name and type (method, getter, or setter)
-on the current prototype.
 
 If a `protoconfig` has a `constructorconfig`,
 the current function is wrapped
@@ -650,8 +644,17 @@ installed as the "constructor" property of the current prototype,
 and installed with the given name on the constructors object.
 
 For each `methodconfig` inside a `constructorconfig`,
-the current function is not wrapped.
-It is installed with the given name and type on the current constructor.
+the current function is installed with the given name and type
+(method, getter, or setter)
+on the current constructor.
+The function is not wrapped or modified in any way,
+and in particular it does not receive a method receiver as its first parameter.
+
+For each top-level `methodconfig` inside a `protoconfig`,
+`configureAll` wraps the current function
+to take its JS-side receiver as its Wasm-side first parameter.
+The wrapper is installed with the given name and type
+on the current prototype.
 
 If the `protoconfig` has a `parentidx` other than -1,
 the prototype of the current prototype

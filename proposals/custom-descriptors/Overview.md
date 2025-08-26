@@ -453,18 +453,18 @@ of an Exported GC Object `O` is updated to perform the following steps
 (which will be made more precise in the final spec):
 
  1. If `O.[[ObjectKind]]` is not "struct":
-   1. Return `null`.
+     1. Return `null`.
  1. Let `store` be the surrounding agent's associated store
  1. Look up the object's heap type from the store.
  1. If the heap type does not have a descriptor clause:
-   1. Return `null`.
+     1. Return `null`.
  1. Get the descriptor value and descriptor type.
  1. If the descriptor type has has no fields or its first field is not immutable or does not match `externref`:
-   1. Return `null`.
+     1. Return `null`.
  1. Get the value `v` of the first field.
  1. Let `u` be `ToJSValue(v)`.
  1. If `u` does not have a `[[WebAssemblyDescriptorOptions]]` internal slot:
-   1. Return `null`.
+     1. Return `null`.
  1. Return the prototype stored in `u`.
 
 > Note: it would also be good to ensure a `DescriptorOptions` is opaque and can

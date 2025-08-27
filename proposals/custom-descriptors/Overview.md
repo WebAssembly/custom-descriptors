@@ -424,29 +424,7 @@ and in particular they can allow JS prototypes to be associated with the describ
 To make this work, we allow information about the intended JS reflection of Wasm objects
 to be imported into a Wasm module and held by custom descriptors.
 The `[[GetPrototypeOf]]` algorithm for a WebAssembly object can then look up this information
-on the object's custom descriptor. The details of how this works are described below.
-
-We introduce a new `WebAssembly.DescriptorOptions` type
-that holds relevant information about the JS reflection of Wasm objects.
-A `DescriptorOptions` is constructed with an option bag containing
-an object to be used as a prototype. Other options may be added in the future,
-for example to expose Wasm struct fields as own properties.
-
-```webidl
-dictionary DescriptorOptionsOptions {
-  object? prototype;
-};
-
-[LegacyNamespace=WebAssembly, Exposed=*]
-interface DescriptorOptions {
-  constructor(DescriptorOptionsOptions options);
-}
-```
-
-A `DescriptorOptions` object has a `[[WebAssemblyDescriptorOptions]]`
-internal slot with the value `true`.
-This allows it to be identified by the `[[GetPrototypeOf]]` algorithm.
-Its constructor copies all of the options into the constructed `DescriptorOptions`.
+on the object's custom descriptor.
 
 The specification of the `[[GetPrototypeOf]]` internal method
 of an Exported GC Object `O` is updated to perform the following steps
@@ -463,13 +441,14 @@ of an Exported GC Object `O` is updated to perform the following steps
      1. Return `null`.
  1. Get the value `v` of the first field.
  1. Let `u` be `ToJSValue(v)`.
- 1. If `u` does not have a `[[WebAssemblyDescriptorOptions]]` internal slot:
-     1. Return `null`.
- 1. Return the prototype stored in `u`.
+ 1. If `u` is a JS object:
+     1. return `u`.
+ 1. Return `null`.
 
-> Note: it would also be good to ensure a `DescriptorOptions` is opaque and can
-> only be used once to avoid having to keep the configuration data live for the
-> lifetime of the custom descriptor. TODO.
+> Note: If we need to configure more than just the prototype
+> (e.g. own properties)
+> we could add a `WebAssembly.DescriptorOptions` object
+> that contains the prototype and additional configuration.
 
 The only new capability required in the WebAssembly embedding interface is the
 ability to inspect a reference's heap type.
@@ -478,8 +457,8 @@ but in principle it could do that by synthesizing a new Wasm instance
 exporting the functions necessary to perform that access,
 so those would not be fundamentally new capabilities.
 
-The following is a full example that uses `WebAssembly.DescriptorOptions`
-to allow JS to call `get()` and `inc()` methods on counter objects implemented in
+The following is a full example that allows JS
+to call `get()` and `inc()` methods on counter objects implemented in
 WebAssembly.
 
 ```wasm
@@ -535,13 +514,9 @@ WebAssembly.
 
 var counterProto = {};
 
-var counterOpts = new WebAssembly.DescriptorOptions({
-  prototype: counterProto
-});
-
 var {module, instance} = await WebAssembly.instantiateStreaming(fetch('counter.wasm'), {
   env: {
-    "counter.proto": counterOpts
+    "counter.proto": counterProto
   }
 });
 
@@ -559,11 +534,11 @@ console.log(counter.get()); // 1
 
 We expect toolchains to need to configure thousands of JS prototypes and tens of thousands of methods,
 so we expect there to be startup latency problems
-if all the configuration is done directly via the raw `DescriptorOptions` API
-and JS glue code as shown above.
+if all the configuration is done directly via the kind of
+JS glue code as shown above.
 
 The proposed solution is to provide a declarative method of constructing, importing,
-and populating the `DescriptorOptions` objects.
+and populating the prototype objects.
 
 The declarative API must support these features:
 
@@ -574,13 +549,13 @@ The declarative API must support these features:
 
 Furthermore, the design goals are to be:
 
- - Polyfillable by generated JS glue using the underlying `DescriptorOptions` JS API,
+ - Polyfillable by generated JS glue,
    i.e. to not introduce any new expressivity.
 
 We define such an API in the form of a new compile-time import
 similar to the JS string builtins.
-This new builtin can be called from the start function to populate the prototypes
-in imported `DescriptorOptions` objects.
+This new builtin can be called from the start function to populate
+imported prototypes.
 
 ### Configuration API
 
@@ -797,7 +772,7 @@ Here is the corresponding JS file:
 let protoFactory = new Proxy({}, {
     get(target, prop, receiver) {
         // Always return a fresh, empty object.
-        return new WebAssembly.DescriptorOptions({ prototype: {} });
+        return {};
     }
 });
 

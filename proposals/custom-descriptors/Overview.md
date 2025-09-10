@@ -40,8 +40,8 @@ what type their custom descriptors have.
 
 ```wasm
 (rec
-  (type $foo (descriptor $foo.rtt (struct (field ...))))
-  (type $foo.rtt (describes $foo (struct (field ...))))
+  (type $foo (descriptor $foo.rtt) (struct (field ...)))
+  (type $foo.rtt (describes $foo) (struct (field ...)))
 )
 ```
 
@@ -59,13 +59,13 @@ but type `$C` is different.
 
 ```wasm
 (rec
-  (type $A (descriptor $A.rtt (struct (field i32))))
-  (type $A.rtt (describes $A (struct (field i32))))
+  (type $A (descriptor $A.rtt) (struct (field i32)))
+  (type $A.rtt (describes $A) (struct (field i32)))
 )
 
 (rec
-  (type $B (descriptor $B.rtt (struct (field i32))))
-  (type $B.rtt (describes $B (struct (field i32))))
+  (type $B (descriptor $B.rtt) (struct (field i32)))
+  (type $B.rtt (describes $B) (struct (field i32)))
 )
 
 (rec
@@ -80,9 +80,9 @@ creating arbitrarily long chains of meta-descriptors:
 
 ```wasm
 (rec
-  (type $foo (descriptor $foo.rtt (struct)))
-  (type $foo.rtt (describes $foo (descriptor $foo.meta-rtt (struct))))
-  (type $foo.meta-rtt (describes $foo.rtt (struct)))
+  (type $foo (descriptor $foo.rtt) (struct))
+  (type $foo.rtt (describes $foo) (descriptor $foo.meta-rtt) (struct))
+  (type $foo.meta-rtt (describes $foo.rtt) (struct))
 )
 ```
 
@@ -97,8 +97,8 @@ which in turn must have a `descriptor` clause referring to the describing type.
 ```wasm
 (rec
   (type $A (struct))
-  (type $B (descriptor $C (struct)))
-  (type $C (describes $A (struct))) ;; Invalid: must be 'describes $B'
+  (type $B (descriptor $C) (struct))
+  (type $C (describes $A) (struct)) ;; Invalid: must be 'describes $B'
 )
 ```
 
@@ -116,15 +116,15 @@ This is the same strategy we use for ensuring supertype chains do not have cycle
 ```wasm
 (rec
   ;; Invalid describes clause: $self is not a previously defined type.
-  (type $self (describes $self (descriptor $self (struct))))
+  (type $self (describes $self) (descriptor $self) (struct))
 
   ;; Invalid describes clause: $pong is not a previously defined type.
-  (type $ping (describes $pong (descriptor $pong (struct))))
-  (type $pong (describes $ping (descriptor $ping (struct))))
+  (type $ping (describes $pong) (descriptor $pong) (struct))
+  (type $pong (describes $ping) (descriptor $ping) (struct))
 
   ;; Invalid describes clause: $foo is not a previously defined type.
-  (type $foo.rtt (describes $foo (struct)))
-  (type $foo (descriptor $foo.rtt (struct)))
+  (type $foo.rtt (describes $foo) (struct))
+  (type $foo (descriptor $foo.rtt) (struct))
 )
 ```
 
@@ -164,34 +164,34 @@ might be laid out after the engine-managed RTT for the type they describe.
 
 ```wasm
 (rec
-  (type $super (sub (descriptor $super.rtt (struct))))
-  (type $super.rtt (sub (describes $super (struct))))
+  (type $super (sub (descriptor $super.rtt) (struct)))
+  (type $super.rtt (sub (describes $super) (struct)))
 
   ;; Ok
-  (type $sub (sub $super (descriptor $sub.rtt (struct))))
-  (type $sub.rtt (sub $super.rtt (describes $sub (struct))))
+  (type $sub (sub $super (descriptor $sub.rtt) (struct)))
+  (type $sub.rtt (sub $super.rtt (describes $sub) (struct)))
 )
 
 (rec
   (type $super (sub (struct)))
 
   ;; Ok
-  (type $sub (sub $super (descriptor $sub.rtt (struct))))
-  (type $sub.rtt (describes $sub (struct)))
+  (type $sub (sub $super (descriptor $sub.rtt) (struct)))
+  (type $sub.rtt (describes $sub) (struct))
 )
 
 (rec
-  (type $super (sub (descriptor $super.rtt (struct ))))
-  (type $super.rtt (sub (describes $super (struct))))
+  (type $super (sub (descriptor $super.rtt) (struct )))
+  (type $super.rtt (sub (describes $super) (struct)))
 
   ;; Ok (but strange)
   (type $other (struct))
-  (type $sub.rtt (sub $super.rtt (describes $other (struct))))
+  (type $sub.rtt (sub $super.rtt (describes $other) (struct)))
 )
 
 (rec
-  (type $super (sub (descriptor $super.rtt (struct))))
-  (type $super.rtt (sub (describes $super (struct))))
+  (type $super (sub (descriptor $super.rtt) (struct)))
+  (type $super.rtt (sub (describes $super) (struct)))
 
   ;; Invalid: Must be described by an immediate subtype of $super.rtt.
   (type $sub (sub $super (struct)))
@@ -201,12 +201,12 @@ might be laid out after the engine-managed RTT for the type they describe.
 )
 
 (rec
-  (type $super (sub (descriptor $super.rtt (struct))))
-  (type $super.rtt (sub (describes $super (struct))))
+  (type $super (sub (descriptor $super.rtt) (struct)))
+  (type $super.rtt (sub (describes $super) (struct)))
 
   ;; Invalid: $other.rtt must be a an immediate subtype of $super.rtt.
-  (type $sub (sub $super (descriptor $other.rtt (struct))))
-  (type $other.rtt (describes $sub (struct)))
+  (type $sub (sub $super (descriptor $other.rtt) (struct)))
+  (type $other.rtt (describes $sub) (struct))
 )
 ```
 
@@ -226,10 +226,10 @@ This may be relaxed in the future.
 ```wasm
 (rec
   ;; Invalid: descriptor clauses may only be used with structs.
-  (type $array (descriptor $array.rtt (array i8)))
+  (type $array (descriptor $array.rtt) (array i8))
 
   ;; Invalid: describes clauses may only be used with structs.
-  (type $array.rtt (describes $array (func)))
+  (type $array.rtt (describes $array) (func))
 )
 ```
 
@@ -242,11 +242,11 @@ this could allow the following unsound program to validate and run:
 
 ```wasm
 (rec
-  (type $foo (sub (descriptor $foo.rtt (struct))))
-  (type $foo.rtt (sub (describes $foo (struct))))
+  (type $foo (sub (descriptor $foo.rtt) (struct)))
+  (type $foo.rtt (sub (describes $foo) (struct)))
 
-  (type $bar (sub $foo (descriptor $bar.rtt (struct (field $bar-only i32)))))
-  (type $bar.rtt (sub $foo.rtt (describes $bar (struct))))
+  (type $bar (sub $foo (descriptor $bar.rtt) (struct (field $bar-only i32))))
+  (type $bar.rtt (sub $foo.rtt (describes $bar) (struct)))
 )
 
 (func $unsound (result i32)
@@ -465,12 +465,12 @@ WebAssembly.
 ;; counter.wasm
 (module
   (rec
-    (type $counter (descriptor $counter.vtable (struct (field $val (mut i32)))))
-    (type $counter.vtable (describes $counter (struct
+    (type $counter (descriptor $counter.vtable) (struct (field $val (mut i32))))
+    (type $counter.vtable (describes $counter) (struct
       (field $proto (ref extern))
       (field $get (ref $get_t))
       (field $inc (ref $inc_t))
-    )))
+    ))
     (type $get_t (func (param (ref null $counter)) (result i32)))
     (type $inc_t (func (param (ref null $counter))))
   )
@@ -661,12 +661,12 @@ and additionally expose a constructor:
 
 (module
   (rec
-    (type $counter (descriptor $counter.vtable (struct (field $val (mut i32)))))
-    (type $counter.vtable (describes $counter (struct
+    (type $counter (descriptor $counter.vtable) (struct (field $val (mut i32))))
+    (type $counter.vtable (describes $counter) (struct
       (field $proto (ref extern))
       (field $get (ref $get_t))
       (field $inc (ref $inc_t))
-    )))
+    ))
     (type $get_t (func (param (ref null $counter)) (result i32)))
     (type $inc_t (func (param (ref null $counter))))
   )
@@ -828,11 +828,11 @@ and is included below only to clarify the interaction between proposals.)
 
 ```
 describedcomptype ::=
-  | 0x4D x:typeidx ct:comptype => (descriptor x ct)
+  | 0x4D x:typeidx ct:comptype => (descriptor x) ct
   | ct:comptype => ct
 
 describingcomptype ::=
-  | 0x4C x:typeidx ct:describedcomptype => (describes x ct)
+  | 0x4C x:typeidx ct:describedcomptype => (describes x) ct
   | ct:describedcomptype => ct
 
 sharecomptype ::=

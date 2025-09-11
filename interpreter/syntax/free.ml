@@ -111,8 +111,16 @@ let str_type = function
   | DefArrayT at -> array_type at
   | DefFuncT ft -> func_type ft
 
+let described_type = function
+  | DescriptorT (ht, st) -> heap_type ht ++ str_type st
+  | NoDescriptorT st -> str_type st
+
+let describing_type = function
+  | DescribesT (ht, dt) -> heap_type ht ++ described_type dt
+  | NoDescribesT dt -> described_type dt
+
 let sub_type = function
-  | SubT (_fin, hts, st) -> list heap_type hts ++ str_type st
+  | SubT (_fin, hts, dt) -> list heap_type hts ++ describing_type dt
 
 let rec_type = function
   | RecT sts -> list sub_type sts

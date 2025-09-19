@@ -148,6 +148,11 @@ and match_str_type c dt1 dt2 =
   | DefFuncT ft1, DefFuncT ft2 -> match_func_type c ft1 ft2
   | _, _ -> false
 
+(* TODO: Check conditions on described and descriptor types as well. *)
+and match_desc_type c dt1 dt2 = 
+  match dt1, dt2 with
+  | DescT (ht1, ht2, st1), DescT (ht3, ht4, st2) -> match_str_type c st1 st2
+
 and match_def_type c dt1 dt2 =
   dt1 == dt2 ||  (* optimisation *)
   let s = subst_of c in subst_def_type s dt1 = subst_def_type s dt2 ||

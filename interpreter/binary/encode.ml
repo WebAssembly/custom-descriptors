@@ -185,10 +185,16 @@ struct
     | DefArrayT at -> s7 (-0x22); array_type at
     | DefFuncT ft -> s7 (-0x20); func_type ft
 
+  let desc_type = function
+    | DescT (ht1, ht2, st) ->
+        opt (fun ht -> s7 (-0x33); var_heap_type ht) ht1;
+        opt (fun ht -> s7 (-0x34); var_heap_type ht) ht2;
+        str_type st
+
   let sub_type = function
-    | SubT (Final, [], st) -> str_type st
-    | SubT (Final, hts, st) -> s7 (-0x31); vec var_heap_type hts; str_type st
-    | SubT (NoFinal, hts, st) -> s7 (-0x30); vec var_heap_type hts; str_type st
+    | SubT (Final, [], dt) -> desc_type dt
+    | SubT (Final, hts, dt) -> s7 (-0x31); vec var_heap_type hts; desc_type dt
+    | SubT (NoFinal, hts, dt) -> s7 (-0x30); vec var_heap_type hts; desc_type dt
 
   let rec_type = function
     | RecT [st] -> sub_type st

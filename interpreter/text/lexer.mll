@@ -187,6 +187,8 @@ rule token = parse
       | "sub" -> SUB
       | "final" -> FINAL
       | "rec" -> REC
+      | "describes" -> DESCRIBES
+      | "descriptor" -> DESCRIPTOR
 
       | "nop" -> NOP
       | "unreachable" -> UNREACHABLE

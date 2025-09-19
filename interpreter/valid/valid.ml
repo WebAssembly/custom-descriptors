@@ -180,21 +180,26 @@ let check_str_type (c : context) (st : str_type) at =
   | DefArrayT rt -> check_array_type c rt at
   | DefFuncT ft -> check_func_type c ft at
 
+(* TODO: Make sure the describes and descriptor clauses match. *)
+let check_desc_type (c : context) (dt : desc_type) at =
+  match dt with
+  | DescT (ht1, ht2, st) -> check_str_type c st at
+
 let check_sub_type (c : context) (sut : sub_type) at =
-  let SubT (_fin, hts, st) = sut in
+  let SubT (_fin, hts, dt) = sut in
   List.iter (fun ht -> check_heap_type c ht at) hts;
-  check_str_type c st at
+  check_desc_type c dt at
 
 let check_sub_type_sub (c : context) (sut : sub_type) x at =
-  let SubT (_fin, hts, st) = sut in
+  let SubT (_fin, hts, dt) = sut in
   List.iter (fun hti ->
     let xi = match hti with VarHT (StatX xi) -> xi | _ -> assert false in
-    let SubT (fini, _, sti) = unroll_def_type (type_ c (xi @@ at)) in
+    let SubT (fini, _, dti) = unroll_def_type (type_ c (xi @@ at)) in
     require (xi < x) at ("forward use of type " ^ I32.to_string_u xi ^
       " in sub type definition");
     require (fini = NoFinal) at ("sub type " ^ I32.to_string_u x ^
       " has final super type " ^ I32.to_string_u xi);
-    require (match_str_type c.types st sti) at ("sub type " ^ I32.to_string_u x ^
+    require (match_desc_type c.types dt dti) at ("sub type " ^ I32.to_string_u x ^
       " does not match super type " ^ I32.to_string_u xi)
   ) hts
 

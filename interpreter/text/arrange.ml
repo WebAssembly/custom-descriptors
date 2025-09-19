@@ -106,14 +106,22 @@ let str_type st =
   | DefArrayT at -> array_type at
   | DefFuncT ft -> func_type ft
 
+let describes ht = Node ("describes", [Atom (heap_type ht)])
+
+let descriptor ht = Node ("descriptor", [Atom (heap_type ht)])
+
+let desc_type = function
+  | DescT (ht1, ht2, st) ->
+    (opt describes ht1) @ (opt descriptor ht2) @ [str_type st]
+
 let sub_type = function
-  | SubT (Final, [], st) -> str_type st
-  | SubT (fin, xs, st) ->
-    Node (String.concat " "
-      (("sub" ^ final fin ):: List.map heap_type xs), [str_type st])
+  | SubT (Final, [], dt) -> desc_type dt
+  | SubT (fin, xs, dt) ->
+    [Node (String.concat " "
+      (("sub" ^ final fin ):: List.map heap_type xs), desc_type dt)]
 
 let rec_type i j st =
-  Node ("type $" ^ nat (i + j), [sub_type st])
+  Node ("type $" ^ nat (i + j), sub_type st)
 
 let limits nat {min; max} =
   String.concat " " (nat min :: opt nat max)

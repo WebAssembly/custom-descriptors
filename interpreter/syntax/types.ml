@@ -41,7 +41,8 @@ and str_type =
   | DefArrayT of array_type
   | DefFuncT of func_type
 
-and sub_type = SubT of final * heap_type list * str_type
+and desc_type = DescT of heap_type option * heap_type option * str_type
+and sub_type = SubT of final * heap_type list * desc_type
 and rec_type = RecT of sub_type list
 and def_type = DefT of rec_type * int32
 
@@ -223,9 +224,12 @@ let subst_str_type s = function
   | DefArrayT at -> DefArrayT (subst_array_type s at)
   | DefFuncT ft -> DefFuncT (subst_func_type s ft)
 
+let subst_desc_type s = function
+  | DescT (ht1, ht2, st) -> DescT (Option.map (subst_heap_type s) ht1, Option.map (subst_heap_type s) ht2, subst_str_type s st)
+
 let subst_sub_type s = function
-  | SubT (fin, hts, st) ->
-    SubT (fin, List.map (subst_heap_type s) hts, subst_str_type s st)
+  | SubT (fin, hts, dt) ->
+    SubT (fin, List.map (subst_heap_type s) hts, subst_desc_type s dt)
 
 let subst_rec_type s = function
   | RecT sts -> RecT (List.map (subst_sub_type s) sts)
@@ -298,7 +302,7 @@ let unroll_def_type (dt : def_type) : sub_type =
   Lib.List32.nth sts i
 
 let expand_def_type (dt : def_type) : str_type =
-  let SubT (_, _, st) = unroll_def_type dt in
+  let SubT (_, _, DescT (_, _, st)) = unroll_def_type dt in
   st
 
 
@@ -403,12 +407,23 @@ and string_of_str_type = function
   | DefArrayT at -> "array " ^ string_of_array_type at
   | DefFuncT ft -> "func " ^ string_of_func_type ft
 
+and string_of_described = function
+  | Some ht -> "(describes " ^ string_of_heap_type ht ^ ") "
+  | None -> ""
+
+and string_of_descriptor = function
+  | Some ht -> "(descriptor " ^ string_of_heap_type ht ^ ") "
+  | None -> ""
+
+and string_of_desc_type = function
+  | DescT (ht1, ht2, st) -> string_of_described ht1 ^ string_of_descriptor ht2 ^ string_of_str_type st
+
 and string_of_sub_type = function
-  | SubT (Final, [], st) -> string_of_str_type st
-  | SubT (fin, hts, st) ->
+  | SubT (Final, [], dt) -> string_of_desc_type dt
+  | SubT (fin, hts, dt) ->
     String.concat " "
       (("sub" ^ string_of_final fin) :: List.map string_of_heap_type hts) ^
-    " (" ^ string_of_str_type st ^ ")"
+    " (" ^ string_of_desc_type dt ^ ")"
 
 and string_of_rec_type = function
   | RecT [st] -> string_of_sub_type st

@@ -26,6 +26,7 @@ val match_result_type : context -> result_type -> result_type -> bool
 val match_storage_type : context -> storage_type -> storage_type -> bool
 
 val match_str_type : context -> str_type -> str_type -> bool
+val match_desc_type : context -> desc_type -> desc_type -> bool
 val match_def_type : context -> def_type -> def_type -> bool
 
 val match_func_type : context -> func_type -> func_type -> bool

@@ -111,8 +111,11 @@ let str_type = function
   | DefArrayT at -> array_type at
   | DefFuncT ft -> func_type ft
 
+let desc_type = function
+  | DescT (ht1, ht2, st) -> opt heap_type ht1 ++ opt heap_type ht2 ++ str_type st
+
 let sub_type = function
-  | SubT (_fin, hts, st) -> list heap_type hts ++ str_type st
+  | SubT (_fin, hts, dt) -> list heap_type hts ++ desc_type dt
 
 let rec_type = function
   | RecT sts -> list sub_type sts

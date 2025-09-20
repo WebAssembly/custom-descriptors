@@ -353,9 +353,8 @@ C |- ref.get_desc x : (ref null (exact_1 x)) -> (ref (exact_1 y))
 -- C.types[x] ~ descriptor y ct
 ```
 
-If the provided reference is to an exact heap type,
-then the type of the custom descriptor is known precisely,
-so the result can be exact as well.
+If the provided reference is to the exact accessed heap type `x`,
+then the type of the custom descriptor is known to be exactly `x`'s descriptor type.
 Otherwise, the subtyping rules described above ensure that there will be some custom descriptor value
 and that it will be a subtype of the custom descriptor type for `x`,
 so the result can be a non-null reference to the inexact descriptor type.

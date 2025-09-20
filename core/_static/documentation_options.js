@@ -1,5 +1,5 @@
 const DOCUMENTATION_OPTIONS = {
-    VERSION: '3.0 + SpecTec + Custom RTTs (2025-09-20)',
+    VERSION: '3.0 + Custom Descriptors (2025-09-20)',
     LANGUAGE: 'en',
     COLLAPSE_INDEX: false,
     BUILDER: 'html',

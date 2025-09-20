@@ -91,7 +91,7 @@ a type is first declared,
 specifying its parameters.
 Then, one or several definitions for different instantiations of the parameters can be provided.
 Each case is given as clausal equation with argument expressions on the left,
-which are treated as *patterns*.
+which are treated as [patterns](#pattern-matching).
 The instantiation of a type is determined by the equation whose pattern is matched by the concrete argument.
 This gives rise to *type families*.
 
@@ -182,7 +182,7 @@ In a first approximation,
 an atom is either an uppercase identifier,
 or one of various recognised *symbolic* atoms,
 such as `|-`, `:`, or `->`,
-or pairs of maching brackets escaped with `` ` ``.
+or pairs of matching brackets escaped with `` ` ``.
 Some symbolic atoms have infix operator status
 (with hard-coded "natural" precedences),
 affecting the way they are parsed;
@@ -470,7 +470,7 @@ arith ::=
   "$" "(" exp ")"                      escape back to general expression syntax
   "$" numtyp "$" "(" arith ")"         numeric conversion
 
-unop  ::= notop | "+" | "-"
+unop  ::= notop | "+" | "-" | "+-" | "-+"
 binop ::= logop | "+" | "-" | "*" | "/" | "\" | "^"
 ```
 Except for the addition of unary and binary arithmetic operators,
@@ -487,6 +487,33 @@ using the form `$numtyp$(...)`.
 This is a partial operation,
 it is undefined when the operand value is not representable in the target type.
 
+*Alternate signs* `+-` and `-+`` behave like special meta-variables for the sign of a number.
+All occurrences of either in a single definition must be "bound" consistently.
+This is primarily useful to express dual cases of [functions](#functions) without duplication.
+
+**Example:**
+The function definition
+```
+def $f(int, int) : int
+def $f(+-n, +-m) = $(+-n*2 + +-m)   ;; arguments have same sign
+def $f(+-n, -+m) = $(-+n*3 + +-m)   ;; arguments have opposite signs
+```
+is shorthand for
+```
+def $f(+n, +m) = $(+n*2 + +m)
+def $f(-n, -m) = $(-n*2 + -m)
+def $f(+n, -m) = $(-n*3 + +m)
+def $f(-n, +m) = $(+n*3 + -m)
+```
+In this expansion, each clause is duplicated,
+with the first copy using the first choice of each occurrence of these operators
+(that is, all `+-` become `+` and all `-+` become `-`),
+and the second copy using the second
+(all `+-` become `-` and all `-+` become `+`).
+For this to be meaningful,
+at least one occurrence of an alternate sign must be in a [pattern](#pattern-matching) or condition,
+which determines the choice and distinguishes the two cases.
+
 
 #### Tuples
 
@@ -497,7 +524,7 @@ exp ::= ...
 ```
 
 There are no expressions for accessing tuples.
-Instead, they are decomposed by pattern matching.
+Instead, they are decomposed by [pattern matching](#pattern-matching).
 
 
 #### Sequences and Lists
@@ -737,6 +764,17 @@ l = {A x, B y, C z}** /\ (x < 100)** /\ z <- y*
 ```
 is inferred with dimensions `x**`, `y*`, and scalar `z` and `l`.
 
+*Note:* Multi-dimensional use of dimensioned vars is ambiguous
+when the iterations contain no additional context,
+because it could be interpreted as both row-major or column-major.
+For example, the expression `y**`,
+when `y` has dimension `y*`,
+could denote either `y1 y2... y1 y2...` or `y1 y1... y2 y2...`.
+Both forms can be disambiguated by naming at least one of the dimensions:
+if the dimension of `y` is `y^n`,
+then `(y^n)*` would describe the former
+and `(y*)^n` the latter sequence.
+
 
 ##### Type Checking and Inference
 
@@ -862,13 +900,13 @@ def $tik(nat) : bool
 def $tok(nat) : bool
 
 def $tik(0) = false
-def $tik(n) = $tok(n - 1)
+def $tik(n) = $tok($(n - 1))
 
 def $tok(0) = true
-def $tok(n) = $tik(n - 1)
+def $tok(n) = $tik($(n - 1))
 ```
 
-The clauses of a function express a (sequential) pattern match.
+The clauses of a function express a (sequential) [pattern match](#pattern-matching).
 Their left-hand side argument expressions are interpreted as patterns
 and therefore restricted in shape.
 In addition, each clause can have [premises](#premises) acting as pattern guards.
@@ -957,6 +995,76 @@ def $map(syntax X, $f, x y*) = $f(x) $map(X, $f, y*)
 ```
 
 
+### Pattern Matching
+
+Definitions that have parameters,
+e.g., [functions](#functions), [types](#type-definitions), and [grammars](#grammars),
+are be defined with [expressions](#expressions) on their left-hand side that act as *patterns*.
+
+When a definition, such as a function or type, is given by multiple clauses,
+then the patterns of each clause are tried in order,
+until one is found that matches *and* whose premises hold.
+
+To match a pattern,
+it is first reduced to *normal form* (which isn't necessarily a value!),
+which is then compared syntactically to the respective argument's normal form.
+If their outermost shapes match,
+the process is iterated with corresponding nested expressions.
+
+An unbound variable (or a wildcard `_`) can be matched by any expression.
+When this happened, all occurrences of that variable in the remainder of the definition are substituted by that expression.
+That includes the remainder of the pattern,
+with the effect that variables can be used in a non-linear fashion.
+
+**Example:**
+Multiple occurrences of the same variable can be used as implicit equality constraints:
+```
+def $find(nat, nat*) : bool
+def $find(n, eps) = false
+def $find(n, n n'*) = true
+def $find(n, n_1 n'*) = $find(n, n'*)
+```
+
+As this example shows, patterns can also be [iterations](iteration).
+An iteration can only be matched by a sequence of appropriate length.
+The individual elements are then projected onto the element pattern,
+generally yielding a sequences bound to variables of respective dimension.
+If the iteration pattern has an (unbound) length variable,
+then this variable is bound as well.
+
+**Example:**
+The following functions demonstrate these points.
+```
+def $len(int*) : nat
+def $len(i^n) = n  ;; $len(arg) = |arg|
+
+def $unzip((nat, nat)*) : (nat*, nat*)
+def $unzip((x, y)*) = x*, y*
+```
+
+The use of signs, that is, unary operators `+` and `-`,
+has a specific interpretation in that they are only matched by numbers with the respective sign.
+For this purpose, 0 counts as positive.
+Matching of the operand pattern then proceeds with the absolute value of the original argument.
+
+**Example:**
+The following definition defines the absolute value:
+```
+def $abs(int) : nat
+def $abs(+n) = n
+def $abs(-n) = n
+```
+
+[Alternate signs](#arithmetic-expressions) `+-` and `-+` can be used to express clauses matching on signs more compactly.
+
+**Example:**
+This version of `$abs` is equivalent to the above:
+```
+def $abs(int) : nat
+def $abs(+-n) = n
+```
+
+
 ### Relations and Rules
 
 While functions are used to algorithmically compute on a meta-level,
@@ -1036,13 +1144,14 @@ SpecTec allows the definition of *attribute grammars*:
 
 ```
 def ::=
-  "grammar" gramid params ":" typ "=" gram      grammar definition
+  "grammar" gramid params (":" typ)? "=" gram      grammar definition
 
 gram ::=
   "|"? prod+"|"
 
 prod ::=
-  sym "=>" exp ("--" premise)*
+  sym ("=>" exp)? ("--" premise)*
+  sym "=>" exp "|" "..." "|" sym "=>" exp
 
 sym ::=
   gramid args
@@ -1063,7 +1172,11 @@ given by a list of *productions*.
 Each production in turn is defined by a left-hand side,
 which is the symbol sequence to parse,
 and a right-hand side that computes the attribute synthesised by this production.
-The type of this attribute has to be declared with the grammar.
+The type of this attribute has to be declared with the grammar;
+when omitted it defaults to `()`.
+The right-hand sides of productions can be omitted as well,
+in which case they return the synthesised attribute of the left-hand side.
+Either all or none of a grammars right-hand sides must be omitted.
 
 Possible symbols include basic terminal *tokens*,
 which are either text literals (for textual grammars),
@@ -1079,27 +1192,33 @@ Furthermore, they may contain nested alternatives separated by `|`.
 A special form of alternation defines a numeric range using the notation `n | ... | m`;
 in that case, both limit symbols must be numeric tokens.
 
+As a special short-hand,
+grammars can be given as a range `production | ... | production`.
+In that case,
+both left-hand and right-hand sides are restricted to numeric literals,
+which both must have the same distance between first and last case.
+
 Grammars can be parameterised.
 Accordingly, grammar identifiers may have corresponding arguments.
 
 Finally, a symbol may be prefixed by an *attribute pattern*.
 Such a pattern takes the form of an [expression](#expressions)
-that is interpreted as a pattern,
+that is interpreted as a [pattern](#pattern-matching),
 in the same way as the left-hand side of [function clauses](#functions).
 This pattern is matched by the attribute synthesised by parsing the respective symbol.
 Any variables occurring in the pattern are instantiated accordingly and can be used on the right.
 However, bindings occurring inside a nested alternative are ignored.
 
 **Example:**
-Consider the following grammar for formulas over binary numbers
+Consider the following grammar for formulas over hexadecimal numbers
 ```
 grammar digit : nat =
-  | "0" => 0
-  | "1" => 1
+  | "0" => 0 | ... | "9" => 9
+  | "A" => 10 | ... | "F" => 15
 
 grammar number : nat =
   | d:digit => d
-  | n:number d:digit => $(2*n + d)
+  | n:number d:digit => $(16*n + d)
 
 grammar formula : nat =
   | n:number => n
@@ -1225,11 +1344,12 @@ atomop ::=
   "in" | ":" | ";" | "\" | <:"
   "<<" | ">>"
   "|-" | "-|"
-  ":=" | "~~"
+  ":=" | "~~" | "~~_"
   "->" | "~>" | "~>*" | "=>"
   "`." | ".." | "..."
   "`?" | "`+" | "`*"
   "(/\)" | "(\/)" | "(+)" | "(*)" | "(++)"
+  ":_" | "=_" | "==_" | "->_" | "=>_" | "~>_" | "~>*_" | "|-_" | "-|_"
 ```
 
 

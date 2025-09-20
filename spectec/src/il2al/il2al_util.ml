@@ -54,7 +54,7 @@ let case_of_case e =
   match e.it with
   | CaseE (mixop, _) -> mixop
   | _ -> error e.at
-    (Printf.sprintf "cannot get case of case expression `%s`" (Il.Print.string_of_exp e))
+    (Printf.sprintf "expected a CaseE, but got `%s`" (Il.Print.string_of_exp e))
 
 let is_let_prem_with_rhs_type t prem =
   match prem.it with
@@ -68,7 +68,7 @@ let is_pop : prem -> bool = is_let_prem_with_rhs_type "stackT"
 let is_ctxt_prem : prem -> bool = is_let_prem_with_rhs_type "contextT"
 
 let extract_context r =
-  let _, _, prems = r in
+  let _, _, _, prems = r in
   prems
   |> List.find_opt is_ctxt_prem
   |> Option.map lhs_of_prem (* TODO: Collect helper functions into one place *)
@@ -89,10 +89,10 @@ let extract_pops rgroup =
     | _ -> List.rev acc, prems :: premss
   in
 
-  let get_prems r = let _, _, prems = r in prems in
+  let get_prems r = let _, _, _, prems = r in prems in
   let set_prems r prems =
-    let lhs, rhs, _ = r in
-    lhs, rhs, prems
+    let id, lhs, rhs, _ = r in
+    id, lhs, rhs, prems
   in
   (* End of helpers *)
 
@@ -142,8 +142,7 @@ let rec typ_to_var_name ty =
   match ty.it with
   (* TODO: guess this for "var" in el? *)
   | Il.Ast.VarT (id, args) ->
-    let hintdefs = !hintdefs in
-    (match find_hint id hintdefs with
+    (match find_hint id !hintdefs with
     | None -> id.it
     | Some hint -> let _, t = subst_hint hint.hintexp args in t
     )
@@ -156,19 +155,27 @@ let rec typ_to_var_name ty =
   | Il.Ast.TupT tys -> List.map typ_to_var_name (List.map snd tys) |> String.concat "_"
   | Il.Ast.IterT _ -> failwith (Il.Print.string_of_typ ty)
 
-let rec typ_to_var_exp' ty post_fix =
+let rec typ_to_var_exp' ty suffix =
   match ty.it with
   | Il.Ast.IterT (ty', iter) ->
-    let id, e = typ_to_var_exp' ty' post_fix in
+    let id, e = typ_to_var_exp' ty' suffix in
     let iter_id = { id with it = id.it ^ Il.Print.string_of_iter iter} in
     let iter_e = VarE iter_id $$ (no_region, ty) in
     iter_id, IterE (e, (iter, [(id, iter_e)])) $$ (no_region, ty)
   | _ ->
-    let id = typ_to_var_name ty ^ post_fix $ no_region in
+    let prefix = typ_to_var_name ty in
+    let id' =
+      if prefix.[String.length prefix - 1] = '_' && suffix.[0] = '_' then
+        (* x__0 --> x_0 *)
+        prefix ^ String.sub suffix 1 (String.length suffix - 1)
+      else
+        prefix ^ suffix
+    in
+    let id = id' $ no_region in
     id, VarE id $$ (no_region, ty)
 
-let typ_to_var_exp ?(post_fix="") ty =
-  let _, e = typ_to_var_exp' ty post_fix in
+let typ_to_var_exp ?(suffix="") ty =
+  let _, e = typ_to_var_exp' ty suffix in
   e
 
 let get_var_set_in_algo (algo: Al.Ast.algorithm) : Al.Free.IdSet.t =
@@ -261,15 +268,15 @@ let val_mixops = ref []
 let is_val exp =
   if (!val_mixops = []) then (
     let id = "val" $ no_region in
-    match Il.Env.find_typ !Al.Valid.il_env id with
-    | _, [inst] -> (
+    match Il.Env.find_opt_typ !Al.Valid.il_env id with
+    | Some(_, [inst]) -> (
       match inst.it with
       | InstD ([], [], { it = VariantT typcases; _ }) -> (
         val_mixops := List.map (fun (mixop, _, _) -> mixop) typcases
       )
-      | _ -> error no_region "syntax definition of val is wrong"
+      | _ -> ()
     )
-    | _ -> error no_region "syntax definition of val is wrong"
+    | _ -> ()
   );
   match exp.it with
   | CaseE (mixop, _) -> (
@@ -280,3 +287,19 @@ let is_val exp =
   | VarE _ -> Il.Eval.sub_typ !Al.Valid.il_env exp.note Al.Al_util.valT
   | SubE (_, t, _) -> Il.Eval.sub_typ !Al.Valid.il_env t Al.Al_util.valT
   | _ -> false
+
+let replace_name_walker x1 x2 =
+  let replace_name' walker e =
+    match e.it with
+    | Al.Ast.VarE x when x = x1 -> {e with it = Al.Ast.VarE x2}
+    | _ -> Al.Walk.base_walker.walk_expr walker e
+  in
+  {Al.Walk.base_walker with walk_expr = replace_name'}
+
+let replace_name_expr x1 x2 =
+  let walker = replace_name_walker x1 x2 in
+  walker.walk_expr walker
+
+let replace_name x1 x2 =
+  let walker = replace_name_walker x1 x2 in
+  walker.walk_instr walker

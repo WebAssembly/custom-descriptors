@@ -48,6 +48,24 @@ The following grammar handles the corresponding update to the :ref:`identifier c
    then it is shadowed and the earlier label becomes inaccessible.
 
 
+.. index:: parametric instruction, value type, polymorphism
+   pair: text format; instruction
+.. _text-instr-parametric:
+
+Parametric Instructions
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _text-drop:
+.. _text-select:
+
+.. math::
+   \begin{array}{llclll}
+   \production{instruction} & \Tplaininstr_I &::=& \dots \\ &&|&
+     \text{drop} &\Rightarrow& \DROP \\ &&|&
+     \text{select}~((t{:}\Tresult_I)^\ast)^? &\Rightarrow& \SELECT~(t^\ast)^? \\
+   \end{array}
+
+
 .. index:: control instructions, structured control, label, block, branch, result type, label index, function index, tag index, type index, list, polymorphism, reference
    pair: text format; instruction
 .. _text-blockinstr:
@@ -82,17 +100,17 @@ However, the special case of a type use that is syntactically empty or consists 
    \end{array} \\
    \production{block instruction} & \Tblockinstr_I &::=&
      \text{block}~~(v^?,I'){:}\Tlabel_I~~\X{bt}{:}\Tblocktype_I~~(\X{in}{:}\Tinstr_{I'})^\ast~~\text{end}~~{v'}^?{:}\Tid^?
-       \\ &&&\qquad \Rightarrow\quad \BLOCK~\X{bt}~\X{in}^\ast~\END
+       \\ &&&\qquad \Rightarrow\quad \BLOCK~\X{bt}~\X{in}^\ast
        \qquad\quad~~ (\iff {v'}^? = \epsilon \vee {v'}^? = v^?) \\ &&|&
      \text{loop}~~(v^?,I'){:}\Tlabel_I~~\X{bt}{:}\Tblocktype_I~~(\X{in}{:}\Tinstr_{I'})^\ast~~\text{end}~~{v'}^?{:}\Tid^?
-       \\ &&&\qquad \Rightarrow\quad \LOOP~\X{bt}~\X{in}^\ast~\END
+       \\ &&&\qquad \Rightarrow\quad \LOOP~\X{bt}~\X{in}^\ast
        \qquad\qquad (\iff {v'}^? = \epsilon \vee {v'}^? = v^?) \\ &&|&
      \text{if}~~(v^?,I'){:}\Tlabel_I~~\X{bt}{:}\Tblocktype_I~~(\X{in}_1{:}\Tinstr_{I'})^\ast~~
        \text{else}~~v_1^?{:}\Tid_1^?~~(\X{in}_2{:}\Tinstr_{I'})^\ast~~\text{end}~~v_2^?{:}\Tid_2^?
-       \\ &&&\qquad \Rightarrow\quad \IF~\X{bt}~\X{in}_1^\ast~\ELSE~\X{in}_2^\ast~\END
+       \\ &&&\qquad \Rightarrow\quad \IF~\X{bt}~\X{in}_1^\ast~\ELSE~\X{in}_2^\ast
        \qquad (\iff v_1^? = \epsilon \vee v_1^? = v^?, v_2^? = \epsilon \vee v_2^? = v^?) \\ &&|&
      \text{try\_table}~~I'{:}\Tlabel_I~~\X{bt}{:}\Tblocktype~~(c{:}\Tcatch_I)^\ast~~(\X{in}{:}\Tinstr_{I'})^\ast~~\text{end}~~\Tid^?
-       \\ &&&\qquad \Rightarrow\quad \TRYTABLE~\X{bt}~c^\ast~\X{in}^\ast~~\END
+       \\ &&&\qquad \Rightarrow\quad \TRYTABLE~\X{bt}~c^\ast~\X{in}^\ast
        \qquad\qquad (\iff \Tid^? = \epsilon \vee \Tid^? = \Tlabel) \\
    \production{catch clause} & \Tcatch_I &
    \begin{array}[t]{@{}c@{}} ::= \\ | \\ | \\ | \\ \end{array}
@@ -156,7 +174,8 @@ All other control instruction are represented verbatim.
      \text{return\_call\_indirect}~~x{:}\Ttableidx~~y,I'{:}\Ttypeuse_I &\Rightarrow& \RETURNCALLINDIRECT~x~y
        & (\iff I' = \{\ILOCALS~(\epsilon)^\ast\}) \\ &&|&
      \text{throw}~~x{:}\Ttagidx_I &\Rightarrow& \THROW~x \\ &&|&
-     \text{throw\_ref} &\Rightarrow& \THROWREF \\
+     \text{throw\_ref} &\Rightarrow& \THROWREF \\ &&|&
+     \dots
    \end{array}
 
 .. note::
@@ -183,105 +202,10 @@ Also, for backwards compatibility, the table index to :math:`\text{call\_indirec
    \production{plain instruction} &
      \text{call\_indirect}~~\Ttypeuse
        &\equiv&
-     \text{call\_indirect}~~0~~\Ttypeuse \\
+     \text{call\_indirect}~~0~~\Ttypeuse \\ &
      \text{return\_call\_indirect}~~\Ttypeuse
        &\equiv&
      \text{return\_call\_indirect}~~0~~\Ttypeuse \\
-   \end{array}
-
-
-.. index:: reference instruction
-   pair: text format; instruction
-.. _text-instr-ref:
-
-Reference Instructions
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. _text-ref.null:
-.. _text-ref.func:
-.. _text-ref.is_null:
-.. _text-ref.as_non_null:
-.. _text-struct.new:
-.. _text-struct.new_default:
-.. _text-struct.get:
-.. _text-struct.get_s:
-.. _text-struct.get_u:
-.. _text-struct.set:
-.. _text-array.new:
-.. _text-array.new_default:
-.. _text-array.new_fixed:
-.. _text-array.new_elem:
-.. _text-array.new_data:
-.. _text-array.get:
-.. _text-array.get_s:
-.. _text-array.get_u:
-.. _text-array.set:
-.. _text-array.len:
-.. _text-array.fill:
-.. _text-array.copy:
-.. _text-array.init_data:
-.. _text-array.init_elem:
-.. _text-ref.i31:
-.. _text-i31.get_s:
-.. _text-i31.get_u:
-.. _text-ref.test:
-.. _text-ref.cast:
-.. _text-any.convert_extern:
-.. _text-extern.convert_any:
-
-.. math::
-   \begin{array}{llclll}
-   \production{instruction} & \Tplaininstr_I &::=& \dots \\ &&|&
-     \text{ref.null}~~t{:}\Theaptype &\Rightarrow& \REFNULL~t \\ &&|&
-     \text{ref.func}~~x{:}\Tfuncidx &\Rightarrow& \REFFUNC~x \\ &&|&
-     \text{ref.is\_null} &\Rightarrow& \REFISNULL \\ &&|&
-     \text{ref.as\_non\_null} &\Rightarrow& \REFASNONNULL \\ &&|&
-     \text{ref.eq} &\Rightarrow& \REFEQ \\ &&|&
-     \text{ref.test}~~t{:}\Treftype &\Rightarrow& \REFTEST~t \\ &&|&
-     \text{ref.cast}~~t{:}\Treftype &\Rightarrow& \REFCAST~t \\ &&|&
-     \text{struct.new}~~x{:}\Ttypeidx_I &\Rightarrow& \STRUCTNEW~x \\ &&|&
-     \text{struct.new\_default}~~x{:}\Ttypeidx_I &\Rightarrow& \STRUCTNEWDEFAULT~x \\ &&|&
-     \text{struct.get}~~x{:}\Ttypeidx_I~~y{:}\Tfieldidx_{I,x} &\Rightarrow& \STRUCTGET~x~y \\ &&|&
-     \text{struct.get\_u}~~x{:}\Ttypeidx_I~~y{:}\Tfieldidx_{I,x} &\Rightarrow& \STRUCTGETU~x~y \\ &&|&
-     \text{struct.get\_s}~~x{:}\Ttypeidx_I~~y{:}\Tfieldidx_{I,x} &\Rightarrow& \STRUCTGETS~x~y \\ &&|&
-     \text{struct.set}~~x{:}\Ttypeidx_I~~y{:}\Tfieldidx_{I,x} &\Rightarrow& \STRUCTSET~x~y \\ &&|&
-     \text{array.new}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYNEW~x \\ &&|&
-     \text{array.new\_default}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYNEWDEFAULT~x \\ &&|&
-     \text{array.new\_fixed}~~x{:}\Ttypeidx_I~~n{:}\Tu32 &\Rightarrow& \ARRAYNEWFIXED~x~n \\ &&|&
-     \text{array.new\_data}~~x{:}\Ttypeidx_I~~y{:}\Tdataidx_I &\Rightarrow& \ARRAYNEWDATA~x~y \\ &&|&
-     \text{array.new\_elem}~~x{:}\Ttypeidx_I~~y{:}\Telemidx_I &\Rightarrow& \ARRAYNEWELEM~x~y \\ &&|&
-     \text{array.get}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYGET~x \\ &&|&
-     \text{array.get\_u}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYGETU~x \\ &&|&
-     \text{array.get\_s}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYGETS~x \\ &&|&
-     \text{array.set}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYSET~x \\ &&|&
-     \text{array.len} &\Rightarrow& \ARRAYLEN \\ &&|&
-     \text{array.fill}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYFILL~x \\ &&|&
-     \text{array.copy}~~x{:}\Ttypeidx_I~~y{:}\Ttypeidx_I &\Rightarrow& \ARRAYCOPY~x~y \\ &&|&
-     \text{array.init\_data}~~x{:}\Ttypeidx_I~~y{:}\Tdataidx_I &\Rightarrow& \ARRAYINITDATA~x~y \\ &&|&
-     \text{array.init\_elem}~~x{:}\Ttypeidx_I~~y{:}\Telemidx_I &\Rightarrow& \ARRAYINITELEM~x~y \\ &&|&
-     \text{ref.i31} &\Rightarrow& \REFI31 \\ &&|&
-     \text{i31.get\_u} &\Rightarrow& \I31GETU \\ &&|&
-     \text{i31.get\_s} &\Rightarrow& \I31GETS \\ &&|&
-     \text{any.convert\_extern} &\Rightarrow& \ANYCONVERTEXTERN \\ &&|&
-     \text{extern.convert\_any} &\Rightarrow& \EXTERNCONVERTANY \\
-   \end{array}
-
-
-.. index:: parametric instruction, value type, polymorphism
-   pair: text format; instruction
-.. _text-instr-parametric:
-
-Parametric Instructions
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. _text-drop:
-.. _text-select:
-
-.. math::
-   \begin{array}{llclll}
-   \production{instruction} & \Tplaininstr_I &::=& \dots \\ &&|&
-     \text{drop} &\Rightarrow& \DROP \\ &&|&
-     \text{select}~((t{:}\Tresult_I)^\ast)^? &\Rightarrow& \SELECT~(t^\ast)^? \\
    \end{array}
 
 
@@ -385,62 +309,62 @@ Lexically, an |Toffset| or |Talign| phrase is considered a single :ref:`keyword 
    \production{memory argument} & \Tmemarg_N &::=&
      o{:}\Toffset~~a{:}\Talign_N &\Rightarrow& \{ \ALIGN~n,~\OFFSET~o \} & (\iff a = 2^n) \\
    \production{memory offset} & \Toffset &::=&
-     \text{offset{=}}o{:}\Tu32 &\Rightarrow& o \\ &&|&
+     \text{offset{=}}o{:}\Tu64 &\Rightarrow& o \\ &&|&
      \epsilon &\Rightarrow& 0 \\
    \production{memory alignment} & \Talign_N &::=&
-     \text{align{=}}a{:}\Tu32 &\Rightarrow& a \\ &&|&
+     \text{align{=}}a{:}\Tu64 &\Rightarrow& a \\ &&|&
      \epsilon &\Rightarrow& N \\
    \production{instruction} & \Tplaininstr_I &::=& \dots \phantom{averylonginstructionnameforvectext} && \phantom{vechasreallylonginstructionnames} \\ &&|&
-     \text{i32.load}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \I32.\LOAD~x~m \\ &&|&
-     \text{i64.load}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \I64.\LOAD~x~m \\ &&|&
-     \text{f32.load}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \F32.\LOAD~x~m \\ &&|&
-     \text{f64.load}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \F64.\LOAD~x~m \\ &&|&
-     \text{v128.load}~~x{:}\Tmemidx~~m{:}\Tmemarg_{16} &\Rightarrow& \V128.\LOAD~x~m \\ &&|&
-     \text{i32.load8\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \I32.\LOAD\K{8\_s}~x~m \\ &&|&
-     \text{i32.load8\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \I32.\LOAD\K{8\_u}~x~m \\ &&|&
-     \text{i32.load16\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \I32.\LOAD\K{16\_s}~x~m \\ &&|&
-     \text{i32.load16\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \I32.\LOAD\K{16\_u}~x~m \\ &&|&
-     \text{i64.load8\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \I64.\LOAD\K{8\_s}~x~m \\ &&|&
-     \text{i64.load8\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \I64.\LOAD\K{8\_u}~x~m \\ &&|&
-     \text{i64.load16\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \I64.\LOAD\K{16\_s}~x~m \\ &&|&
-     \text{i64.load16\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \I64.\LOAD\K{16\_u}~x~m \\ &&|&
-     \text{i64.load32\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \I64.\LOAD\K{32\_s}~x~m \\ &&|&
-     \text{i64.load32\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \I64.\LOAD\K{32\_u}~x~m \\ &&|&
-     \text{v128.load8x8\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{8x8\_s}~x~m \\ &&|&
-     \text{v128.load8x8\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{8x8\_u}~x~m \\ &&|&
-     \text{v128.load16x4\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{16x4\_s}~x~m \\ &&|&
-     \text{v128.load16x4\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{16x4\_u}~x~m \\ &&|&
-     \text{v128.load32x2\_s}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{32x2\_s}~x~m \\ &&|&
-     \text{v128.load32x2\_u}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{32x2\_u}~x~m \\ &&|&
-     \text{v128.load8\_splat}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \V128.\LOAD\K{8\_splat}~x~m \\ &&|&
-     \text{v128.load16\_splat}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \V128.\LOAD\K{16\_splat}~x~m \\ &&|&
-     \text{v128.load32\_splat}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \V128.\LOAD\K{32\_splat}~x~m \\ &&|&
-     \text{v128.load64\_splat}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{64\_splat}~x~m \\ &&|&
-     \text{v128.load32\_zero}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \V128.\LOAD\K{32\_zero}~x~m \\ &&|&
-     \text{v128.load64\_zero}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{64\_zero}~x~m \\ &&|&
-     \text{v128.load8\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_1~~y{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{8\_lane}~x~m~y \\ &&|&
-     \text{v128.load16\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_2~~y{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{16\_lane}~x~m~y \\ &&|&
-     \text{v128.load32\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_4~~y{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{32\_lane}~x~m~y \\ &&|&
-     \text{v128.load64\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_8~~y{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{64\_lane}~x~m~y \\ &&|&
-     \text{i32.store}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \I32.\STORE~x~m \\ &&|&
-     \text{i64.store}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \I64.\STORE~x~m \\ &&|&
-     \text{f32.store}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \F32.\STORE~x~m \\ &&|&
-     \text{f64.store}~~x{:}\Tmemidx~~m{:}\Tmemarg_8 &\Rightarrow& \F64.\STORE~x~m \\ &&|&
-     \text{v128.store}~~x{:}\Tmemidx~~m{:}\Tmemarg_{16} &\Rightarrow& \V128.\STORE~x~m \\ &&|&
-     \text{i32.store8}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \I32.\STORE\K{8}~x~m \\ &&|&
-     \text{i32.store16}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \I32.\STORE\K{16}~x~m \\ &&|&
-     \text{i64.store8}~~x{:}\Tmemidx~~m{:}\Tmemarg_1 &\Rightarrow& \I64.\STORE\K{8}~x~m \\ &&|&
-     \text{i64.store16}~~x{:}\Tmemidx~~m{:}\Tmemarg_2 &\Rightarrow& \I64.\STORE\K{16}~x~m \\ &&|&
-     \text{i64.store32}~~x{:}\Tmemidx~~m{:}\Tmemarg_4 &\Rightarrow& \I64.\STORE\K{32}~x~m \\ &&|&
-     \text{v128.store8\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_1~~y{:}\Tu8 &\Rightarrow& \V128.\STORE\K{8\_lane}~x~m~y \\ &&|&
-     \text{v128.store16\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_2~~y{:}\Tu8 &\Rightarrow& \V128.\STORE\K{16\_lane}~x~m~y \\ &&|&
-     \text{v128.store32\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_4~~y{:}\Tu8 &\Rightarrow& \V128.\STORE\K{32\_lane}~x~m~y \\ &&|&
-     \text{v128.store64\_lane}~~x{:}\Tmemidx~~m{:}\Tmemarg_8~~y{:}\Tu8 &\Rightarrow& \V128.\STORE\K{64\_lane}~x~m~y \\
-     \text{memory.size}~~x{:}\Tmemidx &\Rightarrow& \MEMORYSIZE~x \\ &&|&
-     \text{memory.grow}~~x{:}\Tmemidx &\Rightarrow& \MEMORYGROW~x \\ &&|&
-     \text{memory.fill}~~x{:}\Tmemidx &\Rightarrow& \MEMORYFILL~x \\ &&|&
-     \text{memory.copy}~~x{:}\Tmemidx~~y{:}\Tmemidx &\Rightarrow& \MEMORYCOPY~x~y \\ &&|&
-     \text{memory.init}~~x{:}\Tmemidx~~y{:}\Tdataidx_I &\Rightarrow& \MEMORYINIT~x~y \\ &&|&
+     \text{i32.load}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_4 &\Rightarrow& \I32.\LOAD~x~m \\ &&|&
+     \text{i64.load}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8 &\Rightarrow& \I64.\LOAD~x~m \\ &&|&
+     \text{f32.load}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_4 &\Rightarrow& \F32.\LOAD~x~m \\ &&|&
+     \text{f64.load}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8 &\Rightarrow& \F64.\LOAD~x~m \\ &&|&
+     \text{v128.load}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_{16} &\Rightarrow& \V128.\LOAD~x~m \\ &&|&
+     \text{i32.load8\_s}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_1 &\Rightarrow& \I32.\LOAD\K{8\_s}~x~m \\ &&|&
+     \text{i32.load8\_u}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_1 &\Rightarrow& \I32.\LOAD\K{8\_u}~x~m \\ &&|&
+     \text{i32.load16\_s}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_2 &\Rightarrow& \I32.\LOAD\K{16\_s}~x~m \\ &&|&
+     \text{i32.load16\_u}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_2 &\Rightarrow& \I32.\LOAD\K{16\_u}~x~m \\ &&|&
+     \text{i64.load8\_s}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_1 &\Rightarrow& \I64.\LOAD\K{8\_s}~x~m \\ &&|&
+     \text{i64.load8\_u}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_1 &\Rightarrow& \I64.\LOAD\K{8\_u}~x~m \\ &&|&
+     \text{i64.load16\_s}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_2 &\Rightarrow& \I64.\LOAD\K{16\_s}~x~m \\ &&|&
+     \text{i64.load16\_u}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_2 &\Rightarrow& \I64.\LOAD\K{16\_u}~x~m \\ &&|&
+     \text{i64.load32\_s}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_4 &\Rightarrow& \I64.\LOAD\K{32\_s}~x~m \\ &&|&
+     \text{i64.load32\_u}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_4 &\Rightarrow& \I64.\LOAD\K{32\_u}~x~m \\ &&|&
+     \text{v128.load8x8\_s}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{8x8\_s}~x~m \\ &&|&
+     \text{v128.load8x8\_u}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{8x8\_u}~x~m \\ &&|&
+     \text{v128.load16x4\_s}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{16x4\_s}~x~m \\ &&|&
+     \text{v128.load16x4\_u}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{16x4\_u}~x~m \\ &&|&
+     \text{v128.load32x2\_s}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{32x2\_s}~x~m \\ &&|&
+     \text{v128.load32x2\_u}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{32x2\_u}~x~m \\ &&|&
+     \text{v128.load8\_splat}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_1 &\Rightarrow& \V128.\LOAD\K{8\_splat}~x~m \\ &&|&
+     \text{v128.load16\_splat}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_2 &\Rightarrow& \V128.\LOAD\K{16\_splat}~x~m \\ &&|&
+     \text{v128.load32\_splat}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_4 &\Rightarrow& \V128.\LOAD\K{32\_splat}~x~m \\ &&|&
+     \text{v128.load64\_splat}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{64\_splat}~x~m \\ &&|&
+     \text{v128.load32\_zero}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_4 &\Rightarrow& \V128.\LOAD\K{32\_zero}~x~m \\ &&|&
+     \text{v128.load64\_zero}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8 &\Rightarrow& \V128.\LOAD\K{64\_zero}~x~m \\ &&|&
+     \text{v128.load8\_lane}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_1~~y{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{8\_lane}~x~m~y \\ &&|&
+     \text{v128.load16\_lane}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_2~~y{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{16\_lane}~x~m~y \\ &&|&
+     \text{v128.load32\_lane}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_4~~y{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{32\_lane}~x~m~y \\ &&|&
+     \text{v128.load64\_lane}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8~~y{:}\Tu8 &\Rightarrow& \V128.\LOAD\K{64\_lane}~x~m~y \\ &&|&
+     \text{i32.store}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_4 &\Rightarrow& \I32.\STORE~x~m \\ &&|&
+     \text{i64.store}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8 &\Rightarrow& \I64.\STORE~x~m \\ &&|&
+     \text{f32.store}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_4 &\Rightarrow& \F32.\STORE~x~m \\ &&|&
+     \text{f64.store}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8 &\Rightarrow& \F64.\STORE~x~m \\ &&|&
+     \text{v128.store}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_{16} &\Rightarrow& \V128.\STORE~x~m \\ &&|&
+     \text{i32.store8}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_1 &\Rightarrow& \I32.\STORE\K{8}~x~m \\ &&|&
+     \text{i32.store16}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_2 &\Rightarrow& \I32.\STORE\K{16}~x~m \\ &&|&
+     \text{i64.store8}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_1 &\Rightarrow& \I64.\STORE\K{8}~x~m \\ &&|&
+     \text{i64.store16}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_2 &\Rightarrow& \I64.\STORE\K{16}~x~m \\ &&|&
+     \text{i64.store32}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_4 &\Rightarrow& \I64.\STORE\K{32}~x~m \\ &&|&
+     \text{v128.store8\_lane}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_1~~y{:}\Tu8 &\Rightarrow& \V128.\STORE\K{8\_lane}~x~m~y \\ &&|&
+     \text{v128.store16\_lane}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_2~~y{:}\Tu8 &\Rightarrow& \V128.\STORE\K{16\_lane}~x~m~y \\ &&|&
+     \text{v128.store32\_lane}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_4~~y{:}\Tu8 &\Rightarrow& \V128.\STORE\K{32\_lane}~x~m~y \\ &&|&
+     \text{v128.store64\_lane}~~x{:}\Tmemidx_I~~m{:}\Tmemarg_8~~y{:}\Tu8 &\Rightarrow& \V128.\STORE\K{64\_lane}~x~m~y \\ &&|&
+     \text{memory.size}~~x{:}\Tmemidx_I &\Rightarrow& \MEMORYSIZE~x \\ &&|&
+     \text{memory.grow}~~x{:}\Tmemidx_I &\Rightarrow& \MEMORYGROW~x \\ &&|&
+     \text{memory.fill}~~x{:}\Tmemidx_I &\Rightarrow& \MEMORYFILL~x \\ &&|&
+     \text{memory.copy}~~x{:}\Tmemidx_I~~y{:}\Tmemidx_I &\Rightarrow& \MEMORYCOPY~x~y \\ &&|&
+     \text{memory.init}~~x{:}\Tmemidx_I~~y{:}\Tdataidx_I &\Rightarrow& \MEMORYINIT~x~y \\ &&|&
      \text{data.drop}~~x{:}\Tdataidx_I &\Rightarrow& \DATADROP~x \\
    \end{array}
 
@@ -501,6 +425,83 @@ As an abbreviation, the memory index can be omitted in all memory instructions, 
     \text{memory.init}~~x{:}\Telemidx_I
        &\equiv&
      \text{memory.init}~~\text{0}~~x{:}\Telemidx_I
+   \end{array}
+
+
+.. index:: reference instruction
+   pair: text format; instruction
+.. _text-instr-ref:
+
+Reference Instructions
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. _text-ref.null:
+.. _text-ref.func:
+.. _text-ref.is_null:
+.. _text-ref.as_non_null:
+.. _text-struct.new:
+.. _text-struct.new_default:
+.. _text-struct.get:
+.. _text-struct.get_s:
+.. _text-struct.get_u:
+.. _text-struct.set:
+.. _text-array.new:
+.. _text-array.new_default:
+.. _text-array.new_fixed:
+.. _text-array.new_elem:
+.. _text-array.new_data:
+.. _text-array.get:
+.. _text-array.get_s:
+.. _text-array.get_u:
+.. _text-array.set:
+.. _text-array.len:
+.. _text-array.fill:
+.. _text-array.copy:
+.. _text-array.init_data:
+.. _text-array.init_elem:
+.. _text-ref.i31:
+.. _text-i31.get_s:
+.. _text-i31.get_u:
+.. _text-ref.test:
+.. _text-ref.cast:
+.. _text-any.convert_extern:
+.. _text-extern.convert_any:
+
+.. math::
+   \begin{array}{llclll}
+   \production{instruction} & \Tplaininstr_I &::=& \dots \\ &&|&
+     \text{ref.null}~~t{:}\Theaptype_I &\Rightarrow& \REFNULL~t \\ &&|&
+     \text{ref.func}~~x{:}\Tfuncidx_I &\Rightarrow& \REFFUNC~x \\ &&|&
+     \text{ref.is\_null} &\Rightarrow& \REFISNULL \\ &&|&
+     \text{ref.as\_non\_null} &\Rightarrow& \REFASNONNULL \\ &&|&
+     \text{ref.eq} &\Rightarrow& \REFEQ \\ &&|&
+     \text{ref.test}~~t{:}\Treftype_I &\Rightarrow& \REFTEST~t \\ &&|&
+     \text{ref.cast}~~t{:}\Treftype_I &\Rightarrow& \REFCAST~t \\ &&|&
+     \text{struct.new}~~x{:}\Ttypeidx_I &\Rightarrow& \STRUCTNEW~x \\ &&|&
+     \text{struct.new\_default}~~x{:}\Ttypeidx_I &\Rightarrow& \STRUCTNEWDEFAULT~x \\ &&|&
+     \text{struct.get}~~x{:}\Ttypeidx_I~~y{:}\Tfieldidx_{I,x} &\Rightarrow& \STRUCTGET~x~y \\ &&|&
+     \text{struct.get\_u}~~x{:}\Ttypeidx_I~~y{:}\Tfieldidx_{I,x} &\Rightarrow& \STRUCTGETU~x~y \\ &&|&
+     \text{struct.get\_s}~~x{:}\Ttypeidx_I~~y{:}\Tfieldidx_{I,x} &\Rightarrow& \STRUCTGETS~x~y \\ &&|&
+     \text{struct.set}~~x{:}\Ttypeidx_I~~y{:}\Tfieldidx_{I,x} &\Rightarrow& \STRUCTSET~x~y \\ &&|&
+     \text{array.new}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYNEW~x \\ &&|&
+     \text{array.new\_default}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYNEWDEFAULT~x \\ &&|&
+     \text{array.new\_fixed}~~x{:}\Ttypeidx_I~~n{:}\Tu32 &\Rightarrow& \ARRAYNEWFIXED~x~n \\ &&|&
+     \text{array.new\_data}~~x{:}\Ttypeidx_I~~y{:}\Tdataidx_I &\Rightarrow& \ARRAYNEWDATA~x~y \\ &&|&
+     \text{array.new\_elem}~~x{:}\Ttypeidx_I~~y{:}\Telemidx_I &\Rightarrow& \ARRAYNEWELEM~x~y \\ &&|&
+     \text{array.get}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYGET~x \\ &&|&
+     \text{array.get\_u}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYGETU~x \\ &&|&
+     \text{array.get\_s}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYGETS~x \\ &&|&
+     \text{array.set}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYSET~x \\ &&|&
+     \text{array.len} &\Rightarrow& \ARRAYLEN \\ &&|&
+     \text{array.fill}~~x{:}\Ttypeidx_I &\Rightarrow& \ARRAYFILL~x \\ &&|&
+     \text{array.copy}~~x{:}\Ttypeidx_I~~y{:}\Ttypeidx_I &\Rightarrow& \ARRAYCOPY~x~y \\ &&|&
+     \text{array.init\_data}~~x{:}\Ttypeidx_I~~y{:}\Tdataidx_I &\Rightarrow& \ARRAYINITDATA~x~y \\ &&|&
+     \text{array.init\_elem}~~x{:}\Ttypeidx_I~~y{:}\Telemidx_I &\Rightarrow& \ARRAYINITELEM~x~y \\ &&|&
+     \text{ref.i31} &\Rightarrow& \REFI31 \\ &&|&
+     \text{i31.get\_u} &\Rightarrow& \I31GETU \\ &&|&
+     \text{i31.get\_s} &\Rightarrow& \I31GETS \\ &&|&
+     \text{any.convert\_extern} &\Rightarrow& \ANYCONVERTEXTERN \\ &&|&
+     \text{extern.convert\_any} &\Rightarrow& \EXTERNCONVERTANY \\
    \end{array}
 
 
@@ -1056,7 +1057,7 @@ Vector constant instructions have a mandatory :ref:`shape <syntax-shape>` descri
 .. math::
    \begin{array}{llclll}
    \phantom{\production{instruction}} & \phantom{\Tplaininstr_I} &\phantom{::=}& \phantom{averylonginstructionnameforvectext} && \phantom{vechasreallyreallyreallylonginstructionnames} \\[-2ex] &&|&
-     \text{i16x8.relaxed\_swizzle} &\Rightarrow& \I16X8.\VRELAXEDSWIZZLE \\ &&|&
+     \text{i8x16.relaxed\_swizzle} &\Rightarrow& \I8X16.\VRELAXEDSWIZZLE \\ &&|&
      \text{i32x4.relaxed\_trunc\_f32x4\_s} &\Rightarrow& \I32X4.\VRELAXEDTRUNC\K{\_f32x4\_s} \\ &&|&
      \text{i32x4.relaxed\_trunc\_f32x4\_u} &\Rightarrow& \I32X4.\VRELAXEDTRUNC\K{\_f32x4\_u} \\ &&|&
      \text{i32x4.relaxed\_trunc\_f32x4\_s\_zero} &\Rightarrow& \I32X4.\VRELAXEDTRUNC\K{\_f32x4\_s\_zero} \\ &&|&
@@ -1104,14 +1105,15 @@ Such a folded instruction can appear anywhere a regular instruction can.
        &\equiv\quad \text{block}~~\Tlabel~~\Tblocktype~~\Tinstr^\ast~~\text{end} \\ &
      \text{(}~\text{loop}~~\Tlabel~~\Tblocktype~~\Tinstr^\ast~\text{)}
        &\equiv\quad \text{loop}~~\Tlabel~~\Tblocktype~~\Tinstr^\ast~~\text{end} \\ &
-     \text{(}~\text{if}~~\Tlabel~~\Tblocktype~~\Tfoldedinstr^\ast
-       &\hspace{-3ex} \text{(}~\text{then}~~\Tinstr_1^\ast~\text{)}~~(\text{(}~\text{else}~~\Tinstr_2^\ast~\text{)})^?~~\text{)}
-       \quad\equiv \\ &\qquad
-       \Tfoldedinstr^\ast~~\text{if}~~\Tlabel
-       &\hspace{-12ex} \Tblocktype~~\Tinstr_1^\ast~~\text{else}~~(\Tinstr_2^\ast)^?~\text{end} \\ &
+     \text{(}~\text{if}~~\Tlabel~~\Tblocktype~~\Tfoldedinstr^\ast \\ &
+       \qquad \text{(}~\text{then}~~\Tinstr_1^\ast~\text{)}~~(\text{(}~\text{else}~~\Tinstr_2^\ast~\text{)})^?~~\text{)}
+       &\equiv\quad
+       \Tfoldedinstr^\ast~~\text{if}~~\Tlabel~~\Tblocktype~~\Tinstr_1^\ast~~\\ &
+       &\qquad\qquad \text{else}~~(\Tinstr_2^\ast)^?~\text{end} \\ &
      \text{(}~\text{try\_table}~~\Tlabel~~\Tblocktype~~\Tcatch^\ast~~\Tinstr^\ast~\text{)}
-       \quad\equiv \\ &\qquad
-       \text{try\_table}~~\Tlabel~~\Tblocktype~~\Tcatch^\ast~~\Tinstr^\ast~~\text{end} \\
+       &\equiv\quad
+       \text{try\_table}~~\Tlabel~~\Tblocktype~~\\ &
+       &\qquad\qquad \Tcatch^\ast~~\Tinstr^\ast~~\text{end} \\
    \end{array}
 
 
@@ -1144,5 +1146,5 @@ No explicit :math:`\text{end}` keyword is included, since they only occur in bra
 .. math::
    \begin{array}{llclll}
    \production{expression} & \Texpr_I &::=&
-     (\X{in}{:}\Tinstr_I)^\ast &\Rightarrow& \X{in}^\ast~\END \\
+     (\X{in}{:}\Tinstr_I)^\ast &\Rightarrow& \X{in}^\ast \\
    \end{array}

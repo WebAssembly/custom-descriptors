@@ -192,7 +192,9 @@ provided that :math:`N = |t|\cdot M`.
 
 This function is a bijection on |IN|, hence it is invertible.
 
-.. todo:: pack/unpacknum
+Numeric values can be *packed* into lanes of a specific :ref:`lane type <syntax-lanetype>` and vice versa:
+
+$${definition: lpacknum_ lunpacknum_}
 
 
 .. index:: byte, little endian, memory
@@ -1720,7 +1722,7 @@ It computes :math:`(z_1 \cdot z_2) + z_3` as if with unbounded range and precisi
 
 * Else if both :math:`z_1` and :math:`z_2` are zeroes, then return :math:`1`.
 
-* Else if :math:`z_1` is smaller than or equal to :math:`z_2`, then return :math:`1`.
+* Else if :math:`z_1` is larger than or equal to :math:`z_2`, then return :math:`1`.
 
 * Else return :math:`0`.
 
@@ -1775,10 +1777,7 @@ It computes :math:`(z_1 \cdot z_2) + z_3` as if with unbounded range and precisi
 Conversions
 ~~~~~~~~~~~
 
-.. _op-ext:
 .. _op-extend:
-
-.. todo:: ext or extend?
 
 :math:`\extendu_{M,N}(i)`
 .........................
@@ -2458,20 +2457,20 @@ The implementation-specific behaviour of this operation is determined by the glo
 :math:`\relaxedtrunc^u_{M,N}(z)`
 ................................
 
-The implementation-specific behaviour of this operation is determined by the global parameter :math:`R_{\F{trunc\_u}} \in \{0, 1, 2, 3\}`.
+The implementation-specific behaviour of this operation is determined by the global parameter :math:`R_{\F{trunc\_u}} \in \{0, 1\}`.
 
 * If :math:`z` is normal or subnormal and :math:`\trunc(z)` is non-negative and less than :math:`2^N`, then return :math:`\truncu_{M,N}(z)`.
 
-* Else, return :math:`\relaxed(R_{\F{trunc\_u}})[ \truncsatu_{M,N}(z), 2^N-1, 2^N-2, 2^(N-1) ]`.
+* Else, return :math:`\relaxed(R_{\F{trunc\_u}})[ \truncsatu_{M,N}(z), \mathbf{R} ]`.
 
 .. math::
    \begin{array}{@{}lcll}
    \relaxedtrunc^u_{M,N}(\pm q) &=& \truncu_{M,N}(\pm q) & (\iff 0 \leq \trunc(\pm q) < 2^N) \\
-   \relaxedtrunc^u_{M,N}(z) &=& \relaxed(R_{\F{trunc\_u}})[ \truncsatu_{M,N}(z), 2^{N}-1, 2^{N}-2, 2^{N-1}] & (\otherwise) \\
+   \relaxedtrunc^u_{M,N}(z) &=& \relaxed(R_{\F{trunc\_u}})[ \truncsatu_{M,N}(z), \mathbf{R}] & (\otherwise) \\
    \end{array}
 
 .. note::
-   Relaxed unsigned truncation is implementation-dependent for NaNs and out-of-range values.
+   Relaxed unsigned truncation is non-deterministic for NaNs and out-of-range values.
    In the :ref:`deterministic profile <profile-deterministic>`,
    it behaves like regular :math:`\truncsatu`.
 
@@ -2485,16 +2484,16 @@ The implementation-specific behaviour of this operation is determined by the glo
 
 * If :math:`z` is normal or subnormal and :math:`\trunc(z)` is greater than or equal to :math:`-2^{N-1}` and less than :math:`2^{N-1}`, then return :math:`\truncs_{M,N}(z)`.
 
-* Else, return :math:`\relaxed(R_{\F{trunc\_s}})[ \truncsats_{M,N}(z), 2^N-1, 2^N-2, 2^(N-1) ]`.
+* Else, return :math:`\relaxed(R_{\F{trunc\_s}})[ \truncsats_{M,N}(z), \mathbf{R} ]`.
 
 .. math::
    \begin{array}{@{}lcll}
    \relaxedtrunc^s_{M,N}(\pm q) &=& \truncs_{M,N}(\pm q) & (\iff -2^{N-1} \leq \trunc(\pm q) < 2^{N-1}) \\
-   \relaxedtrunc^s_{M,N}(z) &=& \relaxed(R_{\F{trunc\_s}})[ \truncsats_{M,N}(z), \signed^{-1}_N(-2^{N-1})] & (\otherwise) \\
+   \relaxedtrunc^s_{M,N}(z) &=& \relaxed(R_{\F{trunc\_s}})[ \truncsats_{M,N}(z), \mathbf{R}] & (\otherwise) \\
    \end{array}
 
 .. note::
-   Relaxed signed truncation is implementation-dependent for NaNs and out-of-range values.
+   Relaxed signed truncation is non-deterministic for NaNs and out-of-range values.
    In the :ref:`deterministic profile <profile-deterministic>`,
    it behaves like regular :math:`\truncsats`.
 

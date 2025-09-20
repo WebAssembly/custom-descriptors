@@ -72,7 +72,7 @@ repo = 'custom-rtts'
 proposal = 'SpecTec + Custom RTTs'
 
 # The draft version string (clear out for release cuts)
-draft = ' (Draft ' + date.today().strftime("%Y-%m-%d") + ')'
+draft = ' (' + date.today().strftime("%Y-%m-%d") + ')'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -507,6 +507,8 @@ rst_prolog = """
 .. include:: /""" + pwd + """/util/macros.def
 """
 
+mathjax_path = 'https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js'
+
 # https://www.sphinx-doc.org/en/master/usage/extensions/math.html#confval-mathjax3_config
 # https://docs.mathjax.org/en/latest/web/configuration.html#configuration
 # https://docs.mathjax.org/en/latest/options/input/tex.html#tex-maxbuffer
@@ -515,6 +517,13 @@ mathjax3_config = {
       'maxBuffer': 30*1024,
       'macros': {
         'multicolumn': ['', 2]   # Bummer, MathJax can't handle multicolumn, ignore it
+      }
+    },
+    'options': {
+      'menuOptions': {
+        'settings': {
+          'enrich': False,  # Activating this apparently increases page load times by 4x
+        }
       }
     }
 }

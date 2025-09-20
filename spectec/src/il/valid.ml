@@ -110,7 +110,6 @@ let infer_unop at op ot =
     if not (Num.typ_unop op nt nt) then
       error at ("illegal type " ^ string_of_numtyp nt ^ " for unary operator");
     NumT nt, NumT nt
-  | (`PlusMinusOp | `MinusPlusOp), (#Num.typ as nt) -> NumT nt, NumT nt
   | _, _ ->
     error at ("malformed unary operator annotation")
 
@@ -393,9 +392,10 @@ try
     valid_exp env e1 t;
     valid_exp env e2 t
   | MemE (e1, e2) ->
-    let t1 = infer_exp env e1 in
+    let t2 = infer_exp env e2 in
+    let t1 = as_list_typ "expression" env Check t2 e2.at in
     valid_exp env e1 t1;
-    valid_exp env e2 (IterT (t1, List) $ e2.at);
+    valid_exp env e2 t2;
     equiv_typ env (BoolT $ e.at) t e.at
   | LenE e1 ->
     let t1 = infer_exp env e1 in
@@ -545,9 +545,11 @@ and valid_sym env g : typ =
     let ps, t, _ = Env.find_gram env id in
     let s = valid_args env as_ ps Subst.empty g.at in
     Subst.subst_typ s t
-  | NumG n ->
+  | NumG _ ->
+(*
     if n < 0x00 || n > 0xff then
       error g.at "byte value out of range";
+*)
     NumT `NatT $ g.at
   | TextG _ -> TextT $ g.at
   | EpsG -> TupT [] $ g.at
@@ -562,7 +564,7 @@ and valid_sym env g : typ =
     let t2 = valid_sym env g2 in
     equiv_typ env t1 (NumT `NatT $ g1.at) g.at;
     equiv_typ env t2 (NumT `NatT $ g2.at) g.at;
-    TupT [] $ g.at
+    NumT `NatT $ g.at
   | IterG (g1, iterexp) ->
     let iter, env' = valid_iterexp ~side:`Lhs env iterexp g.at in
     let t1 = valid_sym env' g1 in

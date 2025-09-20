@@ -7,10 +7,11 @@ On the use of the language:
 * [Language Reference](Language.md)
 * [Splicing](Splicing.md)
 * [Latex Backend](Latex.md)
-* [Prose Backend](Prose.md) (TBD)
-* [Interpreter Backend](Prose.md) (TBD)
+* [Prose Backend](Prose.md)
+* [Interpreter Backend](Interpreter.md)
+* [Assumptions](Assumptions.md)
 
 On the internal representations usable by backends:
 
 * [External Language](EL.md) (TBD)
-* [Internal Language](IL.md) (TBD)
+* [Internal Language](IL.md)

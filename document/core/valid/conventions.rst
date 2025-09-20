@@ -73,7 +73,7 @@ i.e., all :ref:`type indices <syntax-typeidx>` have been :ref:`substituted <nota
    either as "syntactic" types as in a source module, where all supertypes are type indices,
    or as "semantic" types, where all supertypes are resolved to either defined types or recursive type indices.
 
-   Recursive type indices are internal to a recursive type.
+   Recursive type indices are local to a recursive type.
    They are distinguished from regular type indices and represented such that two closed types are syntactically equal if and only if they have the same recursive structure.
 
 .. _aux-reftypediff:
@@ -120,8 +120,16 @@ Conventions
 * ${:$subst_valtype(t, x*, dt*)} denotes the parallel *substitution* of :ref:`type indices <syntax-typeidx>` ${:x*} with corresponding :ref:`defined types <syntax-deftype>` ${:dt*} in type ${:t}, provided ${:|x*| = |dt*|}.
 
 * ${:$subst_valtype(t, (REC i)*, dt*)} denotes the parallel substitution of :ref:`recursive type indices <syntax-rectypeidx>` ${:(REC i)*} with :ref:`defined types <syntax-deftype>` ${:dt*} in type ${:t}, provided ${:|(REC i)*| = |dt*|}.
+  This substitution does not proceed under :ref:`recursive types <syntax-rectype>`,
+  since they are considered local *binders* for all recursive type indices.
 
 * ${:$subst_all_valtype(t, dt*)} is shorthand for the substitution ${:$subst_valtype(t, x*, dt*)}, where ${:x* = 0 `... $((|dt*| - 1))}.
+
+.. note::
+   All recursive types formed by the semantics are closed with respect to recursive type indices that occur inside them.
+   Hence, substitution of recursive type indices never needs to modify the bodies of recursive types.
+   In addition, all types used for substitution are closed with respect to recursive type indices,
+   such that name capture of recursive type indices cannot occur.
 
 
 .. index:: recursive type, defined type, sub type, ! rolling, ! unrolling, ! expansion, type equivalence
@@ -130,6 +138,7 @@ Conventions
 .. _aux-roll-deftype:
 .. _aux-unroll-deftype:
 .. _aux-expand-deftype:
+.. _aux-expand-typeuse:
 
 Rolling and Unrolling
 ~~~~~~~~~~~~~~~~~~~~~
@@ -153,29 +162,12 @@ These operations are extended to :ref:`defined types <syntax-deftype>` and defin
 
 $${definition: rollrt unrollrt rolldt unrolldt}
 
-In addition, the following auxiliary relation denotes the *expansion* of a :ref:`defined type <syntax-deftype>`:
+In addition, the following auxiliary relation denotes the *expansion* of a :ref:`defined type <syntax-deftype>` or :ref:`type use <syntax-typeuse>`:
 
-$${rule: Expand}
+$${rule: Expand {Expand_use/*}}
 
-$${relation-ignore: Expand}
+$${relation-ignore: Expand Expand_use}
 $${definition-ignore: expanddt}
-
-
-.. index:: ! tag, tag type, function type, exception tag
-   pair: abstract syntax; tag
-   pair: tag; exception tag
-   single: tag; type; exception
-.. _syntax-tagtype:
-
-Tag Types
-~~~~~~~~~
-
-*Tag types* classify the signature of :ref:`tags <syntax-tag>` with a :ref:`defined type <syntax-deftype>` that denotes a :ref:`function type <syntax-functype>`.
-
-.. math::
-   \begin{array}{llll}
-   \production{tag type} &\tagtype &::=& \deftype \\
-   \end{array}
 
 
 .. index:: ! instruction type, value type, result type, instruction, local, local index
@@ -261,6 +253,9 @@ A type of any shape can be *closed* to bring it into :ref:`closed <type-closed>`
 
 $${definition: clos_valtype clos_deftypes}
 
+.. note::
+   Free type indices referring to types within the same :ref:`recursive type <syntax-rectype>` are handled separately by :ref:`rolling up <aux-roll-rectype>` recursive types before closing them.
+
 
 .. _valid-notation-textual:
 
@@ -278,7 +273,7 @@ The following conventions are adopted in stating these rules.
 
   .. note::
      For example, if ${:A} is a :ref:`function <syntax-func>`,
-     then ${:T} is a :ref:`function type <syntax-functype>`;
+     then ${:T} is a :ref:`defined function type <syntax-deftype>`;
      for an ${:A} that is a :ref:`global <syntax-global>`,
      ${:T} is a :ref:`global type <syntax-globaltype>`;
      and so on.

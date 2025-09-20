@@ -9,26 +9,26 @@ except that :ref:`function definitions <syntax-func>` are split into two section
    This separation enables *parallel* and *streaming* compilation of the functions in a module.
 
 
-.. index:: index, type index, function index, table index, memory index, global index, tag index, element index, data index, local index, label index, field index
+.. index:: index, type index, tag index, global index, memory index, table index, function index, data index, element index, local index, label index, field index
    pair: binary format; type index
-   pair: binary format; function index
-   pair: binary format; table index
-   pair: binary format; memory index
-   pair: binary format; global index
    pair: binary format; tag index
-   pair: binary format; element index
+   pair: binary format; global index
+   pair: binary format; memory index
+   pair: binary format; table index
+   pair: binary format; function index
    pair: binary format; data index
+   pair: binary format; element index
    pair: binary format; local index
    pair: binary format; label index
    pair: binary format; field index
 .. _binary-typeidx:
-.. _binary-funcidx:
-.. _binary-tableidx:
-.. _binary-memidx:
-.. _binary-globalidx:
 .. _binary-tagidx:
-.. _binary-elemidx:
+.. _binary-globalidx:
+.. _binary-memidx:
+.. _binary-tableidx:
+.. _binary-funcidx:
 .. _binary-dataidx:
+.. _binary-elemidx:
 .. _binary-localidx:
 .. _binary-labelidx:
 .. _binary-fieldidx:
@@ -405,5 +405,5 @@ $${grammar: {Bmagic Bversion Bmodule}}
    The version of the WebAssembly binary format may increase in the future
    if backward-incompatible changes have to be made to the format.
    However, such changes are expected to occur very infrequently, if ever.
-   The binary format is intended to be forward-compatible,
-   such that future extensions can be made without incrementing its version.
+   The binary format is intended to be extensible,
+   such that future features can be added without incrementing its version.

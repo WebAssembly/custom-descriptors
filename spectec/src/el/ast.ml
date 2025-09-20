@@ -18,6 +18,8 @@ type text = string
 type id = string phrase
 type atom = Atom.atom
 
+type signop = [`PlusMinusOp | `MinusPlusOp]
+
 
 (* Iteration *)
 
@@ -69,7 +71,7 @@ and numop =
   | `AtomOp  (* `n *)
 ]
 
-and unop = [Bool.unop | Num.unop | `PlusMinusOp | `MinusPlusOp]
+and unop = [Bool.unop | Num.unop | signop]
 and binop = [Bool.binop | Num.binop]
 and cmpop = [Bool.cmpop | Num.cmpop]
 
@@ -141,7 +143,10 @@ and sym' =
   | UnparenG of sym                          (* `##` sym *)
 
 and prod = prod' phrase
-and prod' = sym * exp * prem nl_list         (* `|` sym `=>` exp (`--` prem)* *)
+and prod' =
+  | SynthP of sym * exp * prem nl_list       (* `|` sym `=>` exp (`--` prem)* *)
+  | RangeP of sym * exp * sym * exp          (* `|` sym `=>` exp | ... | sym `=>` exp *)
+  | EquivP of sym * sym * prem nl_list       (* `|` sym `==` sym (`--` prem)* *)
 
 and gram = gram' phrase
 and gram' = dots * prod nl_list * dots       (* `|` list(`...`|prod, `|`) *)

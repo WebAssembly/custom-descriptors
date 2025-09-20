@@ -88,11 +88,14 @@ and free_arg arg =
 
 (* Iter exps *)
 
-and free_iterexp (iter, xes) =
+and free_xes xes =
   let xs, es = List.split xes in
-  let bound = free_list free_id xs in
-  let free = free_iter iter @ free_list free_expr es in
-  bound, free
+  free_list free_id xs, free_list free_expr es
+
+
+and free_iterexp (iter, xes) =
+  let bound, free = free_xes xes in
+  bound, free_iter iter @ free
 
 
 (* Instructions *)
@@ -106,8 +109,18 @@ let rec free_instr instr =
   | ThrowI e | PushI e | PopI e | PopAllI e | ReturnI (Some e)
   | ExecuteI e | ExecuteSeqI e ->
     free_expr e
-  | LetI (e1, e2) | AppendI (e1, e2) | FieldWiseAppendI (e1, e2) -> free_expr e1 @ free_expr e2
+  | LetI (e1, e2) | AppendI (e1, e2) -> free_expr e1 @ free_expr e2
   | EnterI (e1, e2, il) -> free_expr e1 @ free_expr e2 @ free_list free_instr il
   | AssertI e -> free_expr e
   | PerformI (_, al) -> free_list free_arg al
   | ReplaceI (e1, p, e2) -> free_expr e1 @ free_path p @ free_expr e2
+  | ForEachI (xes, il) ->
+    let free1 = free_list free_instr il in
+    let bound, free2 = free_xes xes in
+    (free1 - bound) @ free2
+
+(* Algorithms *)
+let free_algo algo =
+  match algo.it with
+  | RuleA (_, _, args, instrs)
+  | FuncA (_, args, instrs) -> free_list free_arg args @ free_list free_instr instrs

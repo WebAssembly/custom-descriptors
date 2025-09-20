@@ -37,7 +37,7 @@ let performI ?(at = no) (id, el) = PerformI (id, el) |> mk_instr at
 let exitI ?(at = no) a = ExitI a |> mk_instr at
 let replaceI ?(at = no) (e1, p, e2) = ReplaceI (e1, p, e2) |> mk_instr at
 let appendI ?(at = no) (e1, e2) = AppendI (e1, e2) |> mk_instr at
-let fieldWiseAppendI ?(at = no) (e1, e2) = FieldWiseAppendI (e1, e2) |> mk_instr at
+let forEachI ?(at = no) (xes, il) = ForEachI (xes, il) |> mk_instr at
 let otherwiseI ?(at = no) il = OtherwiseI il |> mk_instr at
 let yetI ?(at = no) s = YetI s |> mk_instr at
 
@@ -138,6 +138,10 @@ let print_yet at category msg =
 
 (* Helper functions *)
 
+let listv_len = function
+  | ListV arr_ref -> Array.length !arr_ref
+  | v -> fail_value "listv_len" v
+
 let listv_map f = function
   | ListV arr_ref -> ListV (ref (Array.map f !arr_ref))
   | v -> fail_value "listv_map" v
@@ -197,6 +201,12 @@ let context_names = [
   "LABEL_";
   "HANDLER_";
 ]
+
+let rec mk_access ps base =
+  match ps with
+  (* TODO: type *)
+  | h :: t -> accE (base, h) ~note:no_note |> mk_access t
+  | [] -> base
 
 (* Destruct *)
 

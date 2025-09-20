@@ -62,6 +62,57 @@ let both_non_empty cond1 cond2 =
   | Some e1, Some e2 -> Eq.eq_expr e1 e2
   | _ -> false
 
+let eq_nat_cond cond1 cond2 =
+  let is_nat e =
+    match e.note.it with
+    | Il.Ast.NumT `NatT -> true
+    | Il.Ast.VarT (id, _) -> id.it = "uN" || String.ends_with ~suffix:"idx" id.it
+    | _ -> false
+  in
+  let is_zero cond =
+    match cond.it with
+    | BinE (op, e, { it = NumE (`Nat z); _ }) when is_nat e ->
+      if op = `EqOp && z = Z.zero
+      || op = `LeOp && z = Z.zero
+      || op = `LtOp && z = Z.one then
+        Some e
+      else
+        None
+    | BinE (op, { it = NumE (`Nat z); _ }, e) when is_nat e ->
+      if op = `EqOp && z = Z.zero
+      || op = `GeOp && z = Z.zero
+      || op = `GtOp && z = Z.one then
+        Some e
+      else None
+    | _ -> None
+  in
+  let is_pos cond =
+    match cond.it with
+    | BinE (op, e, { it = NumE (`Nat z); _ }) when is_nat e ->
+      if op = `NeOp && z = Z.zero
+      || op = `GtOp && z = Z.zero
+      || op = `GeOp && z = Z.one then
+        Some e
+      else
+        None
+    | BinE (op, { it = NumE (`Nat z); _ }, e) when is_nat e ->
+      if op = `NeOp && z = Z.zero
+      || op = `LtOp && z = Z.zero
+      || op = `LeOp && z = Z.one then
+        Some e
+      else
+        None
+    | _ -> None
+  in
+
+  (match is_zero cond1, is_zero cond2 with
+  | Some e1, Some e2 -> Eq.eq_expr e1 e2
+  | _ -> false)
+  ||
+  (match is_pos cond1, is_pos cond2 with
+  | Some e1, Some e2 -> Eq.eq_expr e1 e2
+  | _ -> false)
+
 let diff_case cond1 cond2 =
   match cond1.it, cond2.it with
   | IsCaseOfE (e1, a1), IsCaseOfE (e2, a2) ->
@@ -73,6 +124,7 @@ let eq_cond cond1 cond2 =
   Eq.eq_expr cond1 cond2
   || both_empty cond1 cond2
   || both_non_empty cond1 cond2
+  || eq_nat_cond cond1 cond2
 
 let conflicts cond1 cond2 =
   eq_cond (neg cond1) cond2
@@ -108,6 +160,14 @@ let atom_of_case e =
   match e.it with
   | CaseE ((atom :: _) :: _, _) -> atom
   | _ -> Error.error e.at "prose transformation" "expected a CaseE"
+
+let rec replace_names binds instr =
+  match binds with
+  | [] -> instr
+  | (new_name, old_name) :: binds' ->
+    let instrs = replace_name new_name old_name instr in
+    assert (List.length instrs = 1);
+    replace_names binds' (List.hd instrs)
 
 (* AL -> AL transpilers *)
 
@@ -166,6 +226,71 @@ let merge instrs1 instrs2 =
 
 let merge_blocks blocks = List.fold_right merge blocks []
 
+let is_single_if block =
+  match block with
+  | [{it = IfI (_, _, []); _}] -> true
+  | _ -> false
+
+let rec extract_cond block =
+  match block with
+  | [{it = IfI (c, b, []); _}] -> c :: extract_cond b
+  | _ -> []
+
+let extract_common_cond conds =
+  let first_cond = List.hd conds in
+  List.find_opt (fun c ->
+    List.for_all (List.exists (eq_cond c)) (List.tl conds)
+  ) first_cond
+
+let rec remove_cond c block =
+  match block with
+  | [{it = IfI (c', b, []); at; _}] ->
+    if eq_cond c c' then
+      b
+    else
+      [ifI (c', remove_cond c b, []) ~at]
+  | _ -> assert false
+
+let extract_common_cond_allow_neg conds =
+  let first_cond = List.hd conds in
+  List.find_opt (fun c ->
+    List.for_all (List.exists (fun c' -> eq_cond c c' || eq_cond c (neg c'))) (List.tl conds)
+  ) first_cond
+
+let rec remove_cond_allow_neg c block =
+  match block with
+  | [{it = IfI (c', b, []); at; _}] ->
+    if eq_cond c c' then
+      Either.Left b
+    else if eq_cond c (neg c') then
+      Either.Right b
+    else
+      let f b = [ifI (c', b, []) ~at] in
+      remove_cond_allow_neg c b
+      |> Either.map ~left:f ~right:f
+  | _ -> assert false
+
+
+(* Merge disjoint blocks, automatically inferring and inserting the appropriate else branch *)
+let rec merge_disjoint_ifs blocks =
+  if List.length blocks > 1 && List.for_all is_single_if blocks then
+    let conds = List.map extract_cond blocks in
+    let at = List.map (fun b -> List.map (fun i -> i.at) b |> over_region) blocks |> over_region in
+    (* If there is a condition that appear in all if-blocks, extract it as the first cond *)
+    match extract_common_cond conds with
+    | Some c ->
+      [ifI (c, merge_disjoint_ifs (List.map (remove_cond c) blocks), []) ~at]
+    | None ->
+      (* If there is a condition whose own version or negated version appear in all if-blocks, extract it as the first cond *)
+      match extract_common_cond_allow_neg conds with
+      | Some c ->
+        let then_blocks, else_blocks = List.partition_map (remove_cond_allow_neg c) blocks in
+        [ifI (c, merge_disjoint_ifs then_blocks, merge_disjoint_ifs else_blocks) ~at]
+      | None ->
+        List.concat blocks
+  else
+    List.concat blocks
+
 (* Enhance readability of AL *)
 
 let rec unify_if instrs =
@@ -187,8 +312,30 @@ let rec unify_if instrs =
         let body = unify_if (common @ own_body1 @ own_body2) in
         let at = over_region [ at1; at2 ] in
         ifI (c1, body, []) ~at:at :: rest
+      | { it = IfI (c', [{it = IfI (c1, body1, []); _}], []); at = at1; _ }, { it = IfI (c2, body2, []); at = at2; _ } :: rest
+        when Eq.eq_expr c1 c2 ->
+        let i = ifI (c', body1, []) ~at:at1 in
+        let body = unify_if (i :: body2) in
+        let at = over_region [ at1; at2 ] in
+        ifI (c1, body, []) ~at:at :: rest
       | _ -> new_i :: il)
     instrs []
+
+let extract_last_ifs il =
+  let rec extract_first_ifs acc il =
+    match il with
+    | [] -> List.rev il, acc
+    | hd :: tl ->
+      match hd.it with
+      | IfI _ -> extract_first_ifs ([hd] :: acc) tl
+      | _ -> List.rev il, acc
+  in
+  extract_first_ifs [] (List.rev il)
+
+(* Unify more than 3 ifs at once, by extracting the common conditions *)
+let unify_multi_if instrs =
+  let hd, ifs = extract_last_ifs instrs in
+  hd @ merge_disjoint_ifs ifs
 
 let rec infer_else instrs =
   List.fold_right
@@ -206,6 +353,11 @@ let rec infer_else instrs =
         when eq_cond c1 (neg c2) ->
         let at = over_region [ at1; at2 ] in
         ifI (c1, then_body1 @ then_body2, else_body1 @ else_body2) ~at:at :: rest
+      | { it = IfI (c1, body1, []); at = at1; _ }, { it = IfI (c3 ,[{it = IfI (c2, body2, []); at = at2; _ }], []); _} :: rest
+        when eq_cond c1 (neg c2) ->
+        let at = over_region [ at1; at2 ] in
+        let body3 = [ifI (c3, body2, []) ~at:at2] in
+        ifI (c1, body1, body3) ~at :: rest
       | _ -> new_i :: il)
     instrs []
 
@@ -221,20 +373,21 @@ let swap_if instr =
   | IfI (c, il, []) -> ifI (c, il, []) ~at:at
   | IfI (c, [], il) -> ifI (neg c, il, []) ~at:at
   | IfI (_, _, il2) when (match il2 with | [{it = IfI _; _}] -> true | _ -> false) -> instr
+  | IfI ({it = BinE (`EqOp, _, {it = NumE _; _}); _}, _, _) -> instr
   | IfI (c, il1, il2) when count_instrs il1 > count_instrs il2 -> ifI (neg c, il2, il1) ~at:at
   | _ -> instr
 
-let rec return_at_last = function
+let rec exit_at_last = function
   | [] -> false
   | h :: t ->
     match h.it with
     | TrapI | ReturnI _ | FailI -> true
-    | _ -> return_at_last t
+    | _ -> exit_at_last t
 
-let early_return instr =
+let early_exit instr =
   let at = instr.at in
   match instr.it with
-  | IfI (c, il1, il2) when return_at_last il1 -> ifI (c, il1, []) ~at:at :: il2
+  | IfI (c, il1, il2) when exit_at_last il1 -> ifI (c, il1, []) ~at:at :: il2
   | _ -> [ instr ]
 
 (* If c then (A; B) else (A; C) --> A; If c then B else C *)
@@ -303,6 +456,13 @@ let merge_three_branches i =
   | IfI (e1, il1, [ { it = IfI (e2, il2, il3); at = at2; _ } ]) when Eq.eq_instrs il1 il3 ->
     let at = over_region [ at1; at2 ] in
     ifI (binE (`AndOp, neg e1, e2) ~note:boolT, il2, il1) ~at:at
+  | IfI (e1, [ { it = IfI (e2, il1, il2); at = at2; _ } ], il3) when Eq.eq_instrs il2 il3 && il2 <> [] ->
+    let from_same_prem = e1.at <> no_region && e1.at.left.line = e2.at.left.line in
+    if from_same_prem then
+      let at = over_region [ at1; at2 ] in
+      ifI (binE (`AndOp, e1, e2) ~note:boolT, il1, il2) ~at:at
+    else
+      i
   | _ -> i
 
 let remove_dead_assignment il =
@@ -324,6 +484,10 @@ let remove_dead_assignment il =
         | EnterI (e1, e2, il) ->
           let il', bounds = remove_dead_assignment' il ([], bounds) in
           enterI (e1, e2, il') ~at:at :: acc, bounds @ free_expr e1 @ free_expr e2
+        | ForEachI (xes, il) ->
+          let il', bounds = remove_dead_assignment' il ([], bounds) in
+          let _, es = List.split xes in
+          forEachI (xes, il') ~at:at :: acc, bounds @ free_list free_expr es
         (* n in, Let val'* ++ val^n be val*. should be bound, not binding *)
         | LetI ({ it = CatE (e11, e12) ; _ }, e2) ->
           let bindings = free_expr e11 @ free_expr e12 in
@@ -344,6 +508,12 @@ let remove_dead_assignment il =
             acc, bounds
           else
             (instr :: acc), (IdSet.diff bounds bindings) @ free_expr e2
+        | AppendI ({it = (VarE _ | IterE _); _} as e1, e2) ->
+          let bindings = free_expr e1 in
+          if IdSet.(is_empty (inter bindings bounds)) then
+            acc, bounds
+          else
+            (instr :: acc), (IdSet.diff bounds bindings) @ free_expr e1 @ free_expr e2
         | AssertI _ when acc = [] -> acc, bounds
         | _ ->
           instr :: acc, bounds @ free_instr instr)
@@ -374,6 +544,49 @@ let remove_redundant_assignment il =
   in
   remove_redundant_assignment' [] il
 
+(* Remove trivial assignment(a simple variable renaming) happens *)
+let remove_trivial_assignment il =
+  let rec remove_trivial_assignment' binds il =
+    List.fold_left_map
+      (fun acc instr ->
+        let instr = replace_names acc instr in
+        let at = instr.at in
+        match instr.it with
+        | IfI (e, il1, il2) ->
+          let il1' = remove_trivial_assignment' acc il1 in
+          let il2' = remove_trivial_assignment' acc il2 in
+          acc, [ifI (e, il1', il2') ~at:at]
+        | LetI ({it = VarE x1; _}, {it = VarE x2; _}) ->
+            (x1, x2) :: acc, []
+        | LetI (
+          {it = IterE ({it = VarE x1; _}, (_, [_, {it = VarE x1'; _}])); _},
+          {it = IterE ({it = VarE x2; _}, (_, [_, {it = VarE x2'; _}])); _}) ->
+            (x1, x2) :: (x1', x2') :: acc, []
+        | _ ->
+          acc, [instr]
+      ) binds il
+    |> snd
+    |> List.concat
+  in
+  remove_trivial_assignment' [] il
+
+(* Remove all instructions before the `trap` instruction. *)
+let rec remove_pre_trap il =
+  let il =
+    match (List.rev il) with
+    | {it = TrapI; _} as hd :: _ -> [hd]
+    | _ -> il
+  in
+
+  il
+  |> List.map (fun i ->
+    match i.it with
+    | IfI (c, il1, il2) ->
+      let i' = IfI (c, remove_pre_trap il1, remove_pre_trap il2) in
+      {i with it = i'}
+    | _ -> i
+  )
+
 let remove_sub e =
   let e' =
     match e.it with
@@ -400,6 +613,28 @@ let rec remove_nop acc il = match il with
   | { it = NopI; _ } :: acc' -> remove_nop (i' :: acc') il'
   | _ -> remove_nop (i' :: acc) il'
 
+(* Remove Pop frame; push frame *)
+let rec remove_dead_pop_push il =
+
+  let is_frame e = match e.note.it with
+    | Il.Ast.VarT (id, _) when id.it = "evalctx" -> true
+    | _ -> false
+  in
+
+  List.fold_right (fun i acc ->
+    let at = i.at in
+    match i.it with
+    | IfI (c, il1, il2) -> ifI (c, remove_dead_pop_push il1, remove_dead_pop_push il2) ~at :: acc
+    | OtherwiseI il -> otherwiseI (remove_dead_pop_push il) ~at :: acc
+    | EitherI (il1, il2) -> eitherI (remove_dead_pop_push il1, remove_dead_pop_push il2) ~at :: acc
+    | PopI e ->
+      (match acc with
+      | {it = PushI e'; _} :: tl when Al.Eq.eq_expr e e' && is_frame e -> tl
+      | _ -> i :: acc
+      )
+    | _ -> i :: acc
+  ) il []
+
 let simplify_record_concat expr =
   let expr' =
     match expr.it with
@@ -417,6 +652,18 @@ let simplify_record_concat expr =
     | e -> e
   in
   { expr with it = expr' }
+
+let simplify_dot_access e =
+  match e.it with
+  | AccE ({it = StrE r; _}, {it = DotP a; _}) ->
+    let e_opt = List.find_map (fun (a', er) ->
+      if a.it = a'.it then Some !er else None
+    ) r in
+    (match e_opt with
+    | Some e -> e
+    | None -> e
+    )
+  | _ -> e
 
 type count = One of string | Many
 module Counter = Map.Make (String)
@@ -476,6 +723,58 @@ let infer_case_assert instrs =
     | Some (hd, tl) -> hd @ rewrite_if tl
   in
   rewrite_il instrs
+
+let split x il =
+  let contains_x i = Free.IdSet.mem x (Free.free_instr i) in
+  let rec aux acc il =
+    match il with
+    | [] -> None
+    | hd :: tl ->
+      match hd.it with
+      | IfI (
+        {it = IsDefinedE {it = IterE (_, (Opt, [x', _])); _}; _},
+        {it = LetI ({it = OptE Some lhs; _}, {it = IterE (rhs, (Opt, [x'', _])); _}); _} :: rest,
+        []
+      ) when x = x' && x = x'' ->
+        if List.exists contains_x tl then
+          None
+        else
+          let if_info = (hd, lhs, rhs, rest) in
+          Some (acc, if_info, tl)
+      | _ when contains_x hd -> None
+      | _ -> aux (acc @ [hd]) tl
+  in
+  aux [] il
+
+(* Merge `x? = y?` and `if x is defined then ...` *)
+let rec merge_isdefined instrs =
+  List.fold_right (fun i acc ->
+    match i.it with
+    | IfI (c, il1, il2) ->
+      let it = IfI (c, merge_isdefined il1, merge_isdefined il2) in
+      {i with it} :: acc
+    | OtherwiseI il ->
+      let it = OtherwiseI (merge_isdefined il) in
+      {i with it} :: acc
+    | EitherI (il1, il2) ->
+      let it = EitherI (merge_isdefined il1, merge_isdefined il2) in
+      {i with it} :: acc
+    | LetI (({it = IterE (e1', (Opt, [x1, _])); _}) as e1, ({it = IterE (_, (Opt, [_, _])); _} as e2)) ->
+      (match split x1 acc with
+      | Some (prefix, (hd, lhs, rhs, rest), suffix) ->
+        let i' = {i with it = LetI ({e1 with it = OptE (Some e1')}, e2)} in
+        let hd' = {hd with it = LetI (lhs, rhs)} in
+        let i'' = {hd with it = IfI (
+          isDefinedE e2 ~note:boolT,
+          i' :: hd' :: rest,
+          []
+        )}
+        in
+        prefix @ i'' :: suffix
+      | None -> i :: acc
+      )
+    | _ -> i :: acc
+  ) instrs []
 
 (* Remove case check for a single case type *)
 let remove_trivial_case_check instr =
@@ -537,16 +836,16 @@ let reduce_comp expr =
 let loop_max = 100
 let loop_cnt = ref loop_max
 let rec enhance_readability instrs =
-  let pre_expr = simplify_record_concat << if_not_defined << reduce_comp in
+  let pre_expr = simplify_record_concat << if_not_defined << reduce_comp << simplify_dot_access in
   let walk_expr walker expr =
     let expr1 = pre_expr expr in
     Al.Walk.base_walker.walk_expr walker expr1
   in
   let post_instr =
     unify_if_head
-    >>@ unify_if_tail
     >>@ lift swap_if
-    >>@ early_return
+    >>@ early_exit
+    >>@ unify_if_tail
     >>@ lift merge_three_branches
     >>@ remove_trivial_case_check
   in
@@ -563,11 +862,16 @@ let rec enhance_readability instrs =
     instrs
     |> remove_dead_assignment
     |> remove_redundant_assignment
+    |> remove_trivial_assignment
+    |> remove_pre_trap
+    |> remove_dead_pop_push
     |> unify_if
+    |> unify_multi_if
     |> infer_else
     |> List.concat_map remove_unnecessary_branch
     |> remove_nop []
     |> infer_case_assert
+    |> merge_isdefined
     |> List.concat_map (walker.walk_instr walker)
   in
 
@@ -595,12 +899,6 @@ let flatten_if instrs =
   in
   let walker = { base_walker with walk_instr = walk_instr } in
   List.concat_map (walker.walk_instr walker) instrs
-
-let rec mk_access ps base =
-  match ps with
-  (* TODO: type *)
-  | h :: t -> accE (base, h) ~note:Al.Al_util.no_note |> mk_access t
-  | [] -> base
 
 let is_store expr = match expr.note.it with
   | Il.Ast.VarT (id, _) when id.it = "store" -> true
@@ -688,12 +986,6 @@ let hide_state instr =
     [ letI (addr, e2) ~at:at;
       appendI (access, e1) ~at:at;
       returnI (Some addr) ~at:at ]
-  (* Fieldwise Append & Return *)
-  | ReturnI (Some ({ it = TupE [ { it = CompE (e1, e2); _ } as s; e ]; _  })) when is_store s ->
-    let addr = varE "a" ~note:e.note in
-    [ letI (addr, e) ~at:at;
-      fieldWiseAppendI (e1, e2) ~at:at;
-      returnI (Some addr) ~at:at ]
   (* Replace store *)
   | ReturnI (Some ({ it = TupE [ { it = UpdE (s, ps, e); note; _ }; f ]; _ })) when is_store s && is_frame f ->
     let hs, t = Lib.List.split_last ps in
@@ -713,10 +1005,6 @@ let hide_state instr =
   | ReturnI (Some ({ it = TupE [ { it = ExtE (s, ps, e, Back); note; _ }; f ]; _ })) when is_store s && is_frame f ->
     let access = { (mk_access ps s) with note } in
     [ appendI (access, e) ~at:at ]
-  (* Fieldwise append store / frame *)
-  | ReturnI (Some ({ it = TupE [ { it = CompE (e1, e2); _ } as s; f ]; _ }))
-  | ReturnI (Some ({ it = TupE [ s; { it = CompE (e1, e2); _ } as f ]; _ })) when is_store s && is_frame f ->
-    [ fieldWiseAppendI (e1, e2) ~at:at ]
   (* Return *)
   | ReturnI (Some e) when is_state e || is_store e -> [ returnI None ~at:at ]
   | _ -> [ instr ]
@@ -782,73 +1070,11 @@ let remove_state algo =
     }
   )
 
-(* Insert "Let f be the current frame" if necessary. *)
-let insert_frame_binding instrs =
-  let open Free in
-  let (@) = IdSet.union in
-  let frame_count = ref 0 in
-  let bindings = ref IdSet.empty in
-  let found = ref false in
-
-  let count_frame e =
-    (match e.it with
-    | VarE "f" -> frame_count := !frame_count + 1
-    | _ -> ());
-    e
-  in
-
-  let update_bindings i =
-    frame_count := 0;
-    match i.it with
-    | LetI ({ it = CatE (e11, e12) ; _ }, _) ->
-      let bindings' = free_expr e11 @ free_expr e12 in
-      let get_bounds_iters e =
-        match e.it with
-        | IterE (_, (ListN (e_iter, _), _)) -> free_expr e_iter
-        | _ -> IdSet.empty
-      in
-      let bounds_iters = (get_bounds_iters e11) @ (get_bounds_iters e12) in
-      bindings := IdSet.diff bindings' bounds_iters |> IdSet.union !bindings;
-      [ i ]
-    | LetI (e1, _) ->
-      bindings := IdSet.union !bindings (free_expr e1);
-      found := (not (IdSet.mem "f" !bindings)) && !frame_count > 0;
-      [ i ]
-    | _ -> [ i ]
-  in
-
-  let found_frame _ = !found in
-  let check_free_frame i =
-    found := (not (IdSet.mem "f" !bindings)) && !frame_count > 0;
-    [ i ]
-  in
-
-  let walk_expr walker expr =
-    let expr1 = count_frame expr in
-    Al.Walk.base_walker.walk_expr walker expr1
-  in
-  let walk_instr walker instr =
-    let instr1 = update_bindings instr in
-    let instr2 = List.concat_map (fun i -> if found_frame i then [i] else Al.Walk.base_walker.walk_instr walker i) instr1 in
-    List.concat_map check_free_frame instr2
-  in
-  let walker = { Walk.base_walker with
-    walk_expr = walk_expr;
-    walk_instr = walk_instr;
-  }
-  in
-
-  match List.concat_map (walker.walk_instr walker) instrs with
-  | il when !found ->
-    let frame = frameE (varE "_" ~note:natT, varE "f" ~note:frameT) ~note:evalctxT in
-    (letI (frame, getCurContextE (Some frame_atom) ~note:evalctxT)) :: il
-  | _ -> instrs
-
 
 (* This function infers whether the frame should be
    considered global or not within this given AL function.
 
-There are two kinds of auxilirary functions:
+There are two kinds of auxiliary functions:
   1) Global: Parameters contain a frame.
   2) Not global: Parameters do not contain a frame.
 
@@ -892,7 +1118,7 @@ let handle_framed_algo a instrs =
   (* End of helpers *)
 
   let frame = frameE (varE "_" ~note:natT, e_zf) ~note:evalctxT ~at:e_zf.at in
-  let instr_hd = letI (frame, getCurContextE (Some frame_atom) ~note:evalctxT) in
+  let instr_hd = letI (frame, getCurContextE frame_atom ~note:evalctxT) in
   let walk_expr walker expr =
     let expr1 = frame_finder expr in
     let expr2 = Al.Walk.base_walker.walk_expr walker expr1 in
@@ -988,17 +1214,19 @@ let handle_frame params instrs =
   | None   -> handle_unframed_algo instrs
 
 (* Applied for reduction rules: infer assert from if *)
-let count_if instrs =
+let count_non_trapping_if instrs =
   let f instr =
     match instr.it with
+    | IfI (_, [{it = TrapI; _}], _) -> false
     | IfI _ -> true
     | _ -> false in
   List.filter f instrs |> List.length
 let rec infer_assert instrs =
-  if count_if instrs = 1 then
+  if count_non_trapping_if instrs = 1 then
     let hd, tl = Lib.List.split_last instrs in
     match tl.it with
     | IfI (c, il1, []) -> hd @ assertI c ~at:c.at :: infer_assert il1
+    | IfI (c, il1, il2) -> hd @ [ifI (c, infer_assert il1, infer_assert il2) ~at:c.at]
     | _ -> instrs
   else instrs
 
@@ -1014,10 +1242,10 @@ let rec enforce_return' il =
       (match enforce_return il1, enforce_return il2 with
       | [], [] -> enforce_return' tl
       | new_il, [] ->
-        (* HARDCODE: handling patial function *)
+        (* HARDCODE: handling partial function *)
         (match c.it with
         | IterE ({ it = CallE (id, _); _ }, _)
-          when List.mem id ["Externaddr_type"; "Val_type"] ->
+          when List.mem id ["Externaddr_ok"; "Val_ok"] ->
             rev new_il @ (ifI (neg c, [failI () ~at: at], [])) :: tl
         | _ ->
           rev new_il @ (assertI c ~at:at :: tl)

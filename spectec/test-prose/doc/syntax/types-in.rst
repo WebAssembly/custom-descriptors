@@ -34,14 +34,14 @@ $${syntax+:
   heaptype
 }
 
-.. _syntax nul:
+.. _syntax-null:
 .. _syntax-reftype:
 
 Reference Types
 ~~~~~~~~~~~~~~~
 
 $${syntax: 
-  nul
+  null
   reftype
 }
 
@@ -58,13 +58,6 @@ Result Types
 ~~~~~~~~~~~~
 
 $${syntax: resulttype}
-
-.. _syntax-functype:
-
-Function Types
-~~~~~~~~~~~~~~
-
-$${syntax: functype}
 
 .. _syntax-packtype:
 .. _syntax-storagetype:
@@ -88,7 +81,7 @@ $${syntax: comptype}
 
 .. _syntax-rectype:
 .. _syntax-subtype:
-.. _syntax-fin:
+.. _syntax-final:
 
 Recursive Types
 ~~~~~~~~~~~~~~~
@@ -96,7 +89,7 @@ Recursive Types
 $${syntax+:
   rectype
   subtype
-  fin
+  final
 }
 
 .. _syntax-limits:

@@ -1,5 +1,4 @@
 open Prose
-open Eq
 
 open Il
 open Xl
@@ -20,7 +19,6 @@ let print_yet_prem prem fname =
 
 (* Helpers *)
 
-module HintMap = Langs.Map
 module Map = Map.Make(String)
 module Set = Set.Make(String)
 
@@ -34,7 +32,7 @@ let flatten_rec def =
 
 let is_validation_helper_relation def =
   match def.it with
-  | Ast.RelD (id, _, _, _) -> id.it = "Expand"
+  | Ast.RelD (id, _, _, _) -> id.it = "Expand" || id.it = "Expand_use"
   | _ -> false
 (* NOTE: Assume validation relation is `|-` *)
 let is_validation_relation def =
@@ -49,25 +47,6 @@ let extract_validation_il il =
   |> List.filter
     (fun rel -> is_validation_relation rel || is_validation_helper_relation rel)
 
-let extract_rel_ids il =
-  List.map (fun def ->
-    match def.it with
-    | Ast.RelD (id, _, _, _) -> id.it
-    | _ -> assert false
-  ) il
-
-let extract_prose_hints valid_il il =
-  let rel_ids = extract_rel_ids valid_il in
-  List.fold_left (fun m def ->
-    match def.it with
-    | Ast.HintD {it = RelH (id', hints); _} when List.mem id'.it rel_ids ->
-      let hints' = List.filter (fun Ast.{hintid; _} ->
-        String.starts_with ~prefix:"prose" hintid.it) hints
-      in
-      HintMap.add id'.it hints' m
-    | _ -> m
-  ) HintMap.empty il
-
 let atomize atom' = atom' $$ no_region % (Atom.info "")
 
 let rel_has_id id rel =
@@ -75,17 +54,16 @@ let rel_has_id id rel =
   | Ast.RelD (id', _, _, _) -> id.it = id'.it
   | _ -> false
 
-let extract_prose_hint target Ast.{hintid; hintexp} =
+let extract_prose_hint hintexp =
   match hintexp.it with
-  | TextE hint when hintid.it = target -> Some hint
-  | _ when hintid.it = target ->
+  | El.Ast.TextE hint -> Some hint
+  | _ ->
     El.Print.string_of_exp hintexp |> print_endline;
     None
-  | _ -> None
 
 let extract_rel_hint relid hintid =
-  match HintMap.find_opt relid.it !Langs.prose_hints with
-  | Some hints -> List.find_map (extract_prose_hint hintid) hints
+  match Prose_util.find_hint hintid relid.it with
+  | Some hint -> extract_prose_hint hint
   | None -> None
 
 let swap = function `LtOp -> `GtOp | `GtOp -> `LtOp | `LeOp -> `GeOp | `GeOp -> `LeOp | op -> op
@@ -269,6 +247,7 @@ let rec if_expr_to_instrs e =
       | _, [ stmt1 ], [ stmt2 ] -> BinS (stmt1, op, stmt2)
       | _ -> CondS (exp_to_expr e)]
   | Ast.MemE _ -> [ CondS (exp_to_expr e) ]
+  | Ast.CallE (fname, _) when Prose_util.extract_call_hint fname.it <> None -> [ CondS (exp_to_expr e) ]
   | _ -> [ CmpS (exp_to_expr e, `EqOp, boolE true ~note:boolT) ]
 
 
@@ -286,10 +265,10 @@ let ctx_to_instr frees expr =
     ctxs := Map.add s var !ctxs;
     [ ContextS (var, expr) ], Some var
 
-(* Hardcoded convention: "The rules implicitly assume a given context C" *)
+(* Hardcoded convention: "The rules implicitly assume a given context C or store S" *)
 let extract_context frees c =
   match c.it with
-  | Al.Ast.VarE "C" -> [], None
+  | Al.Ast.VarE ("C" | "s") -> [], None
   | Al.Ast.ExtE ({ it = VarE _; _ }, _ps, _e, _dir) -> ctx_to_instr frees c
   | _ -> [], Some c
 
@@ -401,7 +380,10 @@ let extract_triplet_rule rule =
 let collect_non_trivial frees m exp =
   match exp.it with
   | Ast.CallE (_, _) ->
-    let fresh = (gen_new_var frees "t") $ no_region in
+    let name = Al.Al_util.typ_to_var_name exp.note in
+    (* HARDCODE: t: valtype *)
+    let name = if name = "valtype" then "t" else name in
+    let fresh = (gen_new_var frees name) $ no_region in
     let var = Ast.VarE fresh $$ exp.at % exp.note in
     m := Map.add fresh.it (var, exp) !m;
     var
@@ -419,9 +401,9 @@ let preprocess_exp frees m exp =
   transform_exp transformer exp
 
 let preprocess_rule m rule =
-  let frees = (Free.free_rule rule).varid in
   { rule with it = match rule.it with
     | Ast.RuleD (id, bs, ops, exp, prems) ->
+      let frees = Free.(union (free_rule rule) (free_list bound_bind bs)).varid in
       Ast.RuleD (id, bs, ops, preprocess_exp frees m exp, prems)}
 
 let postprocess_rules m rule =
@@ -579,46 +561,6 @@ let prose_of_rel rel = match get_rel_kind rel with
 
 let prose_of_rels = List.concat_map prose_of_rel
 
-(** Postprocess of generated prose **)
-let unify_either stmts =
-  let f stmt =
-    match stmt with
-    | EitherS sss ->
-      let unified, bodies = List.fold_left (fun (commons, stmtss) s ->
-        let pairs = List.map (List.partition (eq_stmt s)) stmtss in
-        let fsts = List.map fst pairs in
-        let snds = List.map snd pairs in
-        if List.for_all (fun l -> List.length l = 1) fsts then
-          s :: commons, snds
-        else
-          commons, stmtss
-      ) ([], sss) (List.hd sss) in
-      let unified = List.rev unified in
-      unified @ [ EitherS bodies ]
-    | _ -> [stmt]
-  in
-  let rec walk stmts = List.concat_map walk' stmts
-  and walk' stmt =
-    f stmt
-    |> List.map (function
-      | IfS (e, sl) -> IfS (e, walk sl)
-      | ForallS (vars, sl) -> ForallS (vars, walk sl)
-      | EitherS sll -> EitherS (List.map walk sll)
-      | s -> s
-    )
-  in
-  walk stmts
-
-let postprocess_prose defs =
-  List.map (fun def ->
-    match def with
-    | RuleD (anchor, i, il) ->
-      let new_il = unify_either il in
-      RuleD (anchor, i, new_il)
-    | AlgoD _ -> def
-  ) defs
-
-
 (** Entry for generating validation prose **)
 let gen_validation_prose () =
   !Langs.validation_il |> prose_of_rels
@@ -682,15 +624,15 @@ let gen_execution_prose () =
 let gen_prose el il al =
   Langs.el := el;
   Langs.validation_il := extract_validation_il il;
-  Langs.prose_hints := extract_prose_hints !Langs.validation_il il;
   Langs.il := il;
   Langs.al := al;
+  Prose_util.init_hintenv !Langs.el;
 
   let validation_prose = gen_validation_prose () in
   let execution_prose = gen_execution_prose () in
 
   validation_prose @ execution_prose
-  |> postprocess_prose
+  |> Postprocess.postprocess_prose
 
 (** Main entry for generating stringified prose **)
 let gen_string cfg_latex cfg_prose el il al =

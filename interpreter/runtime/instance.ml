@@ -75,7 +75,7 @@ let externtype_of c = function
   | ExternGlobal glob -> ExternGlobalT (Global.type_of glob)
   | ExternMemory mem -> ExternMemoryT (Memory.type_of mem)
   | ExternTable tab -> ExternTableT (Table.type_of tab)
-  | ExternFunc func -> ExternFuncT (Def (Func.type_of func))
+  | ExternFunc func -> ExternFuncT (UseHT (Exact, Def (Func.type_of func)))
 
 let export inst name =
   try Some (List.assoc name inst.exports) with Not_found -> None

@@ -449,6 +449,10 @@ functype_result :
   | LPAR RESULT valtype_list RPAR functype_result
     { fun c -> snd $3 c @ $5 c }
 
+heapfunctype :
+  | LPAR EXACT functype RPAR { fun c -> Exact, $3 c }
+  | functype { fun c -> Inexact, $1 c }
+
 comptype :
   | LPAR STRUCT structtype RPAR { fun c x -> StructT ($3 c x) }
   | LPAR ARRAY arraytype RPAR { fun c x -> ArrayT ($3 c) }
@@ -488,6 +492,9 @@ limits :
 typeuse :
   | LPAR TYPE idx RPAR { fun c -> $3 c type_ }
 
+heaptypeuse :
+  | LPAR EXACT typeuse RPAR { fun c -> UseHT (Exact, Idx ($3 c).it) }
+  | typeuse { fun c -> UseHT (Inexact, Idx ($1 c).it) }
 
 /* Immediates */
 
@@ -991,16 +998,20 @@ func_fields :
       let y = inline_functype c' (fst $1 c') loc in
       let Func (_, ls, es) = snd $1 c' in
       [Func (y, ls, es) @@ loc], [], [] }
-  | inline_import typeuse func_fields_import  /* Sugar */
+  | inline_import heaptypeuse func_fields_import  /* Sugar */
     { fun c x loc ->
-      let y = inline_functype_explicit c ($2 c) ($3 c) in
+      let exact, y = match ($2 c) with
+        | UseHT (exact, Idx y) -> exact, y
+        | _ -> assert false
+      in
+      let y = inline_functype_explicit c (y @@ loc) ($3 c) in
       [],
-      [Import (fst $1, snd $1, ExternFuncT (Idx y.it)) @@ loc ], [] }
+      [Import (fst $1, snd $1, ExternFuncT (UseHT (exact, Idx y.it))) @@ loc ], [] }
   | inline_import func_fields_import  /* Sugar */
     { fun c x loc ->
       let y = inline_functype c ($2 c) loc in
       [],
-      [Import (fst $1, snd $1, ExternFuncT (Idx y.it)) @@ loc ], [] }
+      [Import (fst $1, snd $1, ExternFuncT (UseHT (Inexact, Idx y.it))) @@ loc ], [] }
   | inline_export func_fields  /* Sugar */
     { fun c x loc ->
       let fns, ims, exs = $2 c x loc in fns, ims, $1 (FuncX x) c :: exs }
@@ -1242,9 +1253,9 @@ table_fields :
 /* Imports & Exports */
 
 externtype :
-  | LPAR FUNC bindidx_opt typeuse RPAR
+  | LPAR FUNC bindidx_opt heaptypeuse RPAR
     { fun c -> ignore ($3 c anon_func bind_func);
-      fun () -> ExternFuncT (Idx ($4 c).it) }
+      fun () -> ExternFuncT ($4 c) }
   | LPAR TAG bindidx_opt typeuse RPAR
     { fun c -> ignore ($3 c anon_tag bind_tag);
       fun () -> ExternTagT (TagT (Idx ($4 c).it)) }
@@ -1260,9 +1271,12 @@ externtype :
   | LPAR TABLE bindidx_opt tabletype RPAR
     { fun c -> ignore ($3 c anon_table bind_table);
       fun () -> ExternTableT ($4 c) }
-  | LPAR FUNC bindidx_opt functype RPAR  /* Sugar */
+  | LPAR FUNC bindidx_opt heapfunctype RPAR  /* Sugar */
     { fun c -> ignore ($3 c anon_func bind_func);
-      fun () -> ExternFuncT (Idx (inline_functype c ($4 c) $loc($4)).it) }
+      fun () ->
+        let exact, ft = $4 c in
+        let y = inline_functype c ft $loc($4) in
+        ExternFuncT (UseHT (exact, Idx y.it)) }
 
 import :
   | LPAR IMPORT name name externtype RPAR

@@ -184,5 +184,5 @@ let match_externtype c xt1 xt2 =
   | ExternGlobalT gt1, ExternGlobalT gt2 -> match_globaltype c gt1 gt2
   | ExternMemoryT mt1, ExternMemoryT mt2 -> match_memorytype c mt1 mt2
   | ExternTableT tt1, ExternTableT tt2 -> match_tabletype c tt1 tt2
-  | ExternFuncT (Def dt1), ExternFuncT (Def dt2) -> match_deftype c dt1 dt2
+  | ExternFuncT ht1, ExternFuncT ht2 -> match_heaptype c ht1 ht2
   | _, _ -> false

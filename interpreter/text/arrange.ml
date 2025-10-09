@@ -84,6 +84,11 @@ let heaptype t = string_of_heaptype t
 let valtype t = string_of_valtype t
 let storagetype t = string_of_storagetype t
 
+let heaptypeuse = function
+  | UseHT (Inexact, ut) -> typeuse ut
+  | UseHT (Exact, ut) -> Node ("exact", [typeuse ut])
+  | _ -> assert false
+
 let final = function
   | NoFinal -> ""
   | Final -> " final"
@@ -708,7 +713,7 @@ let importtype fx tx mx tgx gx = function
   | ExternGlobalT gt -> incr gx; Node ("global $" ^ nat (!gx - 1), globaltype gt)
   | ExternMemoryT mt -> incr mx; Node ("memory $" ^ nat (!mx - 1), memorytype mt)
   | ExternTableT tt -> incr tx; Node ("table $" ^ nat (!tx - 1), tabletype tt)
-  | ExternFuncT ut -> incr fx; Node ("func $" ^ nat (!fx - 1), [typeuse ut])
+  | ExternFuncT ht -> incr fx; Node ("func $" ^ nat (!fx - 1), [heaptypeuse ht])
 
 let import fx tx mx ex gx im =
   let Import (module_name, item_name, xt) = im.it in

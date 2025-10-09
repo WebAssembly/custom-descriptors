@@ -667,7 +667,7 @@
   "\00"                                ;; import kind
   "\80\80\80\80\10"                    ;; import signature index 0 with unused bits set
 )
-  "integer too large"
+  "integer representation too long"
 )
 (assert_malformed
   (module binary

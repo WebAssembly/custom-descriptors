@@ -341,6 +341,90 @@ C |- struct.new_default x : (ref null (exact y)) -> (ref (exact x))
 > the descriptors would have to be on top of the stack to determine the type of
 > the allocation. This is consistent with GC accessor instructions.
 
+### Exact Function Imports
+
+Consider this module:
+
+```wasm
+(module $A
+  (type $super (sub (func)))
+  (type $sub (sub $super (func)))
+
+  (import "B" "f" (func $f (type $super)))
+
+  (global (export "f") (ref (exact $super)) (ref.func $f))
+)
+```
+
+This module imports a function `$f` of type `$super`,
+then exports a reference to it with type `(ref (exact $super))`.
+According to the rules given above,
+this is fine because `ref.func` returns exact references.
+But this is unsound!
+The function `B.f` supplied at instantiation time might actually
+have been of type `$sub`.
+In that case it would be incorrect to type a reference to the function
+as `(exact $super)`,
+because in fact the reference would be to a `$sub`.
+
+A simple solution to this problem would be
+to type references to imported functions as inexact.
+This would be sound,
+but it would not be modular enough because it would
+create a difference in expressivity between imported and defined functions.
+The latter would be able to be referenced exactly and the former would not.
+This would inhibit e.g. module splitting
+where the secondary module contains a function that takes an exact reference
+to a function imported from the primary module.
+This would work before splitting the function definitions into separate modules,
+but not afterward.
+
+To support this use case,
+we must make it possible to take exact references to imported functions.
+But for that to be sound,
+we must ensure that such imported functions have exactly the referenced type.
+Function imports already give a type for the imported function;
+we must now make it possible for that type to be exact.
+
+The external type of a function import is currently represented as a `typeuse`,
+but we can change that to `heaptype` to allow for exact types.
+
+```
+externtype ::= ... | func heaptype
+```
+
+In the text format,
+function import types are given by `typeuse` and its associated sugar.
+We don't want to allow exactness everywhere `typeuse`
+appears in the text format,
+so instead of extending the syntax of `typeuse`,
+we introduce a new production, `heaptypeuse`.
+
+```
+heaptypeuse ::= '(' 'exact' ut:typeuse ')' => exact ut
+              | ut:typeuse                 => inexact ut
+```
+
+Function imports, including all their sytax sugars,
+are updated to use `heaptypeuse` in place of `typeuse`.
+For example:
+
+```wasm
+(module
+  (type $f (func))
+  (import "" "" (func (exact (type $f))))
+  (import "" "" (func (exact (type $f) (param) (result))))
+  (import "" "" (func (exact (type 1)))) ;; Implicitly defined next
+  (import "" "" (func (exact (param i32) (result i64))))
+
+  (func (import "" "") (exact (type $f)))
+  (func (import "" "") (exact (type $f) (param) (result)))
+  (func (import "" "") (exact (type 2))) ;; Implicitly defined next
+  (func (import "" "") (exact (param i64) (result i32)))
+)
+
+```
+
 ## New Instructions
 
 Given a reference to a type with a custom descriptor,

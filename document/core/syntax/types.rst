@@ -70,12 +70,26 @@ Conventions
 $${definition-ignore: vsize}
 
 
-.. index:: ! heap type, store, type index, ! type use, ! abstract type, ! concrete type, ! unboxed scalar
+.. index:: ! type use, type index
+   pair: abstract syntax; type use
+.. _syntax-typeuse:
+
+Type Uses
+~~~~~~~~~
+
+A *type use* is the use site of a :ref:`type index <syntax-typeidx>` referencing a :ref:`composite type <syntax-comptype>` :ref:`defined <syntax-type>` in a :ref:`module <syntax-module>`.
+It classifies objects of the respective type.
+
+$${syntax: {typeuse/syn}}
+
+The syntax of type uses is :ref:`extended <syntax-typeuse-ext>` with additional forms for the purpose of specifying :ref:`validation <valid>` and :ref:`execution <exec>`.
+
+
+.. index:: ! heap type, store, type use, ! abstract type, ! concrete type, ! unboxed scalar
    pair: abstract syntax; heap type
 .. _type-abstract:
 .. _type-concrete:
 .. _syntax-i31:
-.. _syntax-typeuse:
 .. _syntax-heaptype:
 .. _syntax-absheaptype:
 
@@ -92,11 +106,10 @@ There are three disjoint hierarchies of heap types:
 The values from the latter two hierarchies are interconvertible by ways of the ${instr: EXTERN.CONVERT_ANY} and ${instr: ANY.CONVERT_EXTERN} instructions.
 That is, both type hierarchies are inhabited by an isomorphic set of values, but may have different, incompatible representations in practice.
 
-$${syntax: {absheaptype/syn heaptype typeuse/syn}}
+$${syntax: {absheaptype/syn heaptype}}
 
 A heap type is either *abstract* or *concrete*.
-A concrete heap type consists of a *type use*, which is a :ref:`type index <syntax-typeidx>`.
-It classifies an object of the respective :ref:`type <syntax-type>` defined in a module.
+A concrete heap type consists of a :ref:`type use <syntax-typeuse>` that classifies an object of the respective :ref:`type <syntax-type>` defined in a module.
 Abstract types are denoted by individual keywords.
 
 The type ${:FUNC} denotes the common supertype of all :ref:`function types <syntax-functype>`, regardless of their concrete definition.
@@ -136,14 +149,14 @@ Their observable value range is limited to 31 bits.
    they can be used to form the types of all null :ref:`references <syntax-reftype>` in their respective hierarchy.
    For example, ${:(REF NULL NOFUNC)} is the generic type of a null reference compatible with all function reference types.
 
-The syntax of abstract heap types and type uses is :ref:`extended <syntax-heaptype-ext>` with additional forms for the purpose of specifying :ref:`validation <valid>` and :ref:`execution <exec>`.
+The syntax of abstract heap types is :ref:`extended <syntax-heaptype-ext>` with additional forms for the purpose of specifying :ref:`validation <valid>` and :ref:`execution <exec>`.
 
 
 .. index:: ! reference type, heap type, reference, table, function, function type, null
    pair: abstract syntax; reference type
    pair: reference; type
 .. _syntax-reftype:
-.. _syntax-nullable:
+.. _syntax-null:
 
 Reference Types
 ~~~~~~~~~~~~~~~
@@ -224,27 +237,37 @@ which is a sequence of values, written with brackets.
 $${syntax: resulttype}
 
 
-.. index:: ! function type, value type, list, function, parameter, result, result type
+.. index:: ! block type, block, type index, function type, value type, type index
+   pair: abstract syntax; block type
+   pair: block; type
+   pair: type; block
+.. _syntax-blocktype:
+
+Block Types
+~~~~~~~~~~~
+
+*Block types* classify the *input* and *output* of structured :ref:`control instructions <syntax-instr-control>` delimiting :ref:`blocks <syntax-block>` of instructions.
+
+$${syntax: blocktype}
+
+They are given either as a :ref:`type index <syntax-funcidx>` that refers to a suitable :ref:`function type <syntax-functype>` reinterpreted as an :ref:`instruction type <syntax-instrtype>`,
+or as an optional :ref:`value type <syntax-valtype>` inline,
+which is a shorthand for the instruction type ${instrtype: eps -> valtype?}.
+
+
+.. index:: ! composite type, ! function type, result type, ! aggregate type, ! structure type, ! array type, ! field type, ! storage type, ! packed type, bit width, function, structure, array, parameter, result, list
+   pair: abstract syntax; composite type
    pair: abstract syntax; function type
-   pair: function; type
-.. _syntax-functype:
-
-Function Types
-~~~~~~~~~~~~~~
-
-*Function types* classify the signature of :ref:`functions <syntax-func>`,
-mapping a list of parameters to a list of results.
-They are also used to classify the inputs and outputs of :ref:`instructions <syntax-instr>`.
-
-$${syntax: functype}
-
-
-.. index:: ! aggregate type, ! structure type, ! array type, ! field type, ! storage type, ! packed type, bit width
    pair: abstract syntax; structure type
    pair: abstract syntax; array type
    pair: abstract syntax; field type
    pair: abstract syntax; storage type
    pair: abstract syntax; packed type
+   pair: function; type
+   pair: structure; type
+   pair: array; type
+.. _syntax-comptype:
+.. _syntax-functype:
 .. _syntax-aggrtype:
 .. _syntax-structtype:
 .. _syntax-arraytype:
@@ -252,15 +275,20 @@ $${syntax: functype}
 .. _syntax-storagetype:
 .. _syntax-packtype:
 
-Aggregate Types
+Composite Types
 ~~~~~~~~~~~~~~~
 
-*Aggregate types* describe compound objects consisting of multiple values.
-These are either *structures* or *arrays*,
-which both consist of a list of possibly mutable, possibly packed *fields*.
-Structures are heterogeneous, but require static indexing, while arrays need to be homogeneous, but allow dynamic indexing.
+*Composite types* are all types composed from simpler types,
+including *function types*, *structure types* and *array types*.
 
-$${syntax: {structtype arraytype fieldtype storagetype packtype}}
+$${syntax: comptype {fieldtype storagetype packtype}}
+
+Function types classify the signature of :ref:`functions <syntax-func>`,
+mapping a list of parameters to a list of results.
+They are also used to classify the inputs and outputs of :ref:`instructions <syntax-instr>`.
+
+*Aggregate types* like structure or array types consist of a list of possibly mutable, possibly packed *field types* describing their components.
+Structures are heterogeneous, but require static indexing, while arrays need to be homogeneous, but allow dynamic indexing.
 
 .. _bitwidth-fieldtype:
 .. _aux-unpack:
@@ -268,30 +296,11 @@ $${syntax: {structtype arraytype fieldtype storagetype packtype}}
 Conventions
 ...........
 
-* The notation ${:$psize(t)} for :ref:`bit width <bitwidth-valtype>` extends to packed types as well, that is, ${:$psize(I8) = 8} and ${:$psize(I16) = 16}.
+* The notation ${:$psize(t)} for the :ref:`bit width <bitwidth-valtype>` of a :ref:`value type <syntax-valtype>` ${:t} extends to packed types as well, that is, ${:$psize(I8) = 8} and ${:$psize(I16) = 16}.
 
 $${definition-ignore: psize}
 
 * The auxiliary function :math:`\unpack` maps a storage type to the :ref:`value type <syntax-valtype>` obtained when accessing a field:
-
-  .. math::
-     \begin{array}{lll}
-     \unpack(\valtype) &=& \valtype \\
-     \unpack(\packtype) &=& \I32 \\
-     \end{array}
-
-
-.. index:: ! composite type, function type, aggreagate type, structure type, array type
-   pair: abstract syntax; composite type
-.. _syntax-comptype:
-
-Composite Types
-~~~~~~~~~~~~~~~
-
-*Composite types* are all types composed from simpler types,
-including :ref:`function types <syntax-functype>` and :ref:`aggregate types <syntax-aggrtype>`.
-
-$${syntax: comptype}
 
 
 .. index:: ! recursive type, ! sub type, composite type, ! final, subtyping, ! roll, ! unroll, recursive type index
@@ -299,18 +308,17 @@ $${syntax: comptype}
    pair: abstract syntax; sub type
 .. _syntax-rectype:
 .. _syntax-subtype:
+.. _syntax-final:
 
 Recursive Types
 ~~~~~~~~~~~~~~~
 
-*Recursive types* denote a group of mutually recursive :ref:`composite types <syntax-comptype>`, each of which can optionally declare a list of :ref:`type indices <syntax-typeidx>` of supertypes that it :ref:`matches <match-comptype>`.
+*Recursive types* denote a group of mutually recursive :ref:`composite types <syntax-comptype>`, each of which can optionally declare a list of :ref:`type uses <syntax-typeuse>` of supertypes that it :ref:`matches <match-comptype>`.
 Each type can also be declared *final*, preventing further subtyping.
 
-$${syntax: {rectype subtype typeuse/syn}}
+$${syntax: {rectype subtype}}
 
 In a :ref:`module <syntax-module>`, each member of a recursive type is assigned a separate :ref:`type index <syntax-typeidx>`.
-
-The syntax of *type uses* representing these type indices is later :ref:`extended <syntax-typeuse-ext>` with additional forms for the purpose of specifying :ref:`validation <valid>` and :ref:`execution <exec>`.
 
 
 .. _index:: ! address type, number type, bit width
@@ -319,8 +327,8 @@ The syntax of *type uses* representing these type indices is later :ref:`extende
    single: table; address type
 .. _syntax-addrtype:
 
-Address Type
-~~~~~~~~~~~~
+Address Types
+~~~~~~~~~~~~~
 
 *Address types* are a subset of :ref:`number types <syntax-numtype>` that classify the values that can be used as offsets into
 :ref:`memories <syntax-mem>` and :ref:`tables <syntax-table>`.
@@ -350,8 +358,39 @@ Limits
 
 $${syntax: limits}
 
-.. scratch
-   If no maximum is given, then the respective storage can grow to any valid size.
+If no maximum is present,
+then the respective storage can grow to any valid size.
+
+
+.. index:: ! tag type, type use, tag, function type, exception tag
+   pair: abstract syntax; tag type
+   pair: tag; type
+.. _syntax-tagtype:
+
+Tag Types
+~~~~~~~~~
+
+*Tag types* classify the signature :ref:`tags <syntax-tag>`
+with a :ref:`type use <syntax-typeuse>` referring to the definition of a :ref:`function type <syntax-functype>` that declares the types of parameter and result values associated with the tag.
+The result type is empty for exception tags.
+
+$${syntax: tagtype}
+
+
+.. index:: ! global type, ! mutability, value type, global, mutability
+   pair: abstract syntax; global type
+   pair: abstract syntax; mutability
+   pair: global; type
+   pair: global; mutability
+.. _syntax-mut:
+.. _syntax-globaltype:
+
+Global Types
+~~~~~~~~~~~~
+
+*Global types* classify :ref:`global <syntax-global>` variables, which hold a value and can either be mutable or immutable.
+
+$${syntax: globaltype}
 
 
 .. index:: ! memory type, limits, page size, memory
@@ -388,40 +427,18 @@ Like memories, tables are constrained by limits for their minimum and optionally
 The limits are given in numbers of entries.
 
 
-.. index:: ! global type, ! mutability, value type, global, mutability
-   pair: abstract syntax; global type
-   pair: abstract syntax; mutability
-   pair: global; type
-   pair: global; mutability
-.. _syntax-mut:
-.. _syntax-globaltype:
+.. index:: ! data type, memory
+   pair: abstract syntax; data type
+   pair: data; type
+.. _syntax-datatype:
 
-Global Types
-~~~~~~~~~~~~
+Data Types
+~~~~~~~~~~
 
-*Global types* classify :ref:`global <syntax-global>` variables, which hold a value and can either be mutable or immutable.
+*Data types* classify :ref:`data segments <syntax-elem>`.
+Since the contents of a data segment requires no further classification, they merely consist of a universal marker ${:OK} indicating well-formedness.
 
-$${syntax: globaltype}
-
-
-.. index:: ! tag type, function type, defined type, exception
-   pair: abstract syntax; tag type
-   pair: tag; type
-.. _syntax-tagtype:
-
-Tag Types
-~~~~~~~~~
-
-*Tag types* classify the signature of :ref:`tags <syntax-tag>` with a defined type |deftype|, which expands to a function type |functype|.
-
-$${syntax: tagtype}
-
-Tags are used for categorizing exceptions.
-The parameters of |functype| define the list of values associated with the exception thrown with this tag.
-Furthermore, it is an invariant of the semantics that every |functype| in a :ref:`valid <valid-tagtype>` tag type for an exception has an empty result type.
-
-.. note::
-   Future versions of WebAssembly may have additional uses for tags, and may allow non-empty result types in the function types of tags.
+$${syntax: datatype}
 
 
 .. index:: ! element type, reference type, table, element
@@ -437,20 +454,6 @@ Element Types
 $${syntax: elemtype}
 
 
-.. index:: ! data type, memory
-   pair: abstract syntax; data type
-   pair: data; type
-.. _syntax-datatype:
-
-Data Types
-~~~~~~~~~~
-
-*Data types* classify :ref:`data segments <syntax-elem>`.
-Since the contents of a data segment requires no further classification, they merely consist of a universal marker ${:OK} indicating well-formedness.
-
-$${syntax: datatype}
-
-
 .. index:: ! external type, defined type, function type, table type, memory type, global type, tag type, import, external address
    pair: abstract syntax; external type
    pair: external; type
@@ -463,9 +466,7 @@ External Types
 
 $${syntax: externtype}
 
-For functions and tags, the type index has to refer to the definition of a :ref:`function type <syntax-functype>`.
-In the case of a tag, the parameters of the function type define the list of values associated with the exception thrown with this tag.
-The result type is empty for exception tags.
+For functions, the :ref:`type use <syntax-typeuse>` has to refer to the definition of a :ref:`function type <syntax-functype>`.
 
 .. note::
    Future versions of WebAssembly may have additional uses for tags, and may allow non-empty result types in the function types of tags.

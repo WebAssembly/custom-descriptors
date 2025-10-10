@@ -816,7 +816,7 @@ and expand_arg env ctxt a =
  * and the function `render` for rendering the resulting expression.
  * If no hint can be found, fall back to the default of rendering `f`.
  *)
-let render_expand render env (show : hints ref) macro id args f : string * arg list =
+let rec render_expand render env (show : hints ref) macro id args possibly_flattened f : string * arg list =
   match Map.find_opt id.it !show with
   | None ->
 (*
@@ -841,11 +841,19 @@ Printf.printf "[expand attempt %s %s] %s\n%!" id.it m (El.Print.string_of_exp sh
           let env' = local_env env in
           let ctxt = {macro; templ; args; next = ref 1; max = ref 0} in
           let e = expand_exp env' ctxt showexp in
-          let args' = Lib.List.drop (!(ctxt.max) + 1) args in
-          (* Avoid cyclic expansion *)
-          show := Map.remove id.it !show;
-          Fun.protect (fun () -> render env' e, args')
-            ~finally:(fun () -> show := Map.add id.it showexps !show)
+          if possibly_flattened && !(ctxt.max) < List.length args - 1 then
+            (* Not all args used, retry with unflattened tail *)
+            let args1, args2 = Lib.List.split !(ctxt.max) args in
+            let at = Source.over_region (List.map Source.at args2) in
+            render_expand render env show macro id
+              (args1 @ [ref (ExpA (SeqE (List.map exp_of_arg args2) $ at)) $ at])
+              true f
+          else
+            let args' = Lib.List.drop (!(ctxt.max) + 1) args in
+            (* Avoid cyclic expansion *)
+            show := Map.remove id.it !show;
+            Fun.protect (fun () -> render env' e, args')
+              ~finally:(fun () -> show := Map.add id.it showexps !show)
         with Arity_mismatch -> attempt showexps'
           (* HACK: Ignore arity mismatches, such that overloading notation works,
            * e.g., using CONST for both instruction and relation. *)
@@ -858,7 +866,7 @@ Printf.printf "[expand attempt %s %s] %s\n%!" id.it m (El.Print.string_of_exp sh
 let render_apply render_id render_exp env show macro id args =
   (* Pre-render id here, since we cannot distinguish it from other id classes later. *)
   let arg0 = arg_of_exp (LatexE (render_id env id) $ id.at) in
-  render_expand render_exp env show macro id (arg0::args)
+  render_expand render_exp env show macro id (arg0::args) false
     (fun () ->
       let n = count_sub id.it in
       if n > 0 && n <= List.length args then
@@ -949,7 +957,7 @@ let rec render_id_sub style show macro env first at = function
       if String.for_all is_digit s3 then s3 else
       if not first then render_id' env style s2 None else
       render_expand !render_exp_fwd env show macro
-        (s3 $ at) [ref (ExpA (VarE (s3 $ at, []) $ at)) $ at]
+        (s3 $ at) [ref (ExpA (VarE (s3 $ at, []) $ at)) $ at] false
         (fun () -> render_id' env style s2 (macro_template env macro s3)) |> fst
     in
     let s5 = s4 ^ ticks in
@@ -1002,7 +1010,7 @@ let render_atom env atom =
   let open Atom in
   let id = typed_id atom in
   let arg = arg_of_exp (AtomE atom $ atom.at) in
-  render_expand !render_exp_fwd env env.show_atom env.macro_atom id [arg]
+  render_expand !render_exp_fwd env env.show_atom env.macro_atom id [arg] false
     (fun () ->
 (*
 if env.config.macros_for_ids then
@@ -1023,8 +1031,8 @@ Printf.eprintf "[render_atom %s @ %s] id=%s def=%s macros: %s (%s)\n%!"
       | Dot -> "{.}"
       | Comma -> ","
       | Semicolon -> ";"
-      | Colon -> ":"
-      | Equal -> "="
+      | Colon | ColonSub -> ":"
+      | Equal | EqualSub -> "="
       | Less -> "<"
       | Greater -> ">"
       | Quest -> "{}^?"
@@ -1050,12 +1058,14 @@ Printf.eprintf "[render_atom %s @ %s] id=%s def=%s macros: %s (%s)\n%!"
           | NotEqual -> "\\neq"
           | LessEqual-> "\\leq"
           | GreaterEqual -> "\\geq"
+          | Equiv | EquivSub -> "\\equiv"
+          | Approx | ApproxSub -> "\\approx"
           | Arrow | ArrowSub -> "\\rightarrow"
           | Arrow2 | Arrow2Sub -> "\\Rightarrow"
           | Sub -> "\\leq"
           | Sup -> "\\geq"
-          | SqArrow -> "\\hookrightarrow"
-          | SqArrowStar -> "\\hookrightarrow^\\ast"
+          | SqArrow | SqArrowSub -> "\\hookrightarrow"
+          | SqArrowStar | SqArrowStarSub -> "\\hookrightarrow^\\ast"
           | Cat -> "\\oplus"
           | Bar -> "\\mid"
           | BigAnd -> "\\bigwedge"
@@ -1063,8 +1073,37 @@ Printf.eprintf "[render_atom %s @ %s] id=%s def=%s macros: %s (%s)\n%!"
           | BigAdd -> "\\Sigma"
           | BigMul -> "\\Pi"
           | BigCat -> "\\bigoplus"
+          | Turnstile | TurnstileSub -> "\\vdash"
+          | Tilesturn | TilesturnSub -> "\\dashv"
           | _ -> "\\" ^ Atom.name atom
     ) |> fst
+
+
+let render_text s =
+  let buf = Buffer.create (String.length s + 32) in
+  Buffer.add_string buf "\\mbox{‘}\\mathtt{";
+  for i = 0 to String.length s - 1 do
+    match s.[i] with
+    | '\'' -> Buffer.add_string buf "\\kern0.03em{'}\\kern0.03em"  (* TODO: not typeset in TT *)
+    | '"' -> Buffer.add_string buf "\\kern-0.02em{'}\\kern-0.05em{'}\\kern-0.02em"  (* TODO: not typeset in TT *)
+    | '#' -> Buffer.add_string buf "\\#"
+    | '$' -> Buffer.add_string buf "\\$"
+    | '%' -> Buffer.add_string buf "\\%"
+    | '&' -> Buffer.add_string buf "\\&"
+    | '_' -> Buffer.add_string buf "\\_"
+    | '-' -> Buffer.add_string buf "\\mbox{-}"
+    | '{' -> Buffer.add_string buf "\\{"  (* TODO: not typeset in TT *)
+    | '}' -> Buffer.add_string buf "\\}"  (* TODO: not typeset in TT *)
+    | '[' -> Buffer.add_string buf "{[}"
+    | ']' -> Buffer.add_string buf "{]}"
+    | '\\' -> Buffer.add_string buf "\\backslash{}"  (* TODO: not typeset in TT *)
+    | '^' ->  Buffer.add_string buf "\\hat{~~}"
+    | '`' ->  Buffer.add_string buf "\\grave{~~}"
+    | '~' ->  Buffer.add_string buf "\\tilde{~~}"
+    | c -> Buffer.add_char buf c
+  done;
+  Buffer.add_string buf "}\\mbox{’}";
+  Buffer.contents buf
 
 
 (* Operators *)
@@ -1137,7 +1176,7 @@ and render_nottyp env t : table =
       | `TypCase tc -> render_typcase env tc
     in
     let rhss =
-      render_nl_list env (`H, "~|~") render (
+      render_nl_list env (`H, "~~|~~") render (
         (match dots1 with Dots -> [Elem `Dots] | NoDots -> []) @
         map_nl_list (fun t -> `Typ t) ts @
         map_nl_list (fun tc -> `TypCase tc) tcs @
@@ -1147,15 +1186,15 @@ and render_nottyp env t : table =
     if env.config.display then
       rhss
     else
-      [Row [Col (string_of_table " ~|~ " " ~|~ " "" "" rhss)]]
+      [Row [Col (string_of_table " ~~|~~ " " ~~|~~ " "" "" rhss)]]
   | ConT tcon ->
     render_typcon env tcon
   | RangeT tes ->
-    render_nl_list env (`H, "~|~") render_typenum tes
+    render_nl_list env (`H, "~~|~~") render_typenum tes
   | NumT `NatT ->
-    [Row [Col "0 ~|~ 1 ~|~ 2 ~|~ \\dots"]]
+    [Row [Col "0 ~~|~~ 1 ~~|~~ 2 ~~|~~ \\dots"]]
   | NumT `IntT ->
-    [Row [Col "\\dots ~|~ {-2} ~|~ {-1} ~|~ 0 ~|~ 1 ~|~ 2 ~|~ \\dots"]]
+    [Row [Col "\\dots ~~|~~ {-2} ~~|~~ {-1} ~~|~~ 0 ~~|~~ 1 ~~|~~ 2 ~~|~~ \\dots"]]
   | _ ->
     [Row [Col (render_typ env t)]]
 
@@ -1175,7 +1214,7 @@ and render_typenum env (e, eo) : row list =
   let r =
     match eo with
     | None -> ""
-    | Some e2 -> " ~|~ \\ldots ~|~ " ^ render_exp env e2
+    | Some e2 -> " ~~|~~ \\ldots ~~|~~ " ^ render_exp env e2
   in
   [Row [Col (render_exp env e ^ r)]]
 
@@ -1185,11 +1224,6 @@ and render_typenum env (e, eo) : row list =
 and is_atom_exp_with_show env e =
   match e.it with
   | AtomE atom when Map.mem (typed_id atom).it !(env.show_atom) -> true
-| AtomE atom ->
-if atom.it = Atom.Atom "X" && String.contains e.at.left.file 'A' then
-Printf.eprintf "[is_atom_exp %s:X @ %s] false %s\n%!" (Source.string_of_region e.at) atom.note.Atom.def
-(typed_id atom).it;
-false
   | _ -> false
 
 and flatten_fuse_exp_rev e =
@@ -1224,7 +1258,7 @@ and render_exp env e =
     let atom = {it = Atom.Atom (Z.to_string n); at = e.at; note = Atom.info "nat"} in
     render_atom (without_macros true env) atom
   | NumE _ -> assert false
-  | TextE t -> "\\mbox{\\texttt{`" ^ t ^ "'}}"
+  | TextE t -> render_text t
   | CvtE (e1, _) -> render_exp env e1
   | UnE (op, e2) -> "{" ^ render_unop op ^ render_exp env e2 ^ "}"
   | BinE (e1, `PowOp, ({it = ParenE e2; _ } | e2)) ->
@@ -1242,22 +1276,18 @@ and render_exp env e =
     (match List.find_opt (is_atom_exp_with_show env) es with
     | Some {it = AtomE atom; _} ->
       let args = List.map arg_of_exp es in
-(*
-if atom.it = Atom.Atom "X" && String.contains e.at.left.file 'A' then
-Printf.eprintf "[render %s:X @ %s] try expansion\n%!" (Source.string_of_region e.at) atom.note.Atom.def;
-*)
       (match render_expand render_exp env env.show_atom env.macro_atom
-        (typed_id atom) args (fun () -> render_exp_seq env es)
+        (typed_id atom) args true (fun () -> render_exp_seq env e.at es)
       with
       | _, args' when List.length args' + 1 = List.length args ->
         (* HACK for nullary contructors *)
         (* TODO(4, rossberg): handle inner constructors more generally *)
-        render_exp_seq env es
+        render_exp_seq env e.at es
       | s, _ -> s
       )
-    | _ -> render_exp_seq env es
+    | _ -> render_exp_seq env e.at es
     )
-  | ListE es -> "{}[" ^ render_exp_seq env es ^ "]"
+  | ListE es -> "{}[" ^ render_exp_seq env e.at es ^ "]"
   | IdxE (e1, e2) -> render_exp env e1 ^ "{}[" ^ render_exp env e2 ^ "]"
   | SliceE (e1, e2, e3) ->
     render_exp env e1 ^
@@ -1269,10 +1299,15 @@ Printf.eprintf "[render %s:X @ %s] try expansion\n%!" (Source.string_of_region e
     render_exp env e1 ^
       "{}[" ^ render_path env p ^ " \\mathrel{{=}{\\oplus}} " ^ render_exp env e2 ^ "]"
   | StrE efs ->
-    "\\{ " ^
-    "\\begin{array}[t]{@{}l@{}}\n" ^
-    concat_map_nl ",\\; " "\\\\\n  " (render_expfield env) efs ^ " \\}" ^
-    "\\end{array}"
+    if not (List.mem Nl efs) then
+      let sep = if env.config.display then ",\\;\\allowbreak " else ",\\; " in
+      "\\{ " ^
+      concat_map_nl sep "\\\\\n  " (render_expfield env) efs ^ " \\}"
+    else
+      "\\{ " ^
+      "\\begin{array}[t]{@{}l@{}}\n" ^
+      concat_map_nl ",\\; " "\\\\\n  " (render_expfield env) efs ^ " \\}" ^
+      "\\end{array}"
   | DotE (e1, atom) -> render_exp env e1 ^ "{.}" ^ render_fieldname env atom
   | CommaE (e1, e2) -> render_exp env e1 ^ ", " ^ render_exp env e2
   | CatE (e1, e2) -> render_exp env e1 ^ " \\oplus " ^ render_exp env e2
@@ -1288,7 +1323,7 @@ Printf.eprintf "[render %s:X @ %s] try expansion\n%!" (Source.string_of_region e
     let id = typed_id atom in
     let ea = AtomE atom $ atom.at in
     let args = List.map arg_of_exp ([e1; ea] @ as_seq_exp e2) in
-    render_expand render_exp env env.show_atom env.macro_atom id args
+    render_expand render_exp env env.show_atom env.macro_atom id args false
       (fun () ->
         (* Handle subscripting and unary uses *)
         (match Atom.is_sub atom, (as_arith_exp e1).it with
@@ -1299,7 +1334,7 @@ Printf.eprintf "[render %s:X @ %s] try expansion\n%!" (Source.string_of_region e
         ) ^
         (match Atom.is_sub atom, e2.it with
         | true, SeqE (e21::e22::es2) ->
-          "{" ^ render_exps "," env (as_tup_exp e21) ^ "} " ^ render_exp_seq env (e22::es2)
+          "{" ^ render_exps "," env (as_tup_exp e21) ^ "} " ^ render_exp_seq env e2.at (e22::es2)
         | true, _ -> "{" ^ render_exps "," env (as_tup_exp e2) ^ "} {}"
         | false, _ -> render_exp env e2
         )
@@ -1309,7 +1344,7 @@ Printf.eprintf "[render %s:X @ %s] try expansion\n%!" (Source.string_of_region e
     let el = AtomE l $ l.at in
     let er = AtomE r $ r.at in
     let args = List.map arg_of_exp ([el] @ as_seq_exp e1 @ [er]) in
-    render_expand render_exp env env.show_atom env.macro_atom id args
+    render_expand render_exp env env.show_atom env.macro_atom id args true
       (fun () -> render_atom env l ^ space (render_exp env) e1 ^ render_atom env r) |> fst
   | CallE (id, [arg]) when id.it = "" -> (* expansion result only *)
     render_arg env arg
@@ -1337,13 +1372,13 @@ Printf.eprintf "[render %s:X @ %s] try expansion\n%!" (Source.string_of_region e
 and render_exps sep env es =
   concat sep (List.filter ((<>) "") (List.map (render_exp env) es))
 
-and render_exp_seq env = function
+and render_exp_seq env at = function
   | [] -> ""
-  | es when (List.hd es).at.left.line < (Lib.List.last es).at.right.line ->
-    "\\begin{array}[t]{@{}l@{}} " ^ render_exp_seq' env es ^ " \\end{array}"
-  | es -> render_exp_seq' env es
+  | es when env.config.display && (List.hd es).at.left.line < (Lib.List.last es).at.right.line ->
+    "\\begin{array}[t]{@{}l@{}} " ^ render_exp_seq' env at es ^ " \\end{array}"
+  | es -> render_exp_seq' env at es
 
-and render_exp_seq' env = function
+and render_exp_seq' env at = function
   | [] -> ""
   | e1::e2::es when ends_sub_exp e1 ->
     (* Handle subscripting *)
@@ -1351,15 +1386,17 @@ and render_exp_seq' env = function
       "{" ^ render_exp env e1 ^ "}_{" ^
         render_exps "," env (as_tup_exp e2) ^ "}"
     in
-    let s2 = render_exp_seq' env es in
+    let s2 = render_exp_seq' env at es in
     if s1 <> "" && s2 <> "" then s1 ^ "\\," ^ s2 else s1 ^ s2
-  | e1::e2::es when e1.at.right.line < e2.at.left.line ->
+  | e1::e2::es when is_atom_exp_with_show env e2 && es <> [] ->
+    render_exp_seq' env at [e1; SeqE (e2::es) $ at]
+  | e1::e2::es when env.config.display && e1.at.right.line < e2.at.left.line ->
     let s1 = render_exp env e1 in
-    let s2 = render_exp_seq' env (e2::es) in
+    let s2 = render_exp_seq' env at (e2::es) in
     s1 ^ " \\\\\n  " ^ s2
   | e1::es ->
     let s1 = render_exp env e1 in
-    let s2 = render_exp_seq' env es in
+    let s2 = render_exp_seq' env at es in
     if s1 <> "" && s2 <> "" then s1 ^ "~" ^ s2 else s1 ^ s2
 
 and render_expfield env (atom, e) =
@@ -1465,69 +1502,128 @@ and render_sym env g : string =
       "%X"
     in "\\mathrm{U{+}" ^ Z.format fmt n ^ "}"
   | NumG (`AtomOp, n) -> "\\mathtt{" ^ Z.to_string n ^ "}"
-  | TextG t -> "\\mbox{\\texttt{`" ^ t ^ "'}}"
+  | TextG t -> render_text t
   | EpsG -> "\\epsilon"
   | SeqG gs -> render_sym_seq env gs
-  | AltG gs -> render_syms " ~|~ " env gs
+  | AltG gs -> render_syms " ~~|~~ " env gs
   | RangeG (g1, g2) ->
-    render_sym env g1 ^ " ~|~ \\ldots ~|~ " ^ render_sym env g2
+    render_sym env g1 ^ " ~~|~~ \\ldots ~~|~~ " ^ render_sym env g2
   | ParenG g1 -> "(" ^ render_sym env g1 ^ ")"
   | TupG gs -> "(" ^ concat ", " (List.map (render_sym env) gs) ^ ")"
   | IterG (g1, iter) -> "{" ^ render_sym env g1 ^ render_iter env iter ^ "}"
   | ArithG e -> render_exp env e
+  | AttrG ({it = VarE (id, []); _}, g1) when id.it = "<implicit-prod-result>" ->
+    render_sym env g1
   | AttrG (e, g1) -> render_exp env e ^ "{:}" ^ render_sym env g1
   | FuseG (g1, g2) ->
     "{" ^ render_sym env g1 ^ "}" ^ "{" ^ render_sym env g2 ^ "}"
   | UnparenG ({it = ParenG g1; _} | g1) -> render_sym env g1
 
-(* TODO(3, rossberg): don't hard-code number of tabs *)
 and render_syms sep env gs =
-  let br = if env.config.display then " \\\\\n&&& " else " " in
-  altern_map_nl sep br (render_sym env) gs
+  if env.config.display && List.exists ((=) Nl) gs then
+    "\\begin{array}[t]{@{}l@{}} " ^
+    altern_map_nl sep " \\\\\n " (render_sym env) gs ^
+    "\\end{array}"
+  else
+    altern_map_nl sep " " (render_sym env) gs
 
-(* TODO(3, rossberg): don't hard-code number of tabs *)
-and render_sym_seq env = function
+and render_sym_seq env gs =
+  match El.Convert.filter_nl gs with
   | [] -> ""
-  | (Elem g1)::(Elem g2)::gs when g1.at.right.line < g2.at.left.line ->
+  | gs' when env.config.display && (List.hd gs').at.left.line < (Lib.List.last gs').at.right.line
+    || List.exists ((=) Nl) gs ->
+    "\\begin{array}[t]{@{}l@{}} " ^ render_sym_seq' env gs ^ " \\end{array}"
+  | _ -> render_sym_seq' env gs
+
+and render_sym_seq' env = function
+  | [] -> ""
+  | (Elem g1)::(Elem g2)::gs when env.config.display && g1.at.right.line < g2.at.left.line ->
     let s1 = render_sym env g1 in
-    let s2 = render_sym_seq env (Elem g2::gs) in
-    s1 ^ " \\\\\n  &&& " ^ s2
+    let s2 = render_sym_seq' env (Elem g2::gs) in
+    s1 ^ " \\\\\n  " ^ s2
   | (Elem g1)::gs ->
     let s1 = render_sym env g1 in
-    let s2 = render_sym_seq env gs in
+    let s2 = render_sym_seq' env gs in
     if s1 <> "" && s2 <> "" then s1 ^ "~~" ^ s2 else s1 ^ s2
   | Nl::gs ->
-    let s = render_sym_seq env gs in
-    " \\\\[0.8ex]\n  &&& " ^ s
+    let s = render_sym_seq' env gs in
+    " \\\\[0.8ex]\n  " ^ s
 
 and render_prod env prod : row list =
-  let (g, e, prems) = prod.it in
-  match e.it, prems with
-  | (TupE [] | ParenE {it = SeqE []; _}), [] ->
-    [Row [Col (render_sym env g)]]
-  | _ when not env.config.display ->
-    prefix_rows_hd
-      [Col (render_sym env g ^ " ~\\Rightarrow~ " ^ render_exp env e)]
-      (render_conditions env prems)
-  | _ ->
-    prefix_rows_hd
-      ( Col (render_sym env g) ::
-        Col "\\quad\\Rightarrow\\quad{}" ::
-        if g.at.right.line = e.at.left.line then
-          Col (render_exp env e) :: []
-        else
-          Br `Narrow :: Col (render_exp env e) :: []
-      )
-      (render_conditions env prems)
+  match prod.it with
+  | SynthP (g, e, prems) ->
+    (match e.it, prems with
+    | (TupE [] | ParenE {it = SeqE []; _}), [] ->
+      [Row [Col (render_sym env g)]]
+    | VarE (id, []), _ when id.it = "<implicit-prod-result>" ->
+      prefix_rows_hd
+        [Col (render_sym env g)]
+        (render_conditions env prems)
+    | _ when not env.config.display ->
+      prefix_rows_hd
+        [Col (render_sym env g ^ " ~\\Rightarrow~ " ^ render_exp env e)]
+        (render_conditions env prems)
+    | _ ->
+      prefix_rows_hd
+        ( Col (render_sym env g) ::
+          Col "\\quad\\Rightarrow\\quad{}" ::
+          if g.at.right.line = e.at.left.line then
+            Col (render_exp env e) :: []
+          else
+            Br `Narrow :: Col (render_exp env e) :: []
+        )
+        (render_conditions env prems)
+    )
+  | RangeP (g1, e1, g2, e2) ->
+    let at = Source.after_region e1.at in
+    if g1.at.right.line = e2.at.left.line then
+      prefix_rows_hd
+        [Col (
+          render_sym env g1 ^ " ~\\Rightarrow~ " ^ render_exp env e1 ^
+          " ~~|~~ \\ldots ~~|~~ " ^
+          render_sym env g2 ^ " ~\\Rightarrow~ " ^ render_exp env e2
+        )]
+        []
+    else
+      render_prod env (SynthP (g1, e1, []) $ g1.at) @
+      render_prod env (SynthP (ArithG (AtomE Atom.(Dot3 $$ at % info "") $ at) $ at,
+        VarE ("<implicit-prod-result>" $ at, []) $ at, []) $ at) @
+      render_prod env (SynthP (g2, e2, []) $ g2.at)
+  | EquivP (g1, g2, prems) ->
+    (match prems with
+    | _ when not env.config.display ->
+      prefix_rows_hd
+        [Col (render_sym env g1 ^ " ~\\equiv~ " ^ render_sym env g2)]
+        (render_conditions env prems)
+    | _ ->
+      prefix_rows_hd
+        ( Col (render_sym env g1) ::
+          Col "\\quad\\equiv\\quad{}" ::
+          if g1.at.right.line = g2.at.left.line then
+            Col (render_sym env g2) :: []
+          else
+            Br `Narrow :: Col (render_sym env g2) :: []
+        )
+        (render_conditions env prems)
+    )
 
 and render_gram env gram : table =
   let (dots1, prods, dots2) = gram.it in
+  let singleline =
+    List.length prods > 1 && gram.at.left.line = gram.at.right.line ||
+    List.exists (function (Elem {it = RangeP _; _}) -> true | _ -> false) prods
+  in
   let render env = function
     | `Dots -> render_dots Dots
-    | `Prod p -> render_prod env p
+    | `Prod p ->
+      let env' =
+        if singleline
+        then env_with_config env {env.config with display = false}
+        else env
+      in render_prod env' p
   in
   let rhss =
-    render_nl_list env (`H, "~|~") render (
+    render_nl_list env (`H, "~~|~~") render (
       (match dots1 with Dots -> [Elem `Dots] | NoDots -> []) @
       map_nl_list (fun p -> `Prod p) prods @
       (match dots2 with Dots -> [Elem `Dots] | NoDots -> [])
@@ -1536,7 +1632,7 @@ and render_gram env gram : table =
   if env.config.display then
     rhss
   else
-    [Row [Col (string_of_table " ~|~ " " ~|~ " "" "" rhss)]]
+    [Row [Col (string_of_table " ~~|~~ " " ~~|~~ " "" "" rhss)]]
 
 
 (* Definitions *)
@@ -1658,13 +1754,16 @@ let render_ruledef env d : row list =
   | RuleD (id1, id2, e, prems) ->
     let e1, op, e2 =
       match e.it with
-      | InfixE (e1, op, e2) -> e1, op, e2
+      | InfixE (e1, op, ({it = SeqE (e21::es22); _} as e2)) when Atom.is_sub op ->
+        let e1' = SeqE [] $ Source.no_region in
+        e1, {e with it = InfixE (e1', op, {e2 with it = SeqE [e21]})}, {e2 with it = SeqE es22}
+      | InfixE (e1, op, e2) -> e1, {e with it = AtomE op}, e2
       | _ -> error e.at "unrecognized format for tabular rule, infix operator expected"
     in
     prefix_rows_hd
       ( Col (render_rule_deco env "" id1 id2 " \\quad") ::
         Col (render_exp env e1) ::
-        Col (render_atom env op) ::
+        Col (render_exp env op) ::
         if e1.at.right.line = e2.at.left.line then
           Col (render_exp env e2) :: []
         else

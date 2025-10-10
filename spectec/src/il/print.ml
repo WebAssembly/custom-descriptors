@@ -31,8 +31,6 @@ let string_of_id id =
 let string_of_unop = function
   | #Bool.unop as op -> Bool.string_of_unop op
   | #Num.unop as op -> Num.string_of_unop op
-  | `PlusMinusOp -> "+-"
-  | `MinusPlusOp -> "-+"
 
 let string_of_binop = function
   | #Bool.binop as op -> Bool.string_of_binop op
@@ -132,7 +130,7 @@ and string_of_exp e =
   | DotE (e1, atom) ->
     string_of_exp e1 ^ "." ^ string_of_mixop [[atom]] ^ "_" ^ string_of_typ_name e1.note
   | CompE (e1, e2) -> string_of_exp e1 ^ " +++ " ^ string_of_exp e2
-  | MemE (e1, e2) -> string_of_exp e1 ^ " <- " ^ string_of_exp e2
+  | MemE (e1, e2) -> "(" ^ string_of_exp e1 ^ " <- " ^ string_of_exp e2 ^ ")"
   | LenE e1 -> "|" ^ string_of_exp e1 ^ "|"
   | TupE es -> "(" ^ string_of_exps ", " es ^ ")"
   | CallE (id, as1) -> "$" ^ string_of_id id ^ string_of_args as1
@@ -191,7 +189,7 @@ and string_of_sym g =
   | EpsG -> "eps"
   | SeqG gs -> "{" ^ concat " " (List.map string_of_sym gs) ^ "}"
   | AltG gs -> "(" ^ concat " | " (List.map string_of_sym gs) ^ ")"
-  | RangeG (g1, g2) -> string_of_sym g1 ^ " | ... | " ^ string_of_sym g2
+  | RangeG (g1, g2) -> "(" ^ string_of_sym g1 ^ " | ... | " ^ string_of_sym g2 ^ ")"
   | IterG (g1, iter) -> string_of_sym g1 ^ string_of_iterexp iter
   | AttrG (e, g1) -> string_of_exp e ^ ":" ^ string_of_sym g1
 

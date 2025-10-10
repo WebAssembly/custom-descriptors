@@ -1,12 +1,13 @@
 # Configuration
 
-NAME = watsup
+NAME = spectec
 EXE = $(PWD)/../$(NAME)
 EXT = $(NAME)
 LOG = _log
 
 OWNDIR = $(PWD)
-SPECDIR = ../spec
+SPECDIR = ../../specification
+SPECCLONE = ../_specification
 SPECS = $(shell cd $(SPECDIR) && ls -d wasm-*)
 SPECFILES = $(shell ls $(SPECS:%=$(SPECDIR)/%/*.$(EXT)))
 
@@ -34,9 +35,9 @@ LATEXOUTNAME = spec-latex
 
 test-latex: $(SPECS:%=$(LATEXOUTNAME)-%.pdf)
 
-$(LATEXOUTNAME)-%.tex: $(LATEXINNAME).tex $(SPECFILES) $(EXE)
+$(LATEXOUTNAME)-%.tex: $(LATEXINNAME).tex $(SPECCLONE) $(EXE)
 	cp $< $@
-	(cd $(SPECDIR)/$* && $(EXE) -l *.$(EXT) --splice-latex -i -p $(OWNDIR)/$@)
+	(cd $(SPECCLONE)/$* && $(EXE) -l *.$(EXT) --splice-latex -i -p $(OWNDIR)/$@)
 
 $(LATEXOUTNAME)-%.pdf: $(LATEXOUTNAME)-%.tex
 	pdflatex $<

@@ -52,6 +52,15 @@ const EXPECT_INVALID = false;
 
 /* DATA **********************************************************************/
 
+let hostrefs = {};
+let hostsym = Symbol("hostref");
+function hostref(s) {
+  if (! (s in hostrefs)) hostrefs[s] = {[hostsym]: s};
+  return hostrefs[s];
+}
+function eq_ref(x, y) {
+  return x === y ? 1 : 0;
+}
 let externrefs = {};
 let externsym = Symbol("externref");
 function externref(s) {
@@ -86,6 +95,8 @@ function reinitializeRegistry() {
 
   chain = chain.then(_ => {
     let spectest = {
+      hostref: hostref,
+      eq_ref: eq_ref,
       externref: externref,
       is_externref: is_externref,
       is_funcref: is_funcref,
@@ -139,10 +150,10 @@ function binary(bytes) {
 /**
  * Returns a compiled module, or throws if there was an error at compilation.
  */
-function module(bytes, valid = true) {
-  const test = valid
-    ? "Test that WebAssembly compilation succeeds"
-    : "Test that WebAssembly compilation fails";
+function module(bytes, source, valid = true) {
+  const test = `${ valid ? "Test that WebAssembly compilation succeeds" :
+                "Test that WebAssembly compilation fails"} (${source})`;
+
   const loc = new Error().stack.toString().replace("Error", "");
   let buffer = binary(bytes);
   let validated = WebAssembly.validate(buffer);
@@ -156,6 +167,7 @@ function module(bytes, valid = true) {
       uniqueTest(_ => {
         assert_true(valid, loc);
       }, test);
+      module.source = source;
       return module;
     },
     error => {
@@ -170,34 +182,35 @@ function module(bytes, valid = true) {
   return chain;
 }
 
-function assert_invalid(bytes) {
-  module(bytes, EXPECT_INVALID);
+function assert_invalid(bytes, source) {
+  module(bytes, source, EXPECT_INVALID);
 }
 
 const assert_malformed = assert_invalid;
 
-function assert_invalid_custom(bytes) {
-  module(bytes);
+function assert_invalid_custom(bytes, source) {
+  module(bytes, source);
 }
 
 const assert_malformed_custom = assert_invalid_custom;
 
-function instance(bytes, imports, valid = true) {
-  const test = valid
+function instance(module, imports, valid = true) {
+  let test = valid
     ? "Test that WebAssembly instantiation succeeds"
     : "Test that WebAssembly instantiation fails";
   const loc = new Error().stack.toString().replace("Error", "");
-  chain = Promise.all([imports, chain])
+  chain = Promise.all([module, imports, chain])
     .then(values => {
-      let imports = values[0] ? values[0] : registry;
-      return WebAssembly.instantiate(binary(bytes), imports);
+      let imports = values[1] ? values[1] : registry;
+      test += ` (${values[0].source})`;
+      return WebAssembly.instantiate(values[0], imports);
     })
     .then(
-      pair => {
+      inst => {
         uniqueTest(_ => {
           assert_true(valid, loc);
         }, test);
-        return pair.instance;
+        return inst;
       },
       error => {
         uniqueTest(_ => {
@@ -224,8 +237,8 @@ function call(instance, name, args) {
   });
 }
 
-function run(action) {
-  const test = "Run a WebAssembly test without special assertions";
+function run(action, source) {
+  const test = `Run a WebAssembly test without special assertions (${source})`;
   const loc = new Error().stack.toString().replace("Error", "");
   chain = Promise.all([chain, action()])
     .then(
@@ -245,8 +258,8 @@ function run(action) {
     .catch(_ => {});
 }
 
-function assert_trap(action) {
-  const test = "Test that a WebAssembly code traps";
+function assert_trap(action, source) {
+  const test = `Test that a WebAssembly code traps (${source})`;
   const loc = new Error().stack.toString().replace("Error", "");
   chain = Promise.all([chain, action()])
     .then(
@@ -268,8 +281,8 @@ function assert_trap(action) {
     .catch(_ => {});
 }
 
-function assert_return(action, ...expected) {
-  const test = "Test that a WebAssembly code returns a specific result";
+function assert_return(action, source, ...expected) {
+  const test = `Test that a WebAssembly code returns a specific result (${source})`;
   const loc = new Error().stack.toString().replace("Error", "");
   chain = Promise.all([action(), chain])
     .then(

@@ -114,15 +114,19 @@ and string_of_expr expr =
     sprintf "%s is contained in %s" (string_of_expr e1) (string_of_expr e2)
   | LenE e -> sprintf "|%s|" (string_of_expr e)
   | GetCurStateE -> "the current state"
-  | GetCurContextE None -> "the topmost control frame"
-  | GetCurContextE (Some a) -> sprintf "the topmost %s" (string_of_atom a)
+  | GetCurContextE a -> sprintf "the topmost %s" (string_of_atom a)
   | ListE el -> "[" ^ string_of_exprs ", " el ^ "]"
   | LiftE e -> string_of_expr e
   | AccE (e, p) -> sprintf "%s%s" (string_of_expr e) (string_of_path p)
   | ExtE (e1, ps, e2, dir) -> (
+    let prep =
+      match e1.it with
+      | ExtE _ -> "and"
+      | _ -> "with"
+    in
     match dir with
-    | Front -> sprintf "%s with %s prepended by %s" (string_of_expr e1) (string_of_paths ps) (string_of_expr e2)
-    | Back -> sprintf "%s with %s appended by %s" (string_of_expr e1) (string_of_paths ps) (string_of_expr e2))
+    | Front -> sprintf "%s %s %s prepended by %s" (string_of_expr e1) prep (string_of_paths ps) (string_of_expr e2)
+    | Back -> sprintf "%s %s %s appended by %s" (string_of_expr e1) prep (string_of_paths ps) (string_of_expr e2))
   | UpdE (e1, ps, e2) ->
     sprintf "%s with %s replaced by %s" (string_of_expr e1) (string_of_paths ps) (string_of_expr e2)
   | StrE r -> string_of_record_expr r
@@ -150,7 +154,7 @@ and string_of_expr expr =
   | OptE None -> "?()"
   | ContextKindE a -> sprintf "the first non-value entry of the stack is a %s" (string_of_atom a)
   | IsDefinedE e -> sprintf "%s is defined" (string_of_expr e)
-  | IsCaseOfE (e, a) -> sprintf "%s is %s" (string_of_expr e) (string_of_atom a)
+  | IsCaseOfE (e, a) -> sprintf "%s is some %s" (string_of_expr e) (string_of_atom a)
   | HasTypeE (e, t) -> sprintf "%s is %s" (string_of_expr e) (string_of_typ t)
   | IsValidE e -> sprintf "%s is valid" (string_of_expr e)
   | TopValueE (Some e) -> sprintf "a value of value type %s is on the top of the stack" (string_of_expr e)
@@ -329,9 +333,10 @@ let rec string_of_instr' depth instr =
   | AppendI (e1, e2) ->
     sprintf "%s Append %s to the %s." (make_index depth)
       (string_of_expr e2) (string_of_expr e1)
-  | FieldWiseAppendI (e1, e2) ->
-    sprintf "%s Append %s to the %s, fieldwise." (make_index depth)
-      (string_of_expr e2) (string_of_expr e1)
+  | ForEachI (xes, il) ->
+    sprintf "%s For each %s, do:%s" (make_index depth)
+      (xes |> List.map (fun (x, e) -> x ^ " in " ^ string_of_expr e) |> String.concat " and ")
+      (string_of_instrs' (depth + 1) il)
   | YetI s -> sprintf "%s YetI: %s." (make_index depth) s
 
 and string_of_instrs' depth instrs =
@@ -369,11 +374,9 @@ let string_of_expr_with_type e =
   let s = string_of_expr e in
   if List.mem s !render_type_visit then s else (
     render_type_visit := s :: !render_type_visit;
-    let t = Prose_util.extract_desc e.note in
-    if t = "" then
-      string_of_expr e
-    else
-      "the " ^ t ^ " " ^ string_of_expr e
+    match Prose_util.extract_desc e with
+    | Some (desc, seq) -> "the " ^ desc ^ seq ^ " " ^ string_of_expr e
+    | None -> string_of_expr e
   )
 
 let string_of_cmpop = function
@@ -391,15 +394,15 @@ let string_of_prose_binop = function
 | `EquivOp -> "if and only if"
 
 let string_of_pphint = function
-| Some text -> " " ^ text ^ " "
-| None -> " with "
+| Some text -> text
+| None -> "with"
 
 let rec raw_string_of_single_stmt stmt =
   match stmt with
   | LetS (e1, e2) ->
-    sprintf "Let %s be %s"
-      (string_of_expr e1)
-      (string_of_expr_with_type e2)
+    sprintf "%s is %s"
+      (string_of_expr_with_type e1)
+      (string_of_expr e2)
   | CondS e ->
     sprintf "%s"
       (string_of_expr e)
@@ -413,7 +416,7 @@ let rec raw_string_of_single_stmt stmt =
     sprintf "%s%s is valid%s"
       (string_of_opt "Under the context " string_of_expr ", " c_opt)
       (string_of_expr_with_type e)
-      (string_of_nullable_list string_of_expr_with_type prep " and " "" es)
+      (if prep = "" then "" else (string_of_nullable_list string_of_expr_with_type (" " ^ prep ^ " ") " and " "" es))
   | MatchesS (e1, e2) when Al.Eq.eq_expr e1 e2 ->
     sprintf "%s matches only itself"
       (string_of_expr_with_type e1)
@@ -432,15 +435,19 @@ let rec raw_string_of_single_stmt stmt =
     sprintf "%s %s defaultable"
       (string_of_expr_with_type e)
       (string_of_cmpop cmpop)
+  | IsConcatS (e1, e2) ->
+    sprintf "%s is the concatenation of all such %s"
+      (string_of_expr_with_type e1)
+      (string_of_expr e2)
   | ContextS (e1, e2) ->
     sprintf "%s is the context %s"
       (string_of_expr_with_type e1)
       (string_of_expr e2)
   | RelS (s, es) ->
-    let args = List.map string_of_expr_with_type es in
+    let args = List.map string_of_expr es in
     Prose_util.apply_prose_hint s args
   | YetS s -> indent () ^ " Yet: " ^ s
-  | _ -> assert false
+  | IfS _ | ForallS _ | EitherS _ | BinS _ -> assert false
 
 
 and raw_string_of_stmt stmt =

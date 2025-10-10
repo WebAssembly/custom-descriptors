@@ -139,8 +139,9 @@ However, the following new subtyping rules are introduced:
  - A declared supertype of a type without a `descriptor` clause must also
    not have a `descriptor` clause.
 
- - A declared supertype of a type with a `describes` clause must have a
-   `describes` clause.
+ - A declared supertype of a type with a `(describes $x)` clause
+   must have a `(describes $y)` clause,
+   where `$y` is a declared supertype of `$x`.
 
  - A declared supertype of a type without a `describes` clause must also
    not have a `describes` clause.
@@ -184,8 +185,9 @@ might be laid out after the engine-managed RTT for the type they describe.
   (type $super (sub (descriptor $super.rtt) (struct )))
   (type $super.rtt (sub (describes $super) (struct)))
 
-  ;; Ok (but strange)
-  (type $other (struct))
+  (type $other (descriptor $sub.rtt) (struct))
+
+  ;; Invalid: Must describe an immediate subtype of $super.
   (type $sub.rtt (sub $super.rtt (describes $other) (struct)))
 )
 

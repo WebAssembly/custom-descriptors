@@ -1,8 +1,13 @@
+![Spectec Status](https://github.com/WebAssembly/custom-descriptors/actions/workflows/ci-spectec.yml/badge.svg)
+![Interpreter Status](https://github.com/WebAssembly/custom-descriptors/actions/workflows/ci-interpreter.yml/badge.svg)
+![Spec doc Status](https://github.com/WebAssembly/custom-descriptors/actions/workflows/ci-spec.yml/badge.svg)
+
+[![CI for specs](https://github.com/WebAssembly/custom-descriptors/actions/workflows/ci-spec.yml/badge.svg)](https://github.com/WebAssembly/custom-descriptors/actions/workflows/ci-spec.yml)
+[![CI for interpreter & tests](https://github.com/WebAssembly/custom-descriptors/actions/workflows/ci-interpreter.yml/badge.svg)](https://github.com/WebAssembly/custom-descriptors/actions/workflows/ci-interpreter.yml)
+
 # Custom Descriptors
 
 This repository contains the WebAssembly proposal for custom descriptors and JS interop for Wasm GC structs.
-It is based on the [SpecTec fork](https://github.com/Wasm-DSL/spectec) of the spec repository,
-which is in turn based on the `wasm-3.0` branch of [github.com/WebAssembly/spec/](https://github.com/WebAssembly/spec/).
 See the [overview](proposals/custom-descriptors/Overview.md) for more information.
 
 Original `README` from upstream repository follows...

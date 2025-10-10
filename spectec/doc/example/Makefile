@@ -1,6 +1,6 @@
 NAME = NanoWasm
 SPECTECDIR = ../..
-SPECTEC = $(SPECTECDIR)/watsup
+SPECTEC = $(SPECTECDIR)/spectec
 SPHINX = sphinx-build
 BUILDDIR = _build
 
@@ -9,7 +9,8 @@ BUILDDIR = _build
 
 default:
 	@echo "Targets available:"
-	@echo "make rst      (run SpecTec)"
+	@echo "make check    (run SpecTec)"
+	@echo "make rst      (run SpecTec splicing)"
 	@echo "make html     (run SpecTec + Sphinx)"
 	@echo "make latex    (run SpecTec + Sphinx)"
 	@echo "make pdf      (run SpecTec + Sphinx + Latex)"
@@ -28,12 +29,18 @@ spectec:
 
 # Running SpecTec
 
+check: $(NAME).spectec
+	$(SPECTEC) $(NAME).spectec
+
+
+# Running SpecTec splicing
+
 RSTFILE = $(NAME).rst
 
 rst: $(RSTFILE)
 
-$(RSTFILE): $(NAME).rst.in $(NAME).watsup
-	$(SPECTEC) $(NAME).watsup --splice-sphinx -p $< -o $@
+$(RSTFILE): $(NAME).rst.in $(NAME).spectec
+	$(SPECTEC) $(NAME).spectec --splice-sphinx -p $< -o $@
 
 
 # Running Sphinx

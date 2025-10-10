@@ -119,7 +119,7 @@ You will need `ocaml` installed with `dune`, `menhir`, `mdx`, and the `zarith` l
 
 ### Building the Project
 
-* Invoke `make` to build the `watsup` executable.
+* Invoke `make` to build the `spectec` executable.
 
 * In the same place, invoke `make test` to run it on the demo files from the `spec` directory.
 
@@ -130,7 +130,7 @@ To generate a specification document in Latex or Sphinx (to be built into pdf or
 
 * Have `python3` version 3.7 or higher with `pip3` installed.
 
-* Install `sphinx` version 7.1.2 and `six` version 1.16.0 via `pip3` (default versions).
+* Install `sphinx` version 8.1.3 or higher and `six` version 1.16.0 via `pip3` (default versions).
   ```
   $ pip3 install sphinx six
   ```
@@ -159,5 +159,5 @@ A smaller, self-contained example for a SpecTec specification, a small document 
 
 To run a wast file,
 ```
-watsup spec/* --interpreter test-interpreter/sample.wast
+spectec spec/* --interpreter test-interpreter/sample.wast
 ```

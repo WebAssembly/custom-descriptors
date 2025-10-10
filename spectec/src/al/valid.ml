@@ -191,17 +191,21 @@ let is_num typ =
   | _ -> false
 
 let rec sub_typ typ1 typ2 =
-  let typ1', typ2' = ground_typ_of typ1, ground_typ_of typ2 in
-  match typ1'.it, typ2'.it with
-  | IterT (typ1'', _), IterT (typ2'', _) -> sub_typ typ1'' typ2''
-  | NumT _, NumT _ -> true
-  | _, _ -> IlEval.sub_typ !il_env typ1' typ2'
+  try
+    let typ1', typ2' = ground_typ_of typ1, ground_typ_of typ2 in
+    match typ1'.it, typ2'.it with
+    | IterT (typ1'', _), IterT (typ2'', _) -> sub_typ typ1'' typ2''
+    | NumT _, NumT _ -> true
+    | _, _ -> IlEval.sub_typ !il_env typ1' typ2'
+  with Util.Error.Error (_, "undeclared type") -> false
 
 let rec matches typ1 typ2 =
-  match (ground_typ_of typ1).it, (ground_typ_of typ2).it with
-  | IterT (typ1', _), IterT (typ2', _) -> matches typ1' typ2'
-  | VarT (id1, _), VarT (id2, _) when id1.it = id2.it -> true
-  | _ -> sub_typ typ1 typ2 || sub_typ typ2 typ1
+  try
+    match (ground_typ_of typ1).it, (ground_typ_of typ2).it with
+    | IterT (typ1', _), IterT (typ2', _) -> matches typ1' typ2'
+    | VarT (id1, _), VarT (id2, _) when id1.it = id2.it -> true
+    | _ -> sub_typ typ1 typ2 || sub_typ typ2 typ1
+  with Util.Error.Error (_, "undeclared type") -> false
 
 
 (* Helper functions *)
@@ -705,13 +709,7 @@ let rec valid_instr (env: Env.t) (instr: instr) : Env.t =
     valid_expr env expr2;
     check_list source expr1.note;
     env
-  | FieldWiseAppendI (expr1, expr2) ->
-    valid_expr env expr1;
-    valid_expr env expr2;
-    check_struct source expr1.note;
-    check_struct source expr2.note;
-    env
-  | OtherwiseI _ | YetI _ -> error_valid "invalid instruction" source ""
+  | ForEachI _ | OtherwiseI _ | YetI _ -> error_valid "invalid instruction" source ""
   )
 
 and valid_instrs env = function

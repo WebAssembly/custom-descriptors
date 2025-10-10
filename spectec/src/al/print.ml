@@ -49,7 +49,7 @@ let rec string_of_record r =
   let base_indent = repeat indent !depth in
   depth := !depth + 1;
   let str = Record.fold
-    (fun k v acc -> acc ^ base_indent ^ indent ^ k ^ ": " ^ string_of_value v ^ ";\n")
+    (fun k v acc -> acc ^ base_indent ^ indent ^ k ^ " " ^ string_of_value v ^ ";\n")
     r (base_indent ^ "{\n")
   ^ (base_indent ^ "}") in
   depth := !depth - 1;
@@ -137,8 +137,7 @@ and string_of_expr expr =
     sprintf "%s is contained in %s" (string_of_expr e1) (string_of_expr e2)
   | LenE e -> sprintf "|%s|" (string_of_expr e)
   | GetCurStateE -> "current_state()"
-  | GetCurContextE None -> "current_context()"
-  | GetCurContextE (Some a) -> sprintf "current_context(%s)" (string_of_atom a)
+  | GetCurContextE a -> sprintf "current_context(%s)" (string_of_atom a)
   | ListE el -> "[" ^ string_of_exprs ", " el ^ "]"
   | LiftE e -> "lift(" ^ string_of_expr e ^ ")"
   | AccE (e, p) -> sprintf "%s%s" (string_of_expr e) (string_of_path p)
@@ -323,9 +322,10 @@ let rec string_of_instr' depth instr =
   | AppendI (e1, e2) ->
     sprintf " %s :+ %s"
       (string_of_expr e2) (string_of_expr e1)
-  | FieldWiseAppendI (e1, e2) ->
-    sprintf " %s :⨁ %s"
-      (string_of_expr e2) (string_of_expr e1)
+  | ForEachI (xes, il) ->
+    sprintf " For each %s, do:%s"
+      (xes |> List.map (fun (x, e) -> x ^ " in " ^ string_of_expr e) |> String.concat " and ")
+      (string_of_instrs' (depth + 1) il)
   | YetI s -> sprintf " YetI: %s." s
 
 and string_of_instrs' depth instrs =
@@ -447,8 +447,7 @@ and structured_string_of_expr expr =
     ^ ")"
   | LenE e -> "LenE (" ^ structured_string_of_expr e ^ ")"
   | GetCurStateE -> "GetCurStateE"
-  | GetCurContextE None -> "GetCurContextE"
-  | GetCurContextE (Some a) -> sprintf "GetCurContextE (%s)" (string_of_atom a)
+  | GetCurContextE a -> sprintf "GetCurContextE (%s)" (string_of_atom a)
   | ListE el -> "ListE ([" ^ structured_string_of_exprs el ^ "])"
   | LiftE e -> "LiftE (" ^ structured_string_of_expr e ^ ")"
   | AccE (e, p) ->
@@ -600,12 +599,12 @@ let rec structured_string_of_instr' depth instr =
     ^ ", "
     ^ structured_string_of_expr e2
     ^ ")"
-  | FieldWiseAppendI (e1, e2) ->
-    "FieldWiseAppendI ("
-    ^ structured_string_of_expr e1
-    ^ ", "
-    ^ structured_string_of_expr e2
-    ^ ")"
+  | ForEachI (xes, b) ->
+    "ForEachI (\n"
+    ^ "[" ^ string_of_list (fun (x, e) -> x ^ ", " ^ structured_string_of_expr e) "; " xes ^ "]"
+    ^ ","
+    ^ structured_string_of_instrs' (depth + 1) b
+    ^ repeat indent depth ^ ")"
   | YetI s -> "YetI " ^ s
 
 and structured_string_of_instrs' depth instrs =

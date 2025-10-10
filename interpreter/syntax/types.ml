@@ -393,7 +393,8 @@ and string_of_descriptor = function
   | None -> ""
 
 and string_of_desctype = function
-  | DescT (ut1, ut2, st) -> string_of_describes ut1 ^ string_of_descriptor ut2 ^ string_of_comptype st
+  | DescT (ut1, ut2, st) ->
+    string_of_describes ut1 ^ string_of_descriptor ut2 ^ string_of_comptype st
 
 and string_of_subtype = function
   | SubT (Final, [], dt) -> string_of_desctype dt

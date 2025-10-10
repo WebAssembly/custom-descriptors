@@ -384,7 +384,7 @@ and string_of_comptype = function
   | FuncT (ts1, ts2) ->
     "func " ^ string_of_resulttype ts1 ^ " -> " ^ string_of_resulttype ts2
     
-and string_of_described = function
+and string_of_describes = function
   | Some ut -> "(describes " ^ string_of_typeuse ut ^ ") "
   | None -> ""
 
@@ -393,7 +393,7 @@ and string_of_descriptor = function
   | None -> ""
 
 and string_of_desctype = function
-  | DescT (ut1, ut2, st) -> string_of_described ut1 ^ string_of_descriptor ut2 ^ string_of_comptype st
+  | DescT (ut1, ut2, st) -> string_of_describes ut1 ^ string_of_descriptor ut2 ^ string_of_comptype st
 
 and string_of_subtype = function
   | SubT (Final, [], dt) -> string_of_desctype dt

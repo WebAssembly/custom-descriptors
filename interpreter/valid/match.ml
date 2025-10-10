@@ -28,6 +28,7 @@ and top_of_heaptype c = function
   | ExnHT | NoExnHT -> ExnHT
   | ExternHT | NoExternHT -> ExternHT
   | UseHT ut -> top_of_typeuse c ut
+  | ExactUseHT ut -> top_of_typeuse c ut
   | BotHT -> assert false
 
 let top_of_valtype c = function
@@ -50,6 +51,7 @@ and bot_of_heaptype c = function
   | ExnHT | NoExnHT -> NoExnHT
   | ExternHT | NoExternHT -> NoExternHT
   | UseHT ut -> bot_of_typeuse c ut
+  | ExactUseHT ut -> bot_of_typeuse c ut
   | BotHT -> assert false
 
 
@@ -75,6 +77,7 @@ let match_vectype _c t1 t2 =
   t1 = t2
 
 let rec match_heaptype c t1 t2 =
+  t1 = t2 ||
   match t1, t2 with
   | EqHT, AnyHT -> true
   | StructHT, AnyHT -> true
@@ -87,6 +90,11 @@ let rec match_heaptype c t1 t2 =
   | NoFuncHT, t -> match_heaptype c t FuncHT
   | NoExnHT, t -> match_heaptype c t ExnHT
   | NoExternHT, t -> match_heaptype c t ExternHT
+  | ExactUseHT (Idx x1), _ ->
+    match_heaptype c (ExactUseHT (Def (lookup c x1))) t2
+  | _, ExactUseHT (Idx x2) ->
+    match_heaptype c t1 (ExactUseHT (Def (lookup c x2)))
+  | ExactUseHT (Def dt1), _ -> match_heaptype c (UseHT (Def dt1)) t2
   | UseHT (Idx x1), _ -> match_heaptype c (UseHT (Def (lookup c x1))) t2
   | _, UseHT (Idx x2) -> match_heaptype c t1 (UseHT (Def (lookup c x2)))
   | UseHT (Def dt1), UseHT (Def dt2) -> match_deftype c dt1 dt2
@@ -102,7 +110,7 @@ let rec match_heaptype c t1 t2 =
     | _ -> false
     )
   | BotHT, _ -> true
-  | _, _ -> t1 = t2
+  | _, _ -> false
 
 and match_reftype c t1 t2 =
   match t1, t2 with

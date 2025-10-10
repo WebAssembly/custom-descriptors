@@ -194,6 +194,7 @@ let heaptype s =
       | -0x15 -> StructHT
       | -0x16 -> ArrayHT
       | -0x17 -> ExnHT
+      | -0x1e -> ExactUseHT (typeuse s32 s)
       | _ -> error s pos "malformed heap type"
     )
   ] s

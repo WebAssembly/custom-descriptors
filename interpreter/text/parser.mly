@@ -285,7 +285,7 @@ let parse_annots (m : module_) : Custom.section list =
 %token<V128.shape> VECSHAPE
 %token ANYREF NULLREF EQREF I31REF STRUCTREF ARRAYREF
 %token FUNCREF NULLFUNCREF EXNREF NULLEXNREF EXTERNREF NULLEXTERNREF
-%token ANY NONE EQ I31 REF NOFUNC EXN NOEXN EXTERN NOEXTERN NULL
+%token ANY NONE EQ I31 REF NOFUNC EXN NOEXN EXTERN NOEXTERN NULL EXACT
 %token MUT FIELD STRUCT ARRAY SUB FINAL REC DESCRIBES DESCRIPTOR
 %token UNREACHABLE NOP DROP SELECT
 %token BLOCK END IF THEN ELSE LOOP
@@ -377,6 +377,7 @@ heaptype :
   | EXTERN { fun c -> ExternHT }
   | NOEXTERN { fun c -> NoExternHT }
   | idx { fun c -> UseHT (Idx ($1 c type_).it) }
+  | LPAR EXACT idx RPAR { fun c -> ExactUseHT (Idx ($3 c type_).it) }
 
 reftype :
   | LPAR REF null_opt heaptype RPAR { fun c -> ($3, $4 c) }

@@ -281,6 +281,7 @@ let unroll_deftype (dt : deftype) : subtype =
   let RecT sts = unroll_rectype rt in
   Lib.List32.nth sts i
 
+(* TODO: consider returning a desctype here. *)
 let expand_deftype (dt : deftype) : comptype =
   let SubT (_, _, DescT (_, _, st)) = unroll_deftype dt in
   st

@@ -107,8 +107,11 @@ and comptype = function
   | ArrayT ft -> fieldtype ft
   | FuncT (ts1, ts2) -> list valtype ts1 ++ list valtype ts2
 
+and desctype = function
+  | DescT (ut1, ut2, ct) -> opt typeuse ut1 ++ opt typeuse ut2 ++ comptype ct
+
 and subtype = function
-  | SubT (_fin, uts, ct) -> list typeuse uts ++ comptype ct
+  | SubT (_fin, uts, dt) -> list typeuse uts ++ desctype dt
 
 and rectype = function
   | RecT sts -> list subtype sts

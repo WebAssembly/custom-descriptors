@@ -32,7 +32,7 @@ let memory =
   ExternMemory (Memory.alloc mt)
 
 let func f ts1 ts2 =
-  let dt = DefT (RecT [SubT (Final, [], FuncT (ts1, ts2))], 0l) in
+  let dt = DefT (RecT [SubT (Final, [], DescT (None, None, FuncT (ts1, ts2)))], 0l) in
   ExternFunc (Func.alloc_host dt (f ts1 ts2))
 
 let print_value v =

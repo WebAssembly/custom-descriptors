@@ -285,6 +285,12 @@ let rec statify_list f rts = function
     let rts'', xs' = statify_list f rts' xs in
     rts'', x'::xs'
 
+let statify_opt f rts = function
+  | None -> rts, None
+  | Some x ->
+    let rts', x' = f rts x in
+    rts', Some x'
+
 let rec statify_typeuse rts = function
   | Def dt ->
     let rts', i = statify_deftype rts dt in
@@ -330,10 +336,17 @@ and statify_comptype rts = function
     let rts'', ts2' = statify_list statify_valtype rts' ts2 in
     rts'', FuncT (ts1', ts2')
 
-and statify_subtype rts (SubT (fin, uts, ct)) =
+and statify_desctype rts = function
+  | DescT (ut1, ut2, ct) ->
+    let rts', ut1' = statify_opt statify_typeuse rts ut1 in
+    let rts'', ut2' = statify_opt statify_typeuse rts' ut2 in
+    let rts''', ct' = statify_comptype rts'' ct in
+    rts''', DescT (ut1', ut2', ct')
+
+and statify_subtype rts (SubT (fin, uts, dt)) =
     let rts', uts' = statify_list statify_typeuse rts uts in
-    let rts'', ct' = statify_comptype rts' ct in
-    rts'', SubT (fin, uts', ct')
+    let rts'', dt' = statify_desctype rts' dt in
+    rts'', SubT (fin, uts', dt')
 
 and statify_rectype rts (RecT sts) =
     let rts', sts' = statify_list statify_subtype rts sts in
@@ -405,7 +418,7 @@ let value v =
   | Ref _ -> assert false
 
 let invoke dt vs at =
-  let dummy = RecT [SubT (Final, [], FuncT ([], []))] in
+  let dummy = RecT [SubT (Final, [], DescT (None, None, FuncT ([], [])))] in
   let rts0 = Lib.List32.init subject_type_idx (fun i -> dummy, (dummy, i)) in
   let rts, i = statify_deftype rts0 dt in
   List.map (fun (_, (rt, _)) -> rt @@ at) (Lib.List32.drop subject_type_idx rts),
@@ -577,7 +590,7 @@ let i32 = NumT I32T
 let anyref = RefT (Null, AnyHT)
 let eqref = RefT (Null, EqHT)
 let func_rectype ts1 ts2 at =
-  RecT [SubT (Final, [], FuncT (ts1, ts2))] @@ at
+  RecT [SubT (Final, [], DescT (None, None, FuncT (ts1, ts2)))] @@ at
 
 let wrap item_name wrap_action wrap_assertion at =
   let itypes, idesc, action = wrap_action at in

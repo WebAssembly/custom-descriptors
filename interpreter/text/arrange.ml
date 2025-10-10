@@ -99,15 +99,22 @@ let comptype = function
   | ArrayT ft -> Node ("array", [fieldtype ft])
   | FuncT (ts1, ts2) -> Node ("func", decls "param" ts1 @ decls "result" ts2)
 
+let describes ut = Node ("describes", [atom typeidx ut])
+
+let descriptor ut = Node ("descriptor", [atom typeidx ut])
+
+let desctype = function
+  | DescT (ut1, ut2, ct) ->
+    (opt describes ut1) @ (opt descriptor ut2) @ [comptype ct]
+
 let subtype = function
-  | SubT (Final, [], ct) -> comptype ct
-  | SubT (fin, uts, ct) ->
-    Node (String.concat " "
-      (("sub" ^ final fin) :: List.map typeidx uts), [comptype ct])
+  | SubT (Final, [], dt) -> desctype dt
+  | SubT (fin, uts, dt) ->
+    [Node (String.concat " "
+      (("sub" ^ final fin) :: List.map typeidx uts), desctype dt)]
 
 let rectype i j st =
-  Node ("type $" ^ nat (i + j), [subtype st])
-
+  Node ("type $" ^ nat (i + j), subtype st)
 
 let limits nat {min; max} =
   String.concat " " (nat min :: opt nat max)

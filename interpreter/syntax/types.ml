@@ -33,7 +33,8 @@ and comptype =
   | ArrayT of fieldtype
   | FuncT of (resulttype * resulttype)
 
-and subtype = SubT of final * typeuse list * comptype
+and desctype = DescT of typeuse option * typeuse option * comptype
+and subtype = SubT of final * typeuse list * desctype
 and rectype = RecT of subtype list
 and deftype = DefT of rectype * int32
 
@@ -200,9 +201,13 @@ and subst_comptype s = function
   | ArrayT ft -> ArrayT (subst_fieldtype s ft)
   | FuncT (ts1, ts2) -> FuncT (subst_resulttype s ts1, subst_resulttype s ts2)
 
+and subst_desctype s = function
+  | DescT (ut1, ut2, ct) ->
+    DescT (Option.map (subst_typeuse s) ut1, Option.map (subst_typeuse s) ut2, subst_comptype s ct)
+
 and subst_subtype s = function
-  | SubT (fin, uts, ct) ->
-    SubT (fin, List.map (subst_typeuse s) uts, subst_comptype s ct)
+  | SubT (fin, uts, dt) ->
+    SubT (fin, List.map (subst_typeuse s) uts, subst_desctype s dt)
 
 and subst_rectype s = function
   | RecT sts ->
@@ -276,8 +281,9 @@ let unroll_deftype (dt : deftype) : subtype =
   let RecT sts = unroll_rectype rt in
   Lib.List32.nth sts i
 
+(* TODO: consider returning a desctype here. *)
 let expand_deftype (dt : deftype) : comptype =
-  let SubT (_, _, st) = unroll_deftype dt in
+  let SubT (_, _, DescT (_, _, st)) = unroll_deftype dt in
   st
 
 
@@ -378,13 +384,25 @@ and string_of_comptype = function
   | ArrayT ft -> "array " ^ string_of_fieldtype ft
   | FuncT (ts1, ts2) ->
     "func " ^ string_of_resulttype ts1 ^ " -> " ^ string_of_resulttype ts2
+    
+and string_of_describes = function
+  | Some ut -> "(describes " ^ string_of_typeuse ut ^ ") "
+  | None -> ""
+
+and string_of_descriptor = function
+  | Some ut -> "(descriptor " ^ string_of_typeuse ut ^ ") "
+  | None -> ""
+
+and string_of_desctype = function
+  | DescT (ut1, ut2, st) ->
+    string_of_describes ut1 ^ string_of_descriptor ut2 ^ string_of_comptype st
 
 and string_of_subtype = function
-  | SubT (Final, [], ct) -> string_of_comptype ct
-  | SubT (fin, uts, ct) ->
+  | SubT (Final, [], dt) -> string_of_desctype dt
+  | SubT (fin, uts, dt) ->
     String.concat " "
       (("sub" ^ string_of_final fin) :: List.map string_of_typeuse uts) ^
-    " (" ^ string_of_comptype ct ^ ")"
+    " (" ^ string_of_desctype dt ^ ")"
 
 and string_of_rectype = function
   | RecT [st] -> string_of_subtype st

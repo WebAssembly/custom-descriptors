@@ -157,22 +157,33 @@ let check_comptype (c : context) (ct : comptype) at =
     check_resulttype c ts1 at;
     check_resulttype c ts2 at
 
+(* TODO: Make sure the describes and descriptor clauses match. *)
+let check_desctype (c : context) (dt : desctype) at =
+  match dt with
+  | DescT (ht1, ht2, ct) -> check_comptype c ct at
+
+let check_desctype_sub (c : context) (dt : desctype) (dti : desctype) x xi at =
+  (* TODO: check rules *)
+  let DescT (_, _, ct) = dt in
+  let DescT (_, _, cti) = dti in
+  require (match_comptype c.types ct cti) at ("sub type " ^ I32.to_string_u x ^
+      " does not match super type " ^ I32.to_string_u xi)
+
 let check_subtype (c : context) (sut : subtype) at =
-  let SubT (_fin, uts, ct) = sut in
+  let SubT (_fin, uts, dt) = sut in
   List.iter (fun ut -> check_typeuse c ut at) uts;
-  check_comptype c ct at
+  check_desctype c dt at
 
 let check_subtype_sub (c : context) (sut : subtype) x at =
-  let SubT (_fin, uts, ct) = sut in
+  let SubT (_fin, uts, dt) = sut in
   List.iter (fun uti ->
     let xi = idx_of_typeuse uti in
-    let SubT (fini, _, cti) = unroll_deftype (type_ c (xi @@ at)) in
+    let SubT (fini, _, dti) = unroll_deftype (type_ c (xi @@ at)) in
     require (xi < x) at ("forward use of type " ^ I32.to_string_u xi ^
       " in sub type definition");
     require (fini = NoFinal) at ("sub type " ^ I32.to_string_u x ^
       " has final super type " ^ I32.to_string_u xi);
-    require (match_comptype c.types ct cti) at ("sub type " ^ I32.to_string_u x ^
-      " does not match super type " ^ I32.to_string_u xi)
+    check_desctype_sub c dt dti x xi at
   ) uts
 
 let check_rectype (c : context) (rt : rectype) at : context =

@@ -225,7 +225,7 @@ let anon_fields (c : context) x n loc =
 
 
 let inline_functype (c : context) (ts1, ts2) loc =
-  let st = SubT (Final, [], FuncT (ts1, ts2)) in
+  let st = SubT (Final, [], DescT (None, None, FuncT (ts1, ts2))) in
   match
     Lib.List.index_where (function
       | DefT (RecT [st'], 0l) -> st = st'
@@ -286,7 +286,7 @@ let parse_annots (m : module_) : Custom.section list =
 %token ANYREF NULLREF EQREF I31REF STRUCTREF ARRAYREF
 %token FUNCREF NULLFUNCREF EXNREF NULLEXNREF EXTERNREF NULLEXTERNREF
 %token ANY NONE EQ I31 REF NOFUNC EXN NOEXN EXTERN NOEXTERN NULL
-%token MUT FIELD STRUCT ARRAY SUB FINAL REC
+%token MUT FIELD STRUCT ARRAY SUB FINAL REC DESCRIBES DESCRIPTOR
 %token UNREACHABLE NOP DROP SELECT
 %token BLOCK END IF THEN ELSE LOOP
 %token BR BR_IF BR_TABLE
@@ -453,12 +453,24 @@ comptype :
   | LPAR ARRAY arraytype RPAR { fun c x -> ArrayT ($3 c) }
   | LPAR FUNC functype RPAR { fun c x -> FuncT ($3 c) }
 
+describes :
+  | LPAR DESCRIBES idx RPAR { fun c x -> Idx ($3 c x).it }
+
+descriptor :
+  | LPAR DESCRIPTOR idx RPAR { fun c x -> Idx ($3 c x).it }
+
+desctype :
+  | describes descriptor comptype { fun c x -> DescT (Some ($1 c type_), Some ($2 c type_), $3 c x) }
+  | describes comptype { fun c x -> DescT (Some ($1 c type_), None, $2 c x) }
+  | descriptor comptype { fun c x -> DescT (None, Some ($1 c type_), $2 c x) }
+  | comptype { fun c x -> DescT (None, None, $1 c x) }
+
 subtype :
-  | comptype { fun c x -> SubT (Final, [], $1 c x) }
-  | LPAR SUB idx_list comptype RPAR
+  | desctype { fun c x -> SubT (Final, [], $1 c x) }
+  | LPAR SUB idx_list desctype RPAR
     { fun c x -> SubT (NoFinal,
         List.map (fun y -> Idx y.it) ($3 c type_), $4 c x) }
-  | LPAR SUB FINAL idx_list comptype RPAR
+  | LPAR SUB FINAL idx_list desctype RPAR
     { fun c x -> SubT (Final,
         List.map (fun y -> Idx y.it) ($4 c type_), $5 c x) }
 

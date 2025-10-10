@@ -174,10 +174,16 @@ struct
     | ArrayT ft -> s7 (-0x22); fieldtype ft
     | FuncT (ts1, ts2) -> s7 (-0x20); resulttype ts1; resulttype ts2
 
+  let desctype = function
+    | DescT (ut1, ut2, st) ->
+      opt (fun ut -> s7 (-0x34); (typeuse u32) ut) ut1;
+      opt (fun ut -> s7 (-0x33); (typeuse u32) ut) ut2;
+      comptype st
+
   let subtype = function
-    | SubT (Final, [], ct) -> comptype ct
-    | SubT (Final, uts, ct) -> s7 (-0x31); vec (typeuse u32) uts; comptype ct
-    | SubT (NoFinal, uts, ct) -> s7 (-0x30); vec (typeuse u32) uts; comptype ct
+    | SubT (Final, [], dt) -> desctype dt
+    | SubT (Final, uts, dt) -> s7 (-0x31); vec (typeuse u32) uts; desctype dt
+    | SubT (NoFinal, uts, dt) -> s7 (-0x30); vec (typeuse u32) uts; desctype dt
 
   let rectype = function
     | RecT [st] -> subtype st

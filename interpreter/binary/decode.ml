@@ -258,17 +258,31 @@ let comptype s =
     ArrayT ft
   | _ -> error s (pos s - 1) "malformed definition type"
 
+let desctype s =
+  let ut1 = match peek s with
+    | Some i when i = -0x34 land 0x7f ->
+      skip 1 s;
+      Some ((typeuse u32) s)
+    | _ -> None
+  and ut2 = match peek s with
+    | Some i when i = -0x33 land 0x7f ->
+      skip 1 s;
+      Some ((typeuse u32) s)
+    | _ -> None
+  in
+  DescT (ut1, ut2, comptype s)
+
 let subtype s =
   match peek s with
   | Some i when i = -0x30 land 0x7f ->
     skip 1 s;
     let uts = vec (typeuse u32) s in
-    SubT (NoFinal, uts, comptype s)
+    SubT (NoFinal, uts, desctype s)
   | Some i when i = -0x31 land 0x7f ->
     skip 1 s;
     let uts = vec (typeuse u32) s in
-    SubT (Final, uts, comptype s)
-  | _ -> SubT (Final, [], comptype s)
+    SubT (Final, uts, desctype s)
+  | _ -> SubT (Final, [], desctype s)
 
 let rectype s =
   match peek s with

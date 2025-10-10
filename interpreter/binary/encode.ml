@@ -176,8 +176,8 @@ struct
 
   let desctype = function
     | DescT (ut1, ut2, st) ->
-      opt (fun ut -> s7 (-0x33); (typeuse u32) ut) ut1;
-      opt (fun ut -> s7 (-0x34); (typeuse u32) ut) ut2;
+      opt (fun ut -> s7 (-0x34); (typeuse u32) ut) ut1;
+      opt (fun ut -> s7 (-0x33); (typeuse u32) ut) ut2;
       comptype st
 
   let subtype = function

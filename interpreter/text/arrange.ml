@@ -99,9 +99,9 @@ let comptype = function
   | ArrayT ft -> Node ("array", [fieldtype ft])
   | FuncT (ts1, ts2) -> Node ("func", decls "param" ts1 @ decls "result" ts2)
 
-let describes ut = Node ("describes", [typeuse ut])
+let describes ut = Node ("describes", [atom typeidx ut])
 
-let descriptor ut = Node ("descriptor", [typeuse ut])
+let descriptor ut = Node ("descriptor", [atom typeidx ut])
 
 let desctype = function
   | DescT (ut1, ut2, ct) ->

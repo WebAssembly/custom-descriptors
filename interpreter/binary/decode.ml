@@ -260,12 +260,12 @@ let comptype s =
 
 let desctype s =
   let ut1 = match peek s with
-    | Some i when i = -0x33 land 0x7f ->
+    | Some i when i = -0x34 land 0x7f ->
       skip 1 s;
       Some ((typeuse u32) s)
     | _ -> None
   and ut2 = match peek s with
-    | Some i when i = -0x34 land 0x7f ->
+    | Some i when i = -0x33 land 0x7f ->
       skip 1 s;
       Some ((typeuse u32) s)
     | _ -> None

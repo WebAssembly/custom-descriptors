@@ -179,6 +179,7 @@ rule token = parse
       | "nullexternref" -> NULLEXTERNREF
       | "ref" -> REF
       | "null" -> NULL
+      | "exact" -> EXACT
 
       | "array" -> ARRAY
       | "struct" -> STRUCT

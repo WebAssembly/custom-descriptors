@@ -89,13 +89,6 @@ let rec match_heaptype c t1 t2 =
   | NoFuncHT, t -> match_heaptype c t FuncHT
   | NoExnHT, t -> match_heaptype c t ExnHT
   | NoExternHT, t -> match_heaptype c t ExternHT
-  | ExactHT (Idx x1), _ ->
-    match_heaptype c (ExactHT (Def (lookup c x1))) t2
-  | _, ExactHT (Idx x2) ->
-    match_heaptype c t1 (ExactHT (Def (lookup c x2)))
-  | ExactHT (Def dt1), ExactHT (Def dt2) ->
-    match_deftype c dt1 dt2 && match_deftype c dt2 dt1
-  | ExactHT (Def dt1), _ -> match_heaptype c (UseHT (Def dt1)) t2
   | UseHT (Idx x1), _ -> match_heaptype c (UseHT (Def (lookup c x1))) t2
   | _, UseHT (Idx x2) -> match_heaptype c t1 (UseHT (Def (lookup c x2)))
   | UseHT (Def dt1), UseHT (Def dt2) -> match_deftype c dt1 dt2
@@ -110,6 +103,13 @@ let rec match_heaptype c t1 t2 =
     | FuncT _, FuncHT -> true
     | _ -> false
     )
+  | ExactHT (Idx x1), _ ->
+    match_heaptype c (ExactHT (Def (lookup c x1))) t2
+  | _, ExactHT (Idx x2) ->
+    match_heaptype c t1 (ExactHT (Def (lookup c x2)))
+  | ExactHT (Def dt1), ExactHT (Def dt2) ->
+    match_deftype c dt1 dt2 && match_deftype c dt2 dt1
+  | ExactHT (Def dt1), _ -> match_heaptype c (UseHT (Def dt1)) t2
   | BotHT, _ -> true
   | _, _ -> t1 = t2
 

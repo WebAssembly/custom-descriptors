@@ -348,8 +348,8 @@ let run_action act : Value.t list =
     let inst = lookup_instance x_opt act.at in
     (match Instance.export inst name with
     | Some (Instance.ExternFunc f) ->
-      let (ts1, _ts2) =
-        Types.(functype_of_comptype (expand_deftype (Func.type_of f))) in
+      let ct = Types.(comptype_of_desctype (expand_deftype (Func.type_of f))) in
+      let (ts1, _ts2) = Types.(functype_of_comptype ct) in
       if List.length vs <> List.length ts1 then
         Script.error act.at "wrong number of arguments";
       List.iter2 (fun v t ->

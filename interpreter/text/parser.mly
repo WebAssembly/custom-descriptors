@@ -168,7 +168,7 @@ let field x (c : context) y =
   lookup "field " (Lib.List32.nth c.types.fields x) y
 
 let func_type (c : context) x =
-  match expand_deftype (Lib.List32.nth c.types.ctx x.it) with
+  match comptype_of_desctype (expand_deftype (Lib.List32.nth c.types.ctx x.it)) with
   | FuncT (ts1, ts2) -> ts1, ts2
   | _ -> error x.at ("non-function type " ^ Int32.to_string x.it)
   | exception Failure _ -> error x.at ("unknown type " ^ Int32.to_string x.it)
@@ -247,7 +247,7 @@ let inline_functype_explicit (c : context) x ft =
       let (ts1, _ts2) = func_type c x in
       bind "local" c.locals (Lib.List32.length ts1) x.at
     )
-  else if ft <> func_type c x then
+  else if ft <> func_type c x then 
     error x.at "inline function type does not match explicit type";
   x
 

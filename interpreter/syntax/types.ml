@@ -127,6 +127,7 @@ let deftype_of_typeuse = function Def dt -> dt | _ -> assert false
 let structtype_of_comptype = function StructT fts -> fts | _ -> assert false
 let arraytype_of_comptype = function ArrayT ft -> ft | _ -> assert false
 let functype_of_comptype = function FuncT rt2 -> rt2 | _ -> assert false
+let comptype_of_desctype = function DescT (_, _, ct) -> ct
 
 let externtype_of_importtype = function ImportT (_, _, xt) -> xt
 let externtype_of_exporttype = function ExportT (_, xt) -> xt
@@ -282,10 +283,9 @@ let unroll_deftype (dt : deftype) : subtype =
   let RecT sts = unroll_rectype rt in
   Lib.List32.nth sts i
 
-(* TODO: consider returning a desctype here. *)
-let expand_deftype (dt : deftype) : comptype =
-  let SubT (_, _, DescT (_, _, st)) = unroll_deftype dt in
-  st
+let expand_deftype (dt : deftype) : desctype =
+  let SubT (_, _, dt') = unroll_deftype dt in
+  dt'
 
 
 (* String conversion *)

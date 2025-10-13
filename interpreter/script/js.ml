@@ -771,7 +771,8 @@ let of_action env act =
       "[" ^ String.concat ", " (List.map of_value vs) ^ "])",
     (match lookup_export env x_opt name act.at with
     | ExternFuncT (Def dt) ->
-      let (_, out) as ft = functype_of_comptype (expand_deftype dt) in
+      let ct = comptype_of_desctype (expand_deftype dt) in
+      let (_, out) as ft = functype_of_comptype ct in
       if is_js_functype ft then
         None
       else

@@ -17,10 +17,13 @@ let abs_of_comptype _c = function
 let rec top_of_comptype c ct =
   top_of_heaptype c (abs_of_comptype c ct)
 
+and top_of_desctype c dt =
+  top_of_comptype c (comptype_of_desctype dt)
+
 and top_of_typeuse c = function
-  | Idx x -> top_of_comptype c (expand_deftype (lookup c x))
+  | Idx x -> top_of_desctype c (expand_deftype (lookup c x))
   | Rec _ -> assert false
-  | Def dt -> top_of_comptype c (expand_deftype dt)
+  | Def dt -> top_of_desctype c (expand_deftype dt)
 
 and top_of_heaptype c = function
   | AnyHT | NoneHT | EqHT | StructHT | ArrayHT | I31HT -> AnyHT
@@ -40,10 +43,13 @@ let top_of_valtype c = function
 let rec bot_of_comptype c ct =
   bot_of_heaptype c (abs_of_comptype c ct)
 
+and bot_of_desctype c dt =
+  bot_of_comptype c (comptype_of_desctype dt)
+
 and bot_of_typeuse c = function
-  | Idx x -> bot_of_comptype c (expand_deftype (lookup c x))
+  | Idx x -> bot_of_desctype c (expand_deftype (lookup c x))
   | Rec _ -> assert false
-  | Def dt -> bot_of_comptype c (expand_deftype dt)
+  | Def dt -> bot_of_desctype c (expand_deftype dt)
 
 and bot_of_heaptype c = function
   | AnyHT | NoneHT | EqHT | StructHT | ArrayHT | I31HT -> NoneHT
@@ -93,7 +99,7 @@ let rec match_heaptype c t1 t2 =
   | _, UseHT (Idx x2) -> match_heaptype c t1 (UseHT (Def (lookup c x2)))
   | UseHT (Def dt1), UseHT (Def dt2) -> match_deftype c dt1 dt2
   | UseHT (Def dt), t ->
-    (match expand_deftype dt, t with
+    (match comptype_of_desctype (expand_deftype dt), t with
     | StructT _, AnyHT -> true
     | StructT _, EqHT -> true
     | StructT _, StructHT -> true

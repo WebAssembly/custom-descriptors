@@ -64,17 +64,17 @@ let init_locals (c : context) xs =
   List.fold_left init_local c xs
 
 let struct_type (c : context) x =
-  match expand_deftype (type_ c x) with
+  match comptype_of_desctype (expand_deftype (type_ c x)) with
   | StructT fts -> fts
   | _ -> error x.at ("non-structure type " ^ I32.to_string_u x.it)
 
 let array_type (c : context) x =
-  match expand_deftype (type_ c x) with
+  match comptype_of_desctype (expand_deftype (type_ c x)) with
   | ArrayT ft -> ft
   | _ -> error x.at ("non-array type " ^ I32.to_string_u x.it)
 
 let func_type (c : context) x =
-  match expand_deftype (type_ c x) with
+  match comptype_of_desctype (expand_deftype (type_ c x)) with
   | FuncT (ts1, ts2) -> ts1, ts2
   | _ -> error x.at ("non-function type " ^ I32.to_string_u x.it)
 
@@ -535,7 +535,8 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     c.results -->... [], []
 
   | Call x ->
-    let (ts1, ts2) = functype_of_comptype (expand_deftype (func c x)) in
+    let ct = comptype_of_desctype (expand_deftype (func c x)) in
+    let (ts1, ts2) = functype_of_comptype ct in
     ts1 --> ts2, []
 
   | CallRef x ->
@@ -551,7 +552,8 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     (ts1 @ [NumT (numtype_of_addrtype at)]) --> ts2, []
 
   | ReturnCall x ->
-    let (ts1, ts2) = functype_of_comptype (expand_deftype (func c x)) in
+    let ct = comptype_of_desctype (expand_deftype (func c x)) in
+    let (ts1, ts2) = functype_of_comptype ct in
     require (match_resulttype c.types ts2 c.results) e.at
       ("type mismatch: current function requires result type " ^
        string_of_resulttype c.results ^
@@ -580,8 +582,8 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
 
   | Throw x ->
     let TagT ut = tag c x in
-    let dt = deftype_of_typeuse ut in
-    let (ts1, ts2) = functype_of_comptype (expand_deftype dt) in
+    let dt = expand_deftype (deftype_of_typeuse ut) in
+    let (ts1, ts2) = functype_of_comptype (comptype_of_desctype dt) in
     ts1 -->... [], []
 
   | ThrowRef ->
@@ -985,13 +987,13 @@ and check_catch (c : context) (cc : catch) (ts : valtype list) at =
   match cc.it with
   | Catch (x1, x2) ->
     let TagT ut = tag c x1 in
-    let dt = deftype_of_typeuse ut in
-    let (ts1, ts2) = functype_of_comptype (expand_deftype dt) in
+    let dt = expand_deftype (deftype_of_typeuse ut) in
+    let (ts1, ts2) = functype_of_comptype (comptype_of_desctype dt) in
     match_target c ts1 (label c x2) cc.at
   | CatchRef (x1, x2) ->
     let TagT ut = tag c x1 in
-    let dt = deftype_of_typeuse ut in
-    let (ts1, ts2) = functype_of_comptype (expand_deftype dt) in
+    let dt = expand_deftype (deftype_of_typeuse ut) in
+    let (ts1, ts2) = functype_of_comptype (comptype_of_desctype dt) in
     match_target c (ts1 @ [RefT (NoNull, ExnHT)]) (label c x2) cc.at
   | CatchAll x ->
     match_target c [] (label c x) cc.at
@@ -1118,7 +1120,8 @@ let check_type (c : context) (t : type_) : context =
 
 let check_start (c : context) (start : start) =
   let Start x = start.it in
-  let ft = functype_of_comptype (expand_deftype (func c x)) in
+  let ct = comptype_of_desctype (expand_deftype (func c x)) in
+  let ft = functype_of_comptype ct in
   require (ft = ([], [])) start.at
     "start function must not have parameters or results"
 

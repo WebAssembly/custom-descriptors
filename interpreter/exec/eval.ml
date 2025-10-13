@@ -110,7 +110,8 @@ let data (inst : moduleinst) x = lookup "data segment" inst.datas x
 let elem (inst : moduleinst) x = lookup "element segment" inst.elems x
 let local (frame : frame) x = lookup "local" frame.locals x
 
-let comp_type (inst : moduleinst) x = expand_deftype (type_ inst x)
+let desc_type (inst : moduleinst) x = expand_deftype (type_ inst x)
+let comp_type (inst : moduleinst) x = comptype_of_desctype (desc_type inst x)
 let struct_type (inst : moduleinst) x = structtype_of_comptype  (comp_type inst x)
 let array_type (inst : moduleinst) x = arraytype_of_comptype (comp_type inst x)
 let func_type (inst : moduleinst) x = functype_of_comptype (comp_type inst x)
@@ -309,7 +310,8 @@ let rec step (c : config) : config =
         let t = tag c.frame.inst x in
         let TagT ut = Tag.type_of t in
         let dt = deftype_of_typeuse ut in
-        let (ts, _) = functype_of_comptype (expand_deftype dt) in
+        let ct = comptype_of_desctype (expand_deftype dt) in
+        let (ts, _) = functype_of_comptype ct in
         let n = List.length ts in
         let args, vs' = split n vs e.at in
         vs', [Throwing (t, args) @@ e.at]
@@ -811,8 +813,9 @@ let rec step (c : config) : config =
         else if n = 0l then
           vs', []
         else
+        let dt = expand_deftype (Aggr.type_of_array sa) in
         let exto =
-          match arraytype_of_comptype (expand_deftype (Aggr.type_of_array sa)) with
+          match arraytype_of_comptype (comptype_of_desctype dt) with
           | FieldT (_, PackStorageT _) -> Some U
           | _ -> None
         in
@@ -1071,7 +1074,8 @@ let rec step (c : config) : config =
       take n vs0 e.at @ vs, []
 
     | Frame (n, frame', (vs', {it = ReturningInvoke (vs0, f); at} :: es')), vs ->
-      let (ts1, _ts2) = functype_of_comptype (expand_deftype (Func.type_of f)) in
+      let ct = comptype_of_desctype (expand_deftype (Func.type_of f)) in
+      let (ts1, _ts2) = functype_of_comptype ct in
       take (List.length ts1) vs0 e.at @ vs, [Invoke f @@ at]
 
     | Frame (n, frame', (vs', e' :: es')), vs when is_jumping e' ->
@@ -1116,7 +1120,8 @@ let rec step (c : config) : config =
       Exhaustion.error e.at "call stack exhausted"
 
     | Invoke f, vs ->
-      let (ts1, ts2) = functype_of_comptype (expand_deftype (Func.type_of f)) in
+      let ct = comptype_of_desctype (expand_deftype (Func.type_of f)) in
+      let (ts1, ts2) = functype_of_comptype ct in
       let n1, n2 = List.length ts1, List.length ts2 in
       let args, vs' = split n1 vs e.at in
       (match f with
@@ -1161,7 +1166,8 @@ let at_func = function
 
 let invoke (func : funcinst) (vs : value list) : value list =
   let at = at_func func in
-  let (ts1, _ts2) = functype_of_comptype (expand_deftype (Func.type_of func)) in
+  let ct = comptype_of_desctype (expand_deftype (Func.type_of func)) in
+  let (ts1, _ts2) = functype_of_comptype ct in
   if List.length vs <> List.length ts1 then
     Crash.error at "wrong number of arguments";
   if not (List.for_all2 (fun v -> Match.match_valtype [] (type_of_value v)) vs ts1) then

@@ -42,12 +42,14 @@ let array_length (Array (_, fs)) = Lib.List32.length fs
 
 let alloc_struct dt vs =
   assert Free.((deftype dt).types = Set.empty);
-  let fts = structtype_of_comptype (expand_deftype dt) in
+  let ct = comptype_of_desctype (expand_deftype dt) in
+  let fts = structtype_of_comptype ct in
   Struct (dt, List.map2 alloc_field fts vs)
 
 let alloc_array dt vs =
   assert Free.((deftype dt).types = Set.empty);
-  let ft = arraytype_of_comptype (expand_deftype dt) in
+  let ct = comptype_of_desctype (expand_deftype dt) in
+  let ft = arraytype_of_comptype ct in
   Array (dt, List.map (alloc_field ft) vs)
 
 

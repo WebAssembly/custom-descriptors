@@ -18,7 +18,7 @@ and vectype = V128T
 and heaptype =
   | AnyHT | NoneHT | EqHT | I31HT | StructHT | ArrayHT
   | FuncHT | NoFuncHT | ExnHT | NoExnHT | ExternHT | NoExternHT
-  | UseHT of typeuse | ExactUseHT of typeuse | BotHT
+  | UseHT of typeuse | ExactHT of typeuse | BotHT
 and reftype = null * heaptype
 and valtype = NumT of numtype | VecT of vectype | RefT of reftype | BotT
 
@@ -174,7 +174,7 @@ and subst_heaptype s = function
   | ExternHT -> ExternHT
   | NoExternHT -> NoExternHT
   | UseHT t -> UseHT (subst_typeuse s t)
-  | ExactUseHT t -> ExactUseHT (subst_typeuse s t)
+  | ExactHT t -> ExactHT (subst_typeuse s t)
   | BotHT -> BotHT
 
 and subst_reftype s = function
@@ -351,7 +351,7 @@ and string_of_heaptype = function
   | ExternHT -> "extern"
   | NoExternHT -> "noextern"
   | UseHT ut -> string_of_typeuse ut
-  | ExactUseHT ut -> "(exact " ^ (string_of_typeuse ut) ^ ")"
+  | ExactHT ut -> "(exact " ^ (string_of_typeuse ut) ^ ")"
   | BotHT -> "something"
 
 and string_of_reftype = function

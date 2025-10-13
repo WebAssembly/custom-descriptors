@@ -122,7 +122,7 @@ let check_heaptype (c : context) (t : heaptype) at =
   | ExnHT | NoExnHT
   | ExternHT | NoExternHT -> ()
   | UseHT ut -> check_typeuse c ut at
-  | ExactUseHT ut -> check_typeuse c ut at
+  | ExactHT ut -> check_typeuse c ut at
   | BotHT -> ()
 
 let check_reftype (c : context) (t : reftype) at =

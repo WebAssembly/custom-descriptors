@@ -203,6 +203,28 @@
   )
 )
 
+;; (exact t) <: (exact t) (with syntactically different types)
+(module
+  (type (struct))
+  (type (struct))
+  (type (struct (field (ref 0))))
+  (type (struct (field (ref 1))))
+  (func (param (ref (exact 2))) (result (ref (exact 3)))
+    (local.get 0)
+  )
+)
+
+;; (exact ft) <: (exact ft) (with syntactically different types)
+(module
+  (type (struct))
+  (type (struct))
+  (type (func (param (ref 0))))
+  (type (func (param (ref 1))))
+  (func (param (ref (exact 3))) (result (ref (exact 2)))
+    (local.get 0)
+  )
+)
+
 ;; (exact t) <: t
 (module
   (type (struct))

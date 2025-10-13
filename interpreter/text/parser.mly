@@ -377,7 +377,7 @@ heaptype :
   | EXTERN { fun c -> ExternHT }
   | NOEXTERN { fun c -> NoExternHT }
   | idx { fun c -> UseHT (Idx ($1 c type_).it) }
-  | LPAR EXACT idx RPAR { fun c -> ExactUseHT (Idx ($3 c type_).it) }
+  | LPAR EXACT idx RPAR { fun c -> ExactHT (Idx ($3 c type_).it) }
 
 reftype :
   | LPAR REF null_opt heaptype RPAR { fun c -> ($3, $4 c) }

@@ -168,7 +168,8 @@ let field x (c : context) y =
   lookup "field " (Lib.List32.nth c.types.fields x) y
 
 let func_type (c : context) x =
-  match comptype_of_desctype (expand_deftype (Lib.List32.nth c.types.ctx x.it)) with
+  let dt = expand_deftype (Lib.List32.nth c.types.ctx x.it) in
+  match comptype_of_desctype dt with
   | FuncT (ts1, ts2) -> ts1, ts2
   | _ -> error x.at ("non-function type " ^ Int32.to_string x.it)
   | exception Failure _ -> error x.at ("unknown type " ^ Int32.to_string x.it)

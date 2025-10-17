@@ -18,6 +18,7 @@ val bot_of_comptype : context -> comptype -> heaptype
 (* Subtyping *)
 
 val match_numtype : context -> numtype -> numtype -> bool
+val match_heaptype : context -> heaptype -> heaptype -> bool
 val match_reftype : context -> reftype -> reftype -> bool
 val match_valtype : context -> valtype -> valtype -> bool
 

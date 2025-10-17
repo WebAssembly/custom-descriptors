@@ -367,6 +367,20 @@ let type_externop op =
   | Internalize -> ExternHT, AnyHT
   | Externalize -> AnyHT, ExternHT
 
+let desc_cast_ref c rt at =
+  let (_, ht) = rt in
+  let x, exact = match ht with
+    | UseHT (Idx x) -> x, false
+    | ExactHT (Idx x) -> x, true
+    | _ ->
+      error at ("type " ^ string_of_heaptype ht ^ " does not have a descriptor")
+  in
+  let DescT (_, ut', _) = expand_deftype_to_desctype (type_ c (x @@ at)) in
+  match ut' with
+  | Some ut' ->  (Null, if exact then ExactHT ut' else UseHT ut')
+  | None ->
+    error at ("type " ^ string_of_heaptype ht ^ " does not have a descriptor")
+
 
 (* Expressions *)
 
@@ -501,10 +515,11 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
   | BrOnCast (x, rt1, rt2) ->
     check_reftype c rt1 e.at;
     check_reftype c rt2 e.at;
+    let (_, ht1), (_, ht2) = rt1, rt2 in
     require
-      (match_reftype c.types rt2 rt1) e.at
-      ("type mismatch on cast: type " ^ string_of_reftype rt2 ^
-       " does not match " ^ string_of_reftype rt1);
+      ((top_of_heaptype c.types ht1) = (top_of_heaptype c.types ht2)) e.at
+      ("type mismatch on cast: type " ^ string_of_heaptype ht1 ^
+       " has a different top type than type " ^ string_of_heaptype ht2);
     require (label c x <> []) e.at
       ("type mismatch: instruction requires type " ^ string_of_reftype rt2 ^
        " but label has " ^ string_of_resulttype (label c x));
@@ -518,10 +533,11 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     check_reftype c rt1 e.at;
     check_reftype c rt2 e.at;
     let rt1' = diff_reftype rt1 rt2 in
+    let (_, ht1), (_, ht2) = rt1, rt2 in
     require
-      (match_reftype c.types rt2 rt1) e.at
-      ("type mismatch on cast: type " ^ string_of_reftype rt2 ^
-       " does not match " ^ string_of_reftype rt1);
+      ((top_of_heaptype c.types ht1) = (top_of_heaptype c.types ht2)) e.at
+      ("type mismatch on cast: type " ^ string_of_heaptype ht1 ^
+       " has a different top type than type " ^ string_of_heaptype ht2);
     require (label c x <> []) e.at
       ("type mismatch: instruction requires type " ^ string_of_reftype rt1' ^
        " but label has " ^ string_of_resulttype (label c x));
@@ -530,6 +546,43 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
       ("type mismatch: instruction requires type " ^ string_of_reftype rt1' ^
        " but label has " ^ string_of_resulttype (label c x));
     (ts0 @ [RefT rt1]) --> (ts0 @ [RefT rt2]), []
+
+  | BrOnCastDesc (x, rt1, rt2) ->
+    check_reftype c rt1 e.at;
+    check_reftype c rt2 e.at;
+    let (_, ht1), (_, ht2) = rt1, rt2 in
+    require
+      ((top_of_heaptype c.types ht1) = (top_of_heaptype c.types ht2)) e.at
+      ("type mismatch on cast: type " ^ string_of_heaptype ht1 ^
+       " has a different top type than type " ^ string_of_heaptype ht2);
+    require (label c x <> []) e.at
+      ("type mismatch: instruction requires type " ^ string_of_reftype rt2 ^
+       " but label has " ^ string_of_resulttype (label c x));
+    let ts0, t1 = Lib.List.split_last (label c x) in
+    require (match_valtype c.types (RefT rt2) t1) e.at
+      ("type mismatch: instruction requires type " ^ string_of_reftype rt2 ^
+       " but label has " ^ string_of_resulttype (label c x));
+    let rt = desc_cast_ref c rt2 e.at in
+    (ts0 @ [RefT rt1; RefT rt]) --> (ts0 @ [RefT (diff_reftype rt1 rt2)]), []
+
+  | BrOnCastDescFail (x, rt1, rt2) ->
+    check_reftype c rt1 e.at;
+    check_reftype c rt2 e.at;
+    let rt1' = diff_reftype rt1 rt2 in
+    let (_, ht1), (_, ht2) = rt1, rt2 in
+    require
+      ((top_of_heaptype c.types ht1) = (top_of_heaptype c.types ht2)) e.at
+      ("type mismatch on cast: type " ^ string_of_heaptype ht1 ^
+       " has a different top type than type " ^ string_of_heaptype ht2);
+    require (label c x <> []) e.at
+      ("type mismatch: instruction requires type " ^ string_of_reftype rt1' ^
+       " but label has " ^ string_of_resulttype (label c x));
+    let ts0, t1 = Lib.List.split_last (label c x) in
+    require (match_valtype c.types (RefT rt1') t1) e.at
+      ("type mismatch: instruction requires type " ^ string_of_reftype rt1' ^
+       " but label has " ^ string_of_resulttype (label c x));
+    let rt = desc_cast_ref c rt2 e.at in
+    (ts0 @ [RefT rt1; RefT rt]) --> (ts0 @ [RefT rt2]), []
 
   | Return ->
     c.results -->... [], []
@@ -747,6 +800,24 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     let (nul, ht) = rt in
     check_reftype c rt e.at;
     [RefT (Null, top_of_heaptype c.types ht)] --> [RefT (nul, ht)], []
+
+  | RefCastDesc rt ->
+    let (nul, ht) = rt in
+    check_reftype c rt e.at;
+    let rt' = desc_cast_ref c rt e.at in
+    [RefT (Null, top_of_heaptype c.types ht); RefT rt'] --> [RefT (nul, ht)], []
+
+  | RefGetDesc x ->
+    let DescT (_, ut, _) = expand_deftype_to_desctype (type_ c x) in
+    let ut = match ut with
+      | Some ut -> ut
+      | None -> error e.at ("type without descriptor " ^ I32.to_string_u x.it)
+    in
+    let dt = deftype_of_typeuse ut in
+    let (_, ht) = peek_ref 0 s e.at in
+    let exact = match_heaptype c.types ht (ExactHT (Def (type_ c x))) in
+    let ht t = if exact then ExactHT t else UseHT t in
+    [RefT (Null, ht (Def (type_ c x)))] --> [RefT (NoNull, ht (Def dt))], []
 
   | RefEq ->
     [RefT (Null, EqHT); RefT (Null, EqHT)] --> [NumT I32T], []

@@ -304,7 +304,7 @@ let parse_annots (m : module_) : Custom.section list =
 %token<string Source.phrase -> Ast.instr' * Value.num> CONST
 %token<Ast.instr'> UNARY BINARY TEST COMPARE CONVERT
 %token REF_NULL REF_FUNC REF_I31 REF_STRUCT REF_ARRAY REF_EXN REF_EXTERN REF_HOST
-%token REF_EQ REF_IS_NULL REF_AS_NON_NULL REF_TEST REF_CAST
+%token REF_EQ REF_IS_NULL REF_AS_NON_NULL REF_TEST REF_CAST REF_CAST_DESC REF_GET_DESC
 %token<Ast.instr'> I31_GET
 %token<Ast.idx -> Ast.instr'> STRUCT_NEW ARRAY_NEW ARRAY_GET
 %token STRUCT_SET
@@ -633,6 +633,8 @@ plaininstr :
   | REF_AS_NON_NULL { fun c -> ref_as_non_null }
   | REF_TEST reftype { fun c -> ref_test ($2 c) }
   | REF_CAST reftype { fun c -> ref_cast ($2 c) }
+  | REF_CAST_DESC reftype { fun c -> ref_cast_desc ($2 c) }
+  | REF_GET_DESC idx { fun c -> ref_get_desc ($2 c type_) }
   | REF_EQ { fun c -> ref_eq }
   | REF_I31 { fun c -> ref_i31 }
   | I31_GET { fun c -> $1 }

@@ -232,8 +232,18 @@
   (func (param (ref null any)) (result (ref null any))
     (block (result (ref $t)) (br_on_cast_fail 1 (ref null any) (ref $t) (local.get 0)))
   )
+  (func (param (ref any)) (result (ref any))
+    (block (result (ref null $t)) (br_on_cast_fail 1 (ref any) (ref null $t) (local.get 0))) (ref.as_non_null)
+  )
   (func (param (ref null any)) (result (ref null any))
     (block (result (ref null $t)) (br_on_cast_fail 1 (ref null any) (ref null $t) (local.get 0)))
+  )
+
+  (func (result anyref)
+    (br_on_cast_fail 0 eqref anyref (unreachable))
+  )
+  (func (result anyref)
+    (br_on_cast_fail 0 structref arrayref (unreachable))
   )
 )
 
@@ -249,15 +259,6 @@
 (assert_invalid
   (module
     (type $t (struct))
-    (func (param (ref any)) (result (ref any))
-      (block (result (ref null $t)) (br_on_cast_fail 1 (ref any) (ref null $t) (local.get 0))) (ref.as_non_null)
-    )
-  )
-  "type mismatch"
-)
-(assert_invalid
-  (module
-    (type $t (struct))
     (func (param (ref null any)) (result (ref any))
       (block (result (ref $t)) (br_on_cast_fail 1 (ref null any) (ref $t) (local.get 0)))
     )
@@ -266,16 +267,16 @@
 )
 (assert_invalid
   (module
-    (func (result anyref)
-      (br_on_cast_fail 0 eqref anyref (unreachable))
+    (func (param (ref null any)) (result (ref null func))
+      (block (result (ref null func)) (br_on_cast_fail 1 (ref null any) (ref null func) (local.get 0) (unreachable)))
     )
   )
   "type mismatch"
 )
 (assert_invalid
   (module
-    (func (result anyref)
-      (br_on_cast_fail 0 structref arrayref (unreachable))
+    (func (param (ref func)) (result (ref any))
+      (block (result (ref any)) (br_on_cast_fail 1 (ref func) (ref any) (local.get 0) (unreachable)))
     )
   )
   "type mismatch"

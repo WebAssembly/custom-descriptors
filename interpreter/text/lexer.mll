@@ -204,6 +204,8 @@ rule token = parse
       | "br_on_non_null" -> BR_ON_NULL br_on_non_null
       | "br_on_cast" -> BR_ON_CAST br_on_cast
       | "br_on_cast_fail" -> BR_ON_CAST br_on_cast_fail
+      | "br_on_cast_desc" -> BR_ON_CAST br_on_cast_desc
+      | "br_on_cast_desc_fail" -> BR_ON_CAST br_on_cast_desc_fail
       | "return" -> RETURN
       | "if" -> IF
       | "then" -> THEN
@@ -338,6 +340,8 @@ rule token = parse
       | "ref.as_non_null" -> REF_AS_NON_NULL
       | "ref.test" -> REF_TEST
       | "ref.cast" -> REF_CAST
+      | "ref.cast_desc" -> REF_CAST_DESC
+      | "ref.get_desc" -> REF_GET_DESC
       | "ref.eq" -> REF_EQ
 
       | "ref.i31" -> REF_I31

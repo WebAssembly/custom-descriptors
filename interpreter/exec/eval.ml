@@ -110,6 +110,7 @@ let data (inst : moduleinst) x = lookup "data segment" inst.datas x
 let elem (inst : moduleinst) x = lookup "element segment" inst.elems x
 let local (frame : frame) x = lookup "local" frame.locals x
 
+let desc_type (inst : moduleinst) x = expand_deftype_to_desctype (type_ inst x)
 let comp_type (inst : moduleinst) x = expand_deftype (type_ inst x)
 let struct_type (inst : moduleinst) x = structtype_of_comptype  (comp_type inst x)
 let array_type (inst : moduleinst) x = arraytype_of_comptype (comp_type inst x)
@@ -257,6 +258,46 @@ let rec step (c : config) : config =
           Ref r :: vs', []
         else
           Ref r :: vs', [Plain (Br x) @@ e.at]
+
+      | BrOnCastDesc (x, _rt1, _rt2), Ref (NullRef _) :: vs' ->
+        vs', [Trapping "null descriptor reference" @@ e.at]
+
+      | BrOnCastDesc (x, _rt1, (Null, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+        Ref r :: vs', [Plain (Br x) @@ e.at]
+
+      | BrOnCastDesc (x, _rt1, (NoNull, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+        Ref r :: vs', []
+
+      | BrOnCastDesc (x, _rt1, _rt2), Ref desc :: Ref r :: vs' ->
+        (try
+          let desc' = Aggr.read_desc r in
+          if eq_ref desc desc' then
+            Ref r :: vs', [Plain (Br x) @@ e.at]
+          else
+            failwith "not_equal"
+        with
+          Failure _ -> Ref r :: vs', []
+        )
+
+      | BrOnCastDescFail (x, _rt1, _rt2), Ref (NullRef _) :: vs' ->
+        vs', [Trapping "null descriptor reference" @@ e.at]
+
+      | BrOnCastDescFail (x, _rt1, (Null, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+        Ref r :: vs', []
+
+      | BrOnCastDescFail (x, _rt1, (NoNull, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+        Ref r :: vs', [Plain (Br x) @@ e.at]
+
+      | BrOnCastDescFail (x, _rt1, _rt2), Ref desc :: Ref r :: vs' ->
+        (try
+          let desc' = Aggr.read_desc r in
+          if eq_ref desc desc' then
+            Ref r :: vs', []
+          else
+            failwith "not_equal"
+        with
+          Failure _ -> Ref r :: vs', [Plain (Br x) @@ e.at]
+        )
 
       | Return, vs ->
         [], [Returning vs @@ e.at]
@@ -659,6 +700,36 @@ let rec step (c : config) : config =
             string_of_reftype rt ^ " but got " ^
             string_of_reftype (type_of_ref r)) @@ e.at]
 
+      | RefCastDesc _rt, Ref (NullRef _) :: vs' ->
+        vs', [Trapping "null descriptor reference" @@ e.at]
+
+      | RefCastDesc (NoNull, _), Ref _desc :: Ref (NullRef _) :: vs' ->
+        vs', [Trapping "descriptor cast failure" @@ e.at]
+
+      | RefCastDesc (Null, _), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+        Ref r :: vs', []
+
+      | RefCastDesc rt, Ref desc :: Ref r :: vs' ->
+        (try
+          let desc' = Aggr.read_desc r in
+          if eq_ref desc desc' then
+            Ref r :: vs', []
+          else
+            failwith "not_equal"
+        with
+          Failure _ -> vs', [Trapping "descriptor cast failure" @@ e.at]
+        )
+
+      | RefGetDesc _, Ref (NullRef _) :: vs' ->
+        vs', [Trapping "null reference" @@ e.at]
+
+      | RefGetDesc rt, Ref r :: vs' ->
+        let desc =
+          try Aggr.read_desc r
+          with Failure _ -> Crash.error e.at "missing descriptor"
+        in
+        Ref desc :: vs', []
+
       | RefEq, Ref r1 :: Ref r2 :: vs' ->
         value_of_bool (eq_ref r1 r2) :: vs', []
 
@@ -672,26 +743,38 @@ let rec step (c : config) : config =
         Num (I32 (I31.to_i32 ext i)) :: vs', []
 
       | StructNew (x, initop), vs' ->
+        let DescT (_, dt, _) = desc_type c.frame.inst x in
+        let desc, vs'' =
+          match dt, vs' with
+          | Some _, Ref desc :: vs'' -> Some desc, vs''
+          | None, _ -> None, vs'
+          | _ -> Crash.error e.at "missing descriptor"
+        in
         let fts = struct_type c.frame.inst x in
-        let args, vs'' =
+        let args, vs''' =
           match initop with
           | Explicit ->
-            let args, vs'' = split (List.length fts) vs' e.at in
-            List.rev args, vs''
+            let args, vs''' = split (List.length fts) vs'' e.at in
+            List.rev args, vs'''
           | Implicit ->
             let ts = List.map unpacked_fieldtype fts in
-            try List.map Option.get (List.map default_value ts), vs'
+            try List.map Option.get (List.map default_value ts), vs''
             with Invalid_argument _ -> Crash.error e.at "non-defaultable type"
         in
-        let struct_ =
-          try Aggr.alloc_struct (type_ c.frame.inst x) args
-          with Failure _ -> Crash.error e.at "type mismatch packing value"
-        in Ref (Aggr.StructRef struct_) :: vs'', []
+        (match desc with
+        | Some (NullRef _) ->
+          vs''', [Trapping "null descriptor reference" @@ e.at]
+        | _ ->
+          let struct_ =
+            try Aggr.alloc_struct (type_ c.frame.inst x) args desc
+            with Failure _ -> Crash.error e.at "type mismatch packing value"
+          in Ref (Aggr.StructRef struct_) :: vs''', []
+        )
 
       | StructGet (x, i, exto), Ref (NullRef _) :: vs' ->
         vs', [Trapping "null structure reference" @@ e.at]
 
-      | StructGet (x, i, exto), Ref Aggr.(StructRef (Struct (_, fs))) :: vs' ->
+      | StructGet (x, i, exto), Ref Aggr.(StructRef (Struct (_, fs, _))) :: vs' ->
         let f =
           try Lib.List32.nth fs i
           with Failure _ -> Crash.error e.at "undefined field"
@@ -702,7 +785,7 @@ let rec step (c : config) : config =
       | StructSet (x, i), v :: Ref (NullRef _) :: vs' ->
         vs', [Trapping "null structure reference" @@ e.at]
 
-      | StructSet (x, i), v :: Ref Aggr.(StructRef (Struct (_, fs))) :: vs' ->
+      | StructSet (x, i), v :: Ref Aggr.(StructRef (Struct (_, fs, _))) :: vs' ->
         let f =
           try Lib.List32.nth fs i
           with Failure _ -> Crash.error e.at "undefined field"

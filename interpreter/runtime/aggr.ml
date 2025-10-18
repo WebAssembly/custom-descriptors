@@ -5,7 +5,7 @@ type field =
   | ValField of value ref
   | PackField of packtype * int ref
 
-type struct_ = Struct of deftype * field list
+type struct_ = Struct of deftype * field list * ref_ option
 type array = Array of deftype * field list
 
 type ref_ += StructRef of struct_
@@ -40,10 +40,10 @@ let read_field fld exto =
 let array_length (Array (_, fs)) = Lib.List32.length fs
 
 
-let alloc_struct dt vs =
+let alloc_struct dt vs desc =
   assert Free.((deftype dt).types = Set.empty);
   let fts = structtype_of_comptype (expand_deftype dt) in
-  Struct (dt, List.map2 alloc_field fts vs)
+  Struct (dt, List.map2 alloc_field fts vs, desc)
 
 let alloc_array dt vs =
   assert Free.((deftype dt).types = Set.empty);
@@ -51,9 +51,12 @@ let alloc_array dt vs =
   Array (dt, List.map (alloc_field ft) vs)
 
 
-let type_of_struct (Struct (dt, _)) = dt
+let type_of_struct (Struct (dt, _, _)) = dt
 let type_of_array (Array (dt, _)) = dt
 
+let read_desc = function
+  | StructRef (Struct (_, _, Some desc)) -> desc
+  | _ -> failwith "read_desc"
 
 let () =
   let type_of_ref' = !Value.type_of_ref' in
@@ -82,7 +85,8 @@ let string_of_aggr name nest fs =
 let () =
   let string_of_ref' = !Value.string_of_ref' in
   let nest = ref 0 in
+  (* TODO: print descriptor *)
   Value.string_of_ref' := function
-    | StructRef (Struct (_, fs)) -> string_of_aggr "struct" nest fs
+    | StructRef (Struct (_, fs, _)) -> string_of_aggr "struct" nest fs
     | ArrayRef (Array (_, fs)) -> string_of_aggr "array" nest fs
     | r -> string_of_ref' r

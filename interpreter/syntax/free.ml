@@ -82,8 +82,7 @@ and heaptype = function
   | FuncHT | NoFuncHT -> empty
   | ExnHT | NoExnHT -> empty
   | ExternHT | NoExternHT -> empty
-  | UseHT x -> typeuse x
-  | ExactHT x -> typeuse x
+  | UseHT (_, x) -> typeuse x
   | BotHT -> empty
 
 and reftype = function

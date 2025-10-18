@@ -27,8 +27,7 @@ and top_of_heaptype c = function
   | FuncHT | NoFuncHT -> FuncHT
   | ExnHT | NoExnHT -> ExnHT
   | ExternHT | NoExternHT -> ExternHT
-  | UseHT ut -> top_of_typeuse c ut
-  | ExactHT ut -> top_of_typeuse c ut
+  | UseHT (_, ut) -> top_of_typeuse c ut
   | BotHT -> assert false
 
 let top_of_valtype c = function
@@ -50,8 +49,7 @@ and bot_of_heaptype c = function
   | FuncHT | NoFuncHT -> NoFuncHT
   | ExnHT | NoExnHT -> NoExnHT
   | ExternHT | NoExternHT -> NoExternHT
-  | UseHT ut -> bot_of_typeuse c ut
-  | ExactHT ut -> bot_of_typeuse c ut
+  | UseHT (_, ut) -> bot_of_typeuse c ut
   | BotHT -> assert false
 
 
@@ -89,10 +87,14 @@ let rec match_heaptype c t1 t2 =
   | NoFuncHT, t -> match_heaptype c t FuncHT
   | NoExnHT, t -> match_heaptype c t ExnHT
   | NoExternHT, t -> match_heaptype c t ExternHT
-  | UseHT (Idx x1), _ -> match_heaptype c (UseHT (Def (lookup c x1))) t2
-  | _, UseHT (Idx x2) -> match_heaptype c t1 (UseHT (Def (lookup c x2)))
-  | UseHT (Def dt1), UseHT (Def dt2) -> match_deftype c dt1 dt2
-  | UseHT (Def dt), t ->
+  | UseHT (exact, Idx x1), _ ->
+    match_heaptype c (UseHT (exact, Def (lookup c x1))) t2
+  | _, UseHT (exact, Idx x2) ->
+    match_heaptype c t1 (UseHT (exact, Def (lookup c x2)))
+  | UseHT (_, Def dt1), UseHT (Inexact, Def dt2) -> match_deftype c dt1 dt2
+  | UseHT (Exact, Def dt1), UseHT (Exact, Def dt2) ->
+    match_deftype c dt1 dt2 && match_deftype c dt2 dt1
+  | UseHT (_, Def dt), t ->
     (match expand_deftype dt, t with
     | StructT _, AnyHT -> true
     | StructT _, EqHT -> true
@@ -103,13 +105,6 @@ let rec match_heaptype c t1 t2 =
     | FuncT _, FuncHT -> true
     | _ -> false
     )
-  | ExactHT (Idx x1), _ ->
-    match_heaptype c (ExactHT (Def (lookup c x1))) t2
-  | _, ExactHT (Idx x2) ->
-    match_heaptype c t1 (ExactHT (Def (lookup c x2)))
-  | ExactHT (Def dt1), ExactHT (Def dt2) ->
-    match_deftype c dt1 dt2 && match_deftype c dt2 dt1
-  | ExactHT (Def dt1), _ -> match_heaptype c (UseHT (Def dt1)) t2
   | BotHT, _ -> true
   | _, _ -> t1 = t2
 
@@ -160,8 +155,10 @@ and match_comptype c ct1 ct2 =
 and match_deftype c dt1 dt2 =
   dt1 == dt2 ||  (* optimisation *)
   let s = subst_of c in subst_deftype s dt1 = subst_deftype s dt2 ||
-  let SubT (_fin, uts1, _st) = unroll_deftype dt1 in
-  List.exists (fun ut1 -> match_heaptype c (UseHT ut1) (UseHT (Def dt2))) uts1
+  let SubT (_fin, uts1, _dt) = unroll_deftype dt1 in
+  List.exists (fun ut1 ->
+    match_heaptype c (UseHT (Inexact, ut1)) (UseHT (Inexact, (Def dt2)))
+  ) uts1
 
 let match_tagtype c (TagT ut1) (TagT ut2) =
   match ut1, ut2 with

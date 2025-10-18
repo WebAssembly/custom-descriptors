@@ -298,9 +298,9 @@ let rec statify_typeuse rts = function
   | ht -> rts, ht
 
 and statify_heaptype rts = function
-  | UseHT ut ->
+  | UseHT (exact, ut) ->
     let rts', ut' = statify_typeuse rts ut in
-    rts', UseHT ut'
+    rts', UseHT (exact, ut')
   | ht -> rts, ht
 
 and statify_reftype rts = function

@@ -58,8 +58,8 @@ let type_of_array (Array (dt, _)) = dt
 let () =
   let type_of_ref' = !Value.type_of_ref' in
   Value.type_of_ref' := function
-    | StructRef s -> UseHT (Def (type_of_struct s))
-    | ArrayRef a -> UseHT (Def (type_of_array a))
+    | StructRef s -> UseHT (Exact, Def (type_of_struct s))
+    | ArrayRef a -> UseHT (Exact, Def (type_of_array a))
     | r -> type_of_ref' r
 
 let string_of_field = function

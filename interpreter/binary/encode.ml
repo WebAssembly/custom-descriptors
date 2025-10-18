@@ -131,8 +131,8 @@ struct
     | NoExnHT -> s7 (-0x0c)
     | ExternHT -> s7 (-0x11)
     | NoExternHT -> s7 (-0x0e)
-    | UseHT ut -> typeuse s33 ut
-    | ExactHT ut -> s7 (-0x1e); typeuse u32 ut
+    | UseHT (Inexact, ut) -> typeuse s33 ut
+    | UseHT (Exact, ut) -> s7 (-0x1e); typeuse u32 ut
     | BotHT -> assert false
 
   let reftype = function

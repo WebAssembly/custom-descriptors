@@ -179,7 +179,7 @@ let vectype s =
 let heaptype s =
   let pos = pos s in
   either [
-    (fun s -> UseHT (typeuse s33 s));
+    (fun s -> UseHT (Inexact, typeuse s33 s));
     (fun s ->
       match s7 s with
       | -0x0c -> NoExnHT
@@ -194,7 +194,7 @@ let heaptype s =
       | -0x15 -> StructHT
       | -0x16 -> ArrayHT
       | -0x17 -> ExnHT
-      | -0x1e -> ExactHT (typeuse s32 s)
+      | -0x1e -> UseHT (Exact, typeuse s32 s)
       | _ -> error s pos "malformed heap type"
     )
   ] s

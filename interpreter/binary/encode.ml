@@ -131,8 +131,8 @@ struct
     | NoExnHT -> s7 (-0x0c)
     | ExternHT -> s7 (-0x11)
     | NoExternHT -> s7 (-0x0e)
-    | UseHT ut -> typeuse s33 ut
-    | ExactHT ut -> s7 (-0x1e); typeuse u32 ut
+    | UseHT (Inexact, ut) -> typeuse s33 ut
+    | UseHT (Exact, ut) -> s7 (-0x1e); typeuse u32 ut
     | BotHT -> assert false
 
   let reftype = function
@@ -276,6 +276,12 @@ struct
     | BrOnCastFail (x, (nul1, t1), (nul2, t2)) ->
       let flags = bit 0 (nul1 = Null) + bit 1 (nul2 = Null) in
       op 0xfb; op 0x19; byte flags; idx x; heaptype t1; heaptype t2
+    | BrOnCastDesc (x, (nul1, t1), (nul2, t2)) ->
+      let flags = bit 0 (nul1 = Null) + bit 1 (nul2 = Null) in
+      op 0xfb; op 0x25; byte flags; idx x; heaptype t1; heaptype t2
+    | BrOnCastDescFail (x, (nul1, t1), (nul2, t2)) ->
+      let flags = bit 0 (nul1 = Null) + bit 1 (nul2 = Null) in
+      op 0xfb; op 0x26; byte flags; idx x; heaptype t1; heaptype t2
     | Return -> op 0x0f
     | Call x -> op 0x10; idx x
     | CallRef x -> op 0x14; idx x
@@ -429,6 +435,10 @@ struct
     | RefTest (Null, t) -> op 0xfb; op 0x15; heaptype t
     | RefCast (NoNull, t) -> op 0xfb; op 0x16; heaptype t
     | RefCast (Null, t) -> op 0xfb; op 0x17; heaptype t
+    | RefCastDesc (NoNull, t) -> op 0xfb; op 0x23; heaptype t
+    | RefCastDesc (Null, t) -> op 0xfb; op 0x24; heaptype t
+
+    | RefGetDesc x -> op 0xfb; op 0x22; idx x
 
     | RefI31 -> op 0xfb; op 0x1c
     | I31Get S -> op 0xfb; op 0x1d

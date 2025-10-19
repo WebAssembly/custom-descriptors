@@ -121,8 +121,7 @@ let check_heaptype (c : context) (t : heaptype) at =
   | FuncHT | NoFuncHT
   | ExnHT | NoExnHT
   | ExternHT | NoExternHT -> ()
-  | UseHT ut -> check_typeuse c ut at
-  | ExactHT ut -> check_typeuse c ut at
+  | UseHT (_, ut) -> check_typeuse c ut at
   | BotHT -> ()
 
 let check_reftype (c : context) (t : reftype) at =
@@ -367,6 +366,19 @@ let type_externop op =
   | Internalize -> ExternHT, AnyHT
   | Externalize -> AnyHT, ExternHT
 
+let desc_cast_ref c rt at =
+  let (_, ht) = rt in
+  let exact, x = match ht with
+    | UseHT (exact, Idx x) -> exact, x
+    | _ ->
+      error at ("type " ^ string_of_heaptype ht ^ " does not have a descriptor")
+  in
+  let DescT (_, ut', _) = expand_deftype_to_desctype (type_ c (x @@ at)) in
+  match ut' with
+  | Some ut' ->  (Null, UseHT (exact, ut'))
+  | None ->
+    error at ("type " ^ string_of_heaptype ht ^ " does not have a descriptor")
+
 
 (* Expressions *)
 
@@ -501,10 +513,11 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
   | BrOnCast (x, rt1, rt2) ->
     check_reftype c rt1 e.at;
     check_reftype c rt2 e.at;
+    let (_, ht1), (_, ht2) = rt1, rt2 in
     require
-      (match_reftype c.types rt2 rt1) e.at
-      ("type mismatch on cast: type " ^ string_of_reftype rt2 ^
-       " does not match " ^ string_of_reftype rt1);
+      (top_of_heaptype c.types ht1 = top_of_heaptype c.types ht2) e.at
+      ("type mismatch on cast: type " ^ string_of_heaptype ht1 ^
+       " has a different top type than type " ^ string_of_heaptype ht2);
     require (label c x <> []) e.at
       ("type mismatch: instruction requires type " ^ string_of_reftype rt2 ^
        " but label has " ^ string_of_resulttype (label c x));
@@ -518,10 +531,11 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     check_reftype c rt1 e.at;
     check_reftype c rt2 e.at;
     let rt1' = diff_reftype rt1 rt2 in
+    let (_, ht1), (_, ht2) = rt1, rt2 in
     require
-      (match_reftype c.types rt2 rt1) e.at
-      ("type mismatch on cast: type " ^ string_of_reftype rt2 ^
-       " does not match " ^ string_of_reftype rt1);
+      (top_of_heaptype c.types ht1 = top_of_heaptype c.types ht2) e.at
+      ("type mismatch on cast: type " ^ string_of_heaptype ht1 ^
+       " has a different top type than type " ^ string_of_heaptype ht2);
     require (label c x <> []) e.at
       ("type mismatch: instruction requires type " ^ string_of_reftype rt1' ^
        " but label has " ^ string_of_resulttype (label c x));
@@ -530,6 +544,43 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
       ("type mismatch: instruction requires type " ^ string_of_reftype rt1' ^
        " but label has " ^ string_of_resulttype (label c x));
     (ts0 @ [RefT rt1]) --> (ts0 @ [RefT rt2]), []
+
+  | BrOnCastDesc (x, rt1, rt2) ->
+    check_reftype c rt1 e.at;
+    check_reftype c rt2 e.at;
+    let (_, ht1), (_, ht2) = rt1, rt2 in
+    require
+      (top_of_heaptype c.types ht1 = top_of_heaptype c.types ht2) e.at
+      ("type mismatch on cast: type " ^ string_of_heaptype ht1 ^
+       " has a different top type than type " ^ string_of_heaptype ht2);
+    require (label c x <> []) e.at
+      ("type mismatch: instruction requires type " ^ string_of_reftype rt2 ^
+       " but label has " ^ string_of_resulttype (label c x));
+    let ts0, t1 = Lib.List.split_last (label c x) in
+    require (match_valtype c.types (RefT rt2) t1) e.at
+      ("type mismatch: instruction requires type " ^ string_of_reftype rt2 ^
+       " but label has " ^ string_of_resulttype (label c x));
+    let rt = desc_cast_ref c rt2 e.at in
+    (ts0 @ [RefT rt1; RefT rt]) --> (ts0 @ [RefT (diff_reftype rt1 rt2)]), []
+
+  | BrOnCastDescFail (x, rt1, rt2) ->
+    check_reftype c rt1 e.at;
+    check_reftype c rt2 e.at;
+    let rt1' = diff_reftype rt1 rt2 in
+    let (_, ht1), (_, ht2) = rt1, rt2 in
+    require
+      (top_of_heaptype c.types ht1 = top_of_heaptype c.types ht2) e.at
+      ("type mismatch on cast: type " ^ string_of_heaptype ht1 ^
+       " has a different top type than type " ^ string_of_heaptype ht2);
+    require (label c x <> []) e.at
+      ("type mismatch: instruction requires type " ^ string_of_reftype rt1' ^
+       " but label has " ^ string_of_resulttype (label c x));
+    let ts0, t1 = Lib.List.split_last (label c x) in
+    require (match_valtype c.types (RefT rt1') t1) e.at
+      ("type mismatch: instruction requires type " ^ string_of_reftype rt1' ^
+       " but label has " ^ string_of_resulttype (label c x));
+    let rt = desc_cast_ref c rt2 e.at in
+    (ts0 @ [RefT rt1; RefT rt]) --> (ts0 @ [RefT rt2]), []
 
   | Return ->
     c.results -->... [], []
@@ -540,7 +591,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
 
   | CallRef x ->
     let (ts1, ts2) = func_type c x in
-    (ts1 @ [RefT (Null, UseHT (Def (type_ c x)))]) --> ts2, []
+    (ts1 @ [RefT (Null, UseHT (Inexact, Def (type_ c x)))]) --> ts2, []
 
   | CallIndirect (x, y) ->
     let TableT (at, _lim, t) = table c x in
@@ -564,7 +615,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
       ("type mismatch: current function requires result type " ^
        string_of_resulttype c.results ^
        " but callee returns " ^ string_of_resulttype ts2);
-    (ts1 @ [RefT (Null, UseHT (Def (type_ c x)))]) -->... [], []
+    (ts1 @ [RefT (Null, UseHT (Inexact, Def (type_ c x)))]) -->... [], []
 
   | ReturnCallIndirect (x, y) ->
     let TableT (at, _lim, t) = table c x in
@@ -728,7 +779,8 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
   | RefFunc x ->
     let dt = func c x in
     refer_func c x;
-    [] --> [RefT (NoNull, UseHT (Def dt))], []
+    (* TODO: Exact function references *)
+    [] --> [RefT (NoNull, UseHT (Inexact, Def dt))], []
 
   | RefIsNull ->
     let (_nul, ht) = peek_ref 0 s e.at in
@@ -748,6 +800,25 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     check_reftype c rt e.at;
     [RefT (Null, top_of_heaptype c.types ht)] --> [RefT (nul, ht)], []
 
+  | RefCastDesc rt ->
+    let (nul, ht) = rt in
+    check_reftype c rt e.at;
+    let rt' = desc_cast_ref c rt e.at in
+    [RefT (Null, top_of_heaptype c.types ht); RefT rt'] --> [RefT (nul, ht)], []
+
+  | RefGetDesc x ->
+    let DescT (_, ut, _) = expand_deftype_to_desctype (type_ c x) in
+    let dt = match ut with
+      | Some ut -> deftype_of_typeuse ut
+      | None -> error e.at ("type without descriptor " ^ I32.to_string_u x.it)
+    in
+    let (_, ht) = peek_ref 0 s e.at in
+    let exact =
+      if match_heaptype c.types ht (UseHT (Exact, Def (type_ c x)))
+      then Exact else Inexact
+    in
+    [RefT (Null, UseHT (exact, Def (type_ c x)))] --> [RefT (NoNull, UseHT (exact, Def dt))], []
+
   | RefEq ->
     [RefT (Null, EqHT); RefT (Null, EqHT)] --> [NumT I32T], []
 
@@ -764,7 +835,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
           defaultable (unpacked_fieldtype ft)) fts ) x.at
       "field type is not defaultable";
     let ts = if initop = Implicit then [] else List.map unpacked_fieldtype fts in
-    ts --> [RefT (NoNull, UseHT (Def (type_ c x)))], []
+    ts --> [RefT (NoNull, UseHT (Exact, Def (type_ c x)))], []
 
   | StructGet (x, i, exto) ->
     let fts = struct_type c x in
@@ -774,7 +845,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     require ((exto <> None) == is_packed_storagetype st) e.at
       ("field is " ^ (if exto = None then "packed" else "unpacked"));
     let t = unpacked_storagetype st in
-    [RefT (Null, UseHT (Def (type_ c x)))] --> [t], []
+    [RefT (Null, UseHT (Inexact, Def (type_ c x)))] --> [t], []
 
   | StructSet (x, i) ->
     let fts = struct_type c x in
@@ -783,7 +854,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     let FieldT (mut, st) = Lib.List32.nth fts i in
     require (mut == Var) e.at "field is immutable";
     let t = unpacked_storagetype st in
-    [RefT (Null, UseHT (Def (type_ c x))); t] --> [], []
+    [RefT (Null, UseHT (Inexact, Def (type_ c x))); t] --> [], []
 
   | ArrayNew (x, initop) ->
     let ft = array_type c x in
@@ -791,12 +862,12 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
       (initop = Explicit || defaultable (unpacked_fieldtype ft)) x.at
       "array type is not defaultable";
     let ts = if initop = Implicit then [] else [unpacked_fieldtype ft] in
-    (ts @ [NumT I32T]) --> [RefT (NoNull, UseHT (Def (type_ c x)))], []
+    (ts @ [NumT I32T]) --> [RefT (NoNull, UseHT (Exact, Def (type_ c x)))], []
 
   | ArrayNewFixed (x, n) ->
     let ft = array_type c x in
     let ts = Lib.List32.make n (unpacked_fieldtype ft) in
-    ts --> [RefT (NoNull, UseHT (Def (type_ c x)))], []
+    ts --> [RefT (NoNull, UseHT (Exact, Def (type_ c x)))], []
 
   | ArrayNewElem (x, y) ->
     let ft = array_type c x in
@@ -804,7 +875,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     require (match_valtype c.types (RefT rt) (unpacked_fieldtype ft)) x.at
       ("type mismatch: element segment's type " ^ string_of_reftype rt ^
        " does not match array's field type " ^ string_of_fieldtype ft);
-    [NumT I32T; NumT I32T] --> [RefT (NoNull, UseHT (Def (type_ c x)))], []
+    [NumT I32T; NumT I32T] --> [RefT (NoNull, UseHT (Exact, Def (type_ c x)))], []
 
   | ArrayNewData (x, y) ->
     let ft = array_type c x in
@@ -812,20 +883,20 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     let t = unpacked_fieldtype ft in
     require (is_numtype t || is_vectype t) x.at
       "array type is not numeric or vector";
-    [NumT I32T; NumT I32T] --> [RefT (NoNull, UseHT (Def (type_ c x)))], []
+    [NumT I32T; NumT I32T] --> [RefT (NoNull, UseHT (Exact, Def (type_ c x)))], []
 
   | ArrayGet (x, exto) ->
     let FieldT (_mut, st) = array_type c x in
     require ((exto <> None) == is_packed_storagetype st) e.at
       ("array is " ^ (if exto = None then "packed" else "unpacked"));
     let t = unpacked_storagetype st in
-    [RefT (Null, UseHT (Def (type_ c x))); NumT I32T] --> [t], []
+    [RefT (Null, UseHT (Inexact, Def (type_ c x))); NumT I32T] --> [t], []
 
   | ArraySet x ->
     let FieldT (mut, st) = array_type c x in
     require (mut == Var) e.at "array is immutable";
     let t = unpacked_storagetype st in
-    [RefT (Null, UseHT (Def (type_ c x))); NumT I32T; t] --> [], []
+    [RefT (Null, UseHT (Inexact, Def (type_ c x))); NumT I32T; t] --> [], []
 
   | ArrayLen ->
     [RefT (Null, ArrayHT)] --> [NumT I32T], []
@@ -835,13 +906,13 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     let FieldT (_muts, sts) = array_type c y in
     require (mutd = Var) e.at "array is immutable";
     require (match_storagetype c.types sts std) e.at "array types do not match";
-    [RefT (Null, UseHT (Def (type_ c x))); NumT I32T; RefT (Null, UseHT (Def (type_ c y))); NumT I32T; NumT I32T] --> [], []
+    [RefT (Null, UseHT (Inexact, Def (type_ c x))); NumT I32T; RefT (Null, UseHT (Inexact, Def (type_ c y))); NumT I32T; NumT I32T] --> [], []
 
   | ArrayFill x ->
     let FieldT (mut, st) = array_type c x in
     require (mut = Var) e.at "array is immutable";
     let t = unpacked_storagetype st in
-    [RefT (Null, UseHT (Def (type_ c x))); NumT I32T; t; NumT I32T] --> [], []
+    [RefT (Null, UseHT (Inexact, Def (type_ c x))); NumT I32T; t; NumT I32T] --> [], []
 
   | ArrayInitData (x, y) ->
     let FieldT (mut, st) = array_type c x in
@@ -850,7 +921,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     let t = unpacked_storagetype st in
     require (is_numtype t || is_vectype t) x.at
       "array type is not numeric or vector";
-    [RefT (Null, UseHT (Def (type_ c x))); NumT I32T; NumT I32T; NumT I32T] --> [], []
+    [RefT (Null, UseHT (Inexact, Def (type_ c x))); NumT I32T; NumT I32T; NumT I32T] --> [], []
 
   | ArrayInitElem (x, y) ->
     let FieldT (mut, st) = array_type c x in
@@ -859,7 +930,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     require (match_valtype c.types (RefT rt) (unpacked_storagetype st)) x.at
       ("type mismatch: element segment's type " ^ string_of_reftype rt ^
        " does not match array's field type " ^ string_of_fieldtype (FieldT (mut, st)));
-    [RefT (Null, UseHT (Def (type_ c x))); NumT I32T; NumT I32T; NumT I32T] --> [], []
+    [RefT (Null, UseHT (Inexact, Def (type_ c x))); NumT I32T; NumT I32T; NumT I32T] --> [], []
 
   | ExternConvert op ->
     let ht1, ht2 = type_externop op in

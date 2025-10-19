@@ -28,7 +28,7 @@ let () =
 let () =
   let type_of_ref' = !Value.type_of_ref' in
   Value.type_of_ref' := function
-    | ExnRef e -> UseHT (Def (type_of e))
+    | ExnRef e -> UseHT (Exact, (Def (type_of e)))
     | r -> type_of_ref' r
 
 let () =

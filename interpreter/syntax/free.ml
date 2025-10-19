@@ -82,8 +82,7 @@ and heaptype = function
   | FuncHT | NoFuncHT -> empty
   | ExnHT | NoExnHT -> empty
   | ExternHT | NoExternHT -> empty
-  | UseHT x -> typeuse x
-  | ExactHT x -> typeuse x
+  | UseHT (_, x) -> typeuse x
   | BotHT -> empty
 
 and reftype = function
@@ -143,7 +142,8 @@ let rec instr (e : instr) =
   | Block (bt, es) | Loop (bt, es) -> blocktype bt ++ block es
   | If (bt, es1, es2) -> blocktype bt ++ block es1 ++ block es2
   | Br x | BrIf x | BrOnNull x | BrOnNonNull x -> labels (idx x)
-  | BrOnCast (x, t1, t2) | BrOnCastFail (x, t1, t2) ->
+  | BrOnCast (x, t1, t2) | BrOnCastFail (x, t1, t2)
+  | BrOnCastDesc (x, t1, t2) | BrOnCastDescFail (x, t1, t2) ->
     labels (idx x) ++ reftype t1 ++ reftype t2
   | BrTable (xs, x) -> list (fun x -> labels (idx x)) (x::xs)
   | Return -> empty
@@ -169,7 +169,8 @@ let rec instr (e : instr) =
   | MemoryInit (x, y) -> memories (idx x) ++ datas (idx y)
   | DataDrop x -> datas (idx x)
   | RefIsNull | RefAsNonNull -> empty
-  | RefTest t | RefCast t -> reftype t
+  | RefTest t | RefCast t | RefCastDesc t -> reftype t
+  | RefGetDesc x -> types (idx x)
   | RefEq -> empty
   | RefNull t -> heaptype t
   | RefFunc x -> funcs (idx x)

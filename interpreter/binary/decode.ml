@@ -179,7 +179,7 @@ let vectype s =
 let heaptype s =
   let pos = pos s in
   either [
-    (fun s -> UseHT (typeuse s33 s));
+    (fun s -> UseHT (Inexact, typeuse s33 s));
     (fun s ->
       match s7 s with
       | -0x0c -> NoExnHT
@@ -194,7 +194,7 @@ let heaptype s =
       | -0x15 -> StructHT
       | -0x16 -> ArrayHT
       | -0x17 -> ExnHT
-      | -0x1e -> ExactHT (typeuse s32 s)
+      | -0x1e -> UseHT (Exact, typeuse s32 s)
       | _ -> error s pos "malformed heap type"
     )
   ] s
@@ -652,13 +652,19 @@ let rec instr s =
     | 0x15l -> let ht = heaptype s in ref_test (Null, ht)
     | 0x16l -> let ht = heaptype s in ref_cast (NoNull, ht)
     | 0x17l -> let ht = heaptype s in ref_cast (Null, ht)
-    | 0x18l | 0x19l as opcode ->
+    | 0x18l | 0x19l | 0x25l | 0x26l as opcode ->
       let flags = byte s in
       require (flags land 0xfc = 0) s (pos + 2) "malformed br_on_cast flags";
       let x = at idx s in
       let rt1 = ((if bit 0 flags then Null else NoNull), heaptype s) in
       let rt2 = ((if bit 1 flags then Null else NoNull), heaptype s) in
-      (if opcode = 0x18l then br_on_cast else br_on_cast_fail) x rt1 rt2
+      (match opcode with
+      | 0x18l -> br_on_cast x rt1 rt2
+      | 0x19l -> br_on_cast_fail x rt1 rt2
+      | 0x25l -> br_on_cast_desc x rt1 rt2
+      | 0x26l -> br_on_cast_desc_fail x rt1 rt2
+      | _ -> assert false
+      )
 
     | 0x1al -> any_convert_extern
     | 0x1bl -> extern_convert_any
@@ -666,6 +672,10 @@ let rec instr s =
     | 0x1cl -> ref_i31
     | 0x1dl -> i31_get_s
     | 0x1el -> i31_get_u
+
+    | 0x22l -> let x = at idx s in ref_get_desc x
+    | 0x23l -> let ht = heaptype s in ref_cast_desc (NoNull, ht)
+    | 0x24l -> let ht = heaptype s in ref_cast_desc (Null, ht)
 
     | n -> illegal2 s pos b n
     )

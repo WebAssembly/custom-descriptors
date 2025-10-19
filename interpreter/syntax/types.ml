@@ -5,6 +5,7 @@ type localidx = int32
 type name = Utf8.unicode
 
 type null = NoNull | Null
+type exact = Exact | Inexact
 type mut = Cons | Var
 type init = Set | Unset
 type final = NoFinal | Final
@@ -18,7 +19,7 @@ and vectype = V128T
 and heaptype =
   | AnyHT | NoneHT | EqHT | I31HT | StructHT | ArrayHT
   | FuncHT | NoFuncHT | ExnHT | NoExnHT | ExternHT | NoExternHT
-  | UseHT of typeuse | ExactHT of typeuse | BotHT
+  | UseHT of exact * typeuse | BotHT
 and reftype = null * heaptype
 and valtype = NumT of numtype | VecT of vectype | RefT of reftype | BotT
 
@@ -173,8 +174,7 @@ and subst_heaptype s = function
   | NoExnHT -> NoExnHT
   | ExternHT -> ExternHT
   | NoExternHT -> NoExternHT
-  | UseHT t -> UseHT (subst_typeuse s t)
-  | ExactHT t -> ExactHT (subst_typeuse s t)
+  | UseHT (exact, t) -> UseHT (exact, subst_typeuse s t)
   | BotHT -> BotHT
 
 and subst_reftype s = function
@@ -282,9 +282,12 @@ let unroll_deftype (dt : deftype) : subtype =
   let RecT sts = unroll_rectype rt in
   Lib.List32.nth sts i
 
-(* TODO: consider returning a desctype here. *)
+let expand_deftype_to_desctype (dt : deftype) : desctype =
+  let SubT (_, _, dt) = unroll_deftype dt in
+  dt
+
 let expand_deftype (dt : deftype) : comptype =
-  let SubT (_, _, DescT (_, _, st)) = unroll_deftype dt in
+  let DescT (_, _, st) = expand_deftype_to_desctype dt in
   st
 
 
@@ -350,8 +353,8 @@ and string_of_heaptype = function
   | NoExnHT -> "noexn"
   | ExternHT -> "extern"
   | NoExternHT -> "noextern"
-  | UseHT ut -> string_of_typeuse ut
-  | ExactHT ut -> "(exact " ^ (string_of_typeuse ut) ^ ")"
+  | UseHT (Inexact, ut) -> string_of_typeuse ut
+  | UseHT (Exact, ut) -> "(exact " ^ (string_of_typeuse ut) ^ ")"
   | BotHT -> "something"
 
 and string_of_reftype = function

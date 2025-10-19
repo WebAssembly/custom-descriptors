@@ -253,7 +253,8 @@
 (assert_invalid
   (module
     (func (param (ref null any)) (result (ref null func))
-      (block (result (ref null func)) (br_on_cast 1 (ref null any) (ref null func) (local.get 0) (unreachable)))
+      (br_on_cast 0 (ref null any) (ref null func) (local.get 0))
+      (unreachable)
     )
   )
   "type mismatch"
@@ -261,7 +262,8 @@
 (assert_invalid
   (module
     (func (param (ref func)) (result (ref any))
-      (block (result (ref any)) (br_on_cast 1 (ref func) (ref any) (local.get 0) (unreachable)))
+      (br_on_cast 0 (ref func) (ref any) (local.get 0))
+      (unreachable)
     )
   )
   "type mismatch"

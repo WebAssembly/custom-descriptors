@@ -808,11 +808,10 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
 
   | RefGetDesc x ->
     let DescT (_, ut, _) = expand_deftype_to_desctype (type_ c x) in
-    let ut = match ut with
-      | Some ut -> ut
+    let dt = match ut with
+      | Some ut -> deftype_of_typeuse ut
       | None -> error e.at ("type without descriptor " ^ I32.to_string_u x.it)
     in
-    let dt = deftype_of_typeuse ut in
     let (_, ht) = peek_ref 0 s e.at in
     let exact =
       if match_heaptype c.types ht (UseHT (Exact, Def (type_ c x)))

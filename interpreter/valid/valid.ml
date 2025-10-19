@@ -515,7 +515,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     check_reftype c rt2 e.at;
     let (_, ht1), (_, ht2) = rt1, rt2 in
     require
-      ((top_of_heaptype c.types ht1) = (top_of_heaptype c.types ht2)) e.at
+      (top_of_heaptype c.types ht1 = top_of_heaptype c.types ht2) e.at
       ("type mismatch on cast: type " ^ string_of_heaptype ht1 ^
        " has a different top type than type " ^ string_of_heaptype ht2);
     require (label c x <> []) e.at
@@ -533,7 +533,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     let rt1' = diff_reftype rt1 rt2 in
     let (_, ht1), (_, ht2) = rt1, rt2 in
     require
-      ((top_of_heaptype c.types ht1) = (top_of_heaptype c.types ht2)) e.at
+      (top_of_heaptype c.types ht1 = top_of_heaptype c.types ht2) e.at
       ("type mismatch on cast: type " ^ string_of_heaptype ht1 ^
        " has a different top type than type " ^ string_of_heaptype ht2);
     require (label c x <> []) e.at
@@ -550,7 +550,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     check_reftype c rt2 e.at;
     let (_, ht1), (_, ht2) = rt1, rt2 in
     require
-      ((top_of_heaptype c.types ht1) = (top_of_heaptype c.types ht2)) e.at
+      (top_of_heaptype c.types ht1 = top_of_heaptype c.types ht2) e.at
       ("type mismatch on cast: type " ^ string_of_heaptype ht1 ^
        " has a different top type than type " ^ string_of_heaptype ht2);
     require (label c x <> []) e.at
@@ -569,7 +569,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     let rt1' = diff_reftype rt1 rt2 in
     let (_, ht1), (_, ht2) = rt1, rt2 in
     require
-      ((top_of_heaptype c.types ht1) = (top_of_heaptype c.types ht2)) e.at
+      (top_of_heaptype c.types ht1 = top_of_heaptype c.types ht2) e.at
       ("type mismatch on cast: type " ^ string_of_heaptype ht1 ^
        " has a different top type than type " ^ string_of_heaptype ht2);
     require (label c x <> []) e.at

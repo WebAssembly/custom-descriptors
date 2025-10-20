@@ -835,7 +835,12 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
           defaultable (unpacked_fieldtype ft)) fts ) x.at
       "field type is not defaultable";
     let ts = if initop = Implicit then [] else List.map unpacked_fieldtype fts in
-    ts --> [RefT (NoNull, UseHT (Exact, Def (type_ c x)))], []
+    let DescT (_, dt, _) = expand_deftype_to_desctype (type_ c x) in
+    let dt = match dt with
+      | Some dt -> [RefT (Null, UseHT (Exact, dt))]
+      | None -> []
+    in
+    (ts @ dt) --> [RefT (NoNull, UseHT (Exact, Def (type_ c x)))], []
 
   | StructGet (x, i, exto) ->
     let fts = struct_type c x in

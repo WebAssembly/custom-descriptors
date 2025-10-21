@@ -702,7 +702,7 @@ let rec step (c : config) : config =
       | RefCastDesc rt, Ref desc :: Ref r :: vs' ->
         (match Aggr.read_desc r with
         | Some desc' when eq_ref desc desc' -> Ref r :: vs', []
-        |_ -> vs', [Trapping "descriptor cast failure" @@ e.at]
+        | _ -> vs', [Trapping "descriptor cast failure" @@ e.at]
         )
 
       | RefGetDesc _, Ref (NullRef _) :: vs' ->

@@ -288,4 +288,179 @@
   "\0b" ;; end
 )
 
-;; TODO: Execution
+;; Execution
+
+(module
+  (rec
+    (type $a (descriptor $b) (struct))
+    (type $b (describes $a) (struct (field i32)))
+  )
+
+  (rec
+    (type $one (descriptor $two) (struct))
+    (type $two (describes $one) (descriptor $three) (struct))
+    (type $three (describes $two) (struct))
+  )
+
+  (global $b1 (ref (exact $b)) (struct.new $b (i32.const 1)))
+  (global $b2 (ref (exact $b)) (struct.new $b (i32.const 2)))
+
+  (global $a1 (ref null $a) (struct.new $a (global.get $b1)))
+  (global $a2 (ref null (exact $a)) (struct.new $a (global.get $b2)))
+  (global $a3 (ref (exact $a)) (struct.new $a (struct.new $b (i32.const 3))))
+
+  (global $null (ref null $a) (ref.null none))
+  (global $null-exact (ref null (exact $a)) (ref.null (exact $a)))
+
+  (func $null (result (ref null $a)) (ref.null none))
+  (func $null-exact (result (ref null (exact $a))) (ref.null (exact $a)))
+  (func $alloc-i32 (param i32) (result (ref (exact $a)))
+    (struct.new $a (struct.new $b (local.get 0)))
+  )
+  (func $alloc-desc (param (ref (exact $b))) (result (ref (exact $a)))
+    (struct.new $a (local.get 0))
+  )
+
+  (func (export "null") (result anyref)
+    (ref.get_desc $a (ref.null none))
+  )
+  (func (export "null-typed") (result anyref)
+    (ref.get_desc $a (ref.null (exact $a)))
+  )
+  (func (export "null-global") (result anyref)
+    (ref.get_desc $a (global.get $null))
+  )
+  (func (export "null-exact-global") (result anyref)
+    (ref.get_desc $a (global.get $null-exact))
+  )
+  (func (export "null-call") (result anyref)
+    (ref.get_desc $a (call $null))
+  )
+  (func (export "null-exact-call") (result anyref)
+    (ref.get_desc $a (call $null-exact))
+  )
+  (func (export "get-from-param") (param (ref null $a)) (result anyref)
+    (ref.get_desc $a (local.get 0))
+  )
+
+  (func (export "alloc-0") (result i32)
+    (struct.get $b 0
+      (ref.get_desc $a
+        (struct.new $a
+          (struct.new $b
+            (i32.const 0)
+          )
+        )
+      )
+    )
+  )
+  (func (export "global-1") (result i32)
+    (struct.get $b 0 (ref.get_desc $a (global.get $a1)))
+  )
+  (func (export "global-2") (result i32)
+    (struct.get $b 0 (ref.get_desc $a (global.get $a2)))
+  )
+  (func (export "global-3") (result i32)
+    (struct.get $b 0 (ref.get_desc $a (global.get $a3)))
+  )
+  (func (export "call-4") (result i32)
+    (struct.get $b 0 (ref.get_desc $a (call $alloc-i32 (i32.const 4))))
+  )
+  (func (export "call-5") (result i32)
+    (struct.get $b 0 (ref.get_desc $a (call $alloc-desc (struct.new $b (i32.const 5)))))
+  )
+  (func (export "equal") (result i32)
+    (local (ref null (exact $b)))
+    (local.set 0 (struct.new_default $b))
+    (ref.eq
+      (local.get 0)
+      (ref.get_desc $a (struct.new $a (local.get 0)))
+    )
+  )
+  (func (export "not-equal") (result i32)
+    (ref.eq
+      (struct.new_default $b)
+      (ref.get_desc $a (struct.new $a (struct.new_default $b)))
+    )
+  )
+  (func (export "chain-equal") (result i32)
+    (local $three (ref null (exact $three)))
+    (local $two (ref null (exact $two)))
+    (local $one (ref null (exact $one)))
+    (local.set $three (struct.new $three))
+    (local.set $two (struct.new $two (local.get $three)))
+    (local.set $one (struct.new $one (local.get $two)))
+    (ref.eq
+      (local.get $three)
+      (ref.get_desc $two (ref.get_desc $one (local.get $one)))
+    )
+  )
+)
+
+(assert_trap (invoke "null") "null reference")
+(assert_trap (invoke "null-typed") "null reference")
+(assert_trap (invoke "null-global") "null reference")
+(assert_trap (invoke "null-exact-global") "null reference")
+(assert_trap (invoke "null-call") "null reference")
+(assert_trap (invoke "null-exact-call") "null reference")
+(assert_trap (invoke "get-from-param" (ref.null none)) "null reference")
+
+(assert_return (invoke "alloc-0") (i32.const 0))
+(assert_return (invoke "global-1") (i32.const 1))
+(assert_return (invoke "global-2") (i32.const 2))
+(assert_return (invoke "global-3") (i32.const 3))
+(assert_return (invoke "call-4") (i32.const 4))
+(assert_return (invoke "call-5") (i32.const 5))
+(assert_return (invoke "equal") (i32.const 1))
+(assert_return (invoke "not-equal") (i32.const 0))
+(assert_return (invoke "chain-equal") (i32.const 1))
+
+;; Cross-instance execution
+
+(module
+  (rec
+    (type $a (descriptor $b) (struct))
+    (type $b (describes $a) (struct))
+  )
+
+  (global (export "b") (ref null (exact $b)) (struct.new $b))
+
+  (func (export "make-a") (result (ref null $a))
+    (struct.new $a (global.get 0))
+  )
+
+  (func (export "check-eq") (param (ref null $a)) (result i32)
+    (ref.eq (ref.get_desc $a (local.get 0)) (global.get 0))
+  )
+)
+
+(register "A")
+
+(module
+   ;; Add an extra type to make the type indices different between modules.
+  (type $other (func))
+  (rec
+    (type $a (descriptor $b) (struct))
+    (type $b (describes $a) (struct))
+  )
+
+  (import "A" "b" (global $b (ref null (exact $b))))
+  (import "A" "make-a" (func $make-a (result (ref null $a))))
+  (import "A" "check-eq" (func $check-eq (param (ref null $a)) (result i32)))
+
+  (func (export "imported-desc-equal") (result i32)
+    (ref.eq (ref.get_desc $a (call $make-a)) (global.get $b))
+  )
+
+  (func (export "imported-check-equal") (result i32)
+    (call $check-eq (struct.new $a (global.get $b)))
+  )
+
+  (func (export "imported-check-not-equal") (result i32)
+    (call $check-eq (struct.new $a (struct.new $b)))
+  )
+)
+
+(assert_return (invoke "imported-desc-equal") (i32.const 1))
+(assert_return (invoke "imported-check-equal") (i32.const 1))
+(assert_return (invoke "imported-check-not-equal") (i32.const 0))

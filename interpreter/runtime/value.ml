@@ -92,6 +92,7 @@ let is_null_ref = function
   | NullRef _ -> true
   | _ -> false
 
+
 (* Typing *)
 
 let type_of_op = function

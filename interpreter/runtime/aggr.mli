@@ -20,6 +20,6 @@ val type_of_array : array -> deftype
 val read_field : field -> Pack.sx option -> value  (* raises Failure *)
 val write_field : field -> value -> unit  (* raises Falure *)
 
-val read_desc : ref_ -> ref_ (* raises Failure *)
+val read_desc : ref_ -> ref_ option
 
 val array_length : array -> int32

@@ -55,8 +55,8 @@ let type_of_struct (Struct (dt, _, _)) = dt
 let type_of_array (Array (dt, _)) = dt
 
 let read_desc = function
-  | StructRef (Struct (_, _, Some desc)) -> desc
-  | _ -> failwith "read_desc"
+  | StructRef (Struct (_, _, Some desc)) -> Some desc
+  | _ -> None
 
 let () =
   let type_of_ref' = !Value.type_of_ref' in

@@ -269,14 +269,9 @@ let rec step (c : config) : config =
         Ref r :: vs', []
 
       | BrOnCastDesc (x, _rt1, _rt2), Ref desc :: Ref r :: vs' ->
-        (try
-          let desc' = Aggr.read_desc r in
-          if eq_ref desc desc' then
-            Ref r :: vs', [Plain (Br x) @@ e.at]
-          else
-            failwith "not_equal"
-        with
-          Failure _ -> Ref r :: vs', []
+        (match Aggr.read_desc r with
+        | Some desc' when eq_ref desc desc' -> Ref r :: vs', [Plain (Br x) @@ e.at]
+        | _ -> Ref r :: vs', []
         )
 
       | BrOnCastDescFail (x, _rt1, _rt2), Ref (NullRef _) :: vs' ->
@@ -289,14 +284,9 @@ let rec step (c : config) : config =
         Ref r :: vs', [Plain (Br x) @@ e.at]
 
       | BrOnCastDescFail (x, _rt1, _rt2), Ref desc :: Ref r :: vs' ->
-        (try
-          let desc' = Aggr.read_desc r in
-          if eq_ref desc desc' then
-            Ref r :: vs', []
-          else
-            failwith "not_equal"
-        with
-          Failure _ -> Ref r :: vs', [Plain (Br x) @@ e.at]
+        (match Aggr.read_desc r with
+        | Some desc' when eq_ref desc desc' -> Ref r :: vs', []
+        | _ -> Ref r :: vs', [Plain (Br x) @@ e.at]
         )
 
       | Return, vs ->
@@ -710,25 +700,19 @@ let rec step (c : config) : config =
         Ref r :: vs', []
 
       | RefCastDesc rt, Ref desc :: Ref r :: vs' ->
-        (try
-          let desc' = Aggr.read_desc r in
-          if eq_ref desc desc' then
-            Ref r :: vs', []
-          else
-            failwith "not_equal"
-        with
-          Failure _ -> vs', [Trapping "descriptor cast failure" @@ e.at]
+        (match Aggr.read_desc r with
+        | Some desc' when eq_ref desc desc' -> Ref r :: vs', []
+        |_ -> vs', [Trapping "descriptor cast failure" @@ e.at]
         )
 
       | RefGetDesc _, Ref (NullRef _) :: vs' ->
         vs', [Trapping "null reference" @@ e.at]
 
       | RefGetDesc rt, Ref r :: vs' ->
-        let desc =
-          try Aggr.read_desc r
-          with Failure _ -> Crash.error e.at "missing descriptor"
-        in
-        Ref desc :: vs', []
+        (match Aggr.read_desc r with
+        | Some desc -> Ref desc :: vs', []
+        | None -> Crash.error e.at "missing descriptor"
+        )
 
       | RefEq, Ref r1 :: Ref r2 :: vs' ->
         value_of_bool (eq_ref r1 r2) :: vs', []

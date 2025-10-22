@@ -320,7 +320,7 @@ let tabletype s =
 
 let externtype s =
   match byte s with
-  | 0x00 -> ExternFuncT (typeuse idx s)
+  | 0x00 -> ExternFuncT (heaptype s)
   | 0x01 -> ExternTableT (tabletype s)
   | 0x02 -> ExternMemoryT (memorytype s)
   | 0x03 -> ExternGlobalT (globaltype s)

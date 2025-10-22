@@ -49,7 +49,7 @@ type externtype =
   | ExternGlobalT of globaltype
   | ExternMemoryT of memorytype
   | ExternTableT of tabletype
-  | ExternFuncT of typeuse
+  | ExternFuncT of heaptype
 
 type exporttype = ExportT of name * externtype
 type importtype = ImportT of name * name * externtype
@@ -124,6 +124,8 @@ let unpacked_fieldtype (FieldT (_mut, t)) = unpacked_storagetype t
 
 let idx_of_typeuse = function Idx x -> x | _ -> assert false
 let deftype_of_typeuse = function Def dt -> dt | _ -> assert false
+
+let typeuse_of_heaptype = function UseHT (_, ut) -> ut | _ -> assert false
 
 let structtype_of_comptype = function StructT fts -> fts | _ -> assert false
 let arraytype_of_comptype = function ArrayT ft -> ft | _ -> assert false
@@ -235,7 +237,7 @@ let subst_externtype s = function
   | ExternGlobalT gt -> ExternGlobalT (subst_globaltype s gt)
   | ExternMemoryT mt -> ExternMemoryT (subst_memorytype s mt)
   | ExternTableT tt -> ExternTableT (subst_tabletype s tt)
-  | ExternFuncT ut -> ExternFuncT (subst_typeuse s ut)
+  | ExternFuncT ht -> ExternFuncT (subst_heaptype s ht)
 
 
 let subst_exporttype s = function
@@ -446,7 +448,7 @@ let string_of_externtype = function
   | ExternGlobalT gt -> "global " ^ string_of_globaltype gt
   | ExternMemoryT mt -> "memory " ^ string_of_memorytype mt
   | ExternTableT tt -> "table " ^ string_of_tabletype tt
-  | ExternFuncT ut -> "func " ^ string_of_typeuse ut
+  | ExternFuncT ht -> "func " ^ string_of_heaptype ht
 
 
 let string_of_exporttype = function

@@ -207,7 +207,7 @@ struct
     | TableT (at, lim, t) -> reftype t; limits at lim
 
   let externtype = function
-    | ExternFuncT ut -> byte 0x00; typeuse u32 ut
+    | ExternFuncT ht -> byte 0x00; heaptype ht
     | ExternTableT tt -> byte 0x01; tabletype tt
     | ExternMemoryT mt -> byte 0x02; memorytype mt
     | ExternGlobalT gt -> byte 0x03; globaltype gt

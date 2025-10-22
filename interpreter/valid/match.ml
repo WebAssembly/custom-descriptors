@@ -160,6 +160,19 @@ and match_deftype c dt1 dt2 =
     match_heaptype c (UseHT (Inexact, ut1)) (UseHT (Inexact, (Def dt2)))
   ) uts1
 
+let match_typeuse c ut1 ut2 (rt1 : rectype) (rt2 : rectype) =
+  let dt1 = match ut1 with
+    | Idx x -> lookup c x
+    | Rec i -> DefT (rt1, i)
+    | Def dt -> dt
+  in
+  let dt2 = match ut2 with
+    | Idx x -> lookup c x
+    | Rec i -> DefT (rt2, i)
+    | Def dt -> dt
+  in
+  match_deftype c dt1 dt2
+
 let match_tagtype c (TagT ut1) (TagT ut2) =
   match ut1, ut2 with
   | Def dt1, Def dt2 -> match_deftype c dt1 dt2 && match_deftype c dt2 dt1

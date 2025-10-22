@@ -92,6 +92,9 @@ spec:
 spec-pdf:
 	(cd ../document/core && make pdf)
 
+spec-html:
+	(cd ../document/core && make html)
+
 spec-clean:
 	(cd ../document/core && make clean)
 
@@ -105,10 +108,7 @@ clean:
 	rm -f src/frontend/parser.{automaton,conflicts}
 	for dir in $(TESTDIRS); do (cd $$dir && make clean); done
 
-distclean: clean
+distclean: clean spec-clean
 	rm -f ./$(NAME)
 	rm -rf $(CLONEDIR)
 	for dir in $(TESTDIRS); do (cd $$dir && make distclean); done
-
-specclean:
-	(cd ../document/core && make clean)

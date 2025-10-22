@@ -9,8 +9,6 @@ $ (../src/exe-spectec/main.exe ../../../../specification/wasm-3.0/*.spectec -l -
 == IL Validation after pass sideconditions...
 == Translating to AL...
 == Prose Generation...
-Untranslated relation Expand: `%~~%`(deftype, comptype)
-Untranslated relation Expand_use: `%~~_%%`(typeuse, context, comptype)
 == Splicing...
 \documentclass[a4paper]{scrartcl}
 
@@ -59,7 +57,6 @@ $$
 & & | & \mathsf{block}~{\mathit{blocktype}}~{{\mathit{instr}}^\ast} \\
 & & | & \mathsf{loop}~{\mathit{blocktype}}~{{\mathit{instr}}^\ast} \\
 & & | & \mathsf{if}~{\mathit{blocktype}}~{{\mathit{instr}}^\ast}~\mathsf{else}~{{\mathit{instr}}^\ast} \\
-& & | & \dots \\
 \end{array}
 $$
 
@@ -87,8 +84,7 @@ $$
 & & | & \mathsf{memory{.}grow}~{\mathit{memidx}} \\
 & & | & \mathsf{memory{.}fill}~{\mathit{memidx}} \\
 & & | & \mathsf{memory{.}copy}~{\mathit{memidx}}~{\mathit{memidx}} \\
-& & | & \mathsf{memory{.}init}~{\mathit{memidx}}~{\mathit{dataidx}} \\
-& & | & \dots \\[0.8ex]
+& & | & \mathsf{memory{.}init}~{\mathit{memidx}}~{\mathit{dataidx}} \\[0.8ex]
 & {\mathit{expr}} & ::= & {{\mathit{instr}}^\ast} \\
 \end{array}
 $$
@@ -187,7 +183,7 @@ C \vdash {\mathit{bt}} : {t_1^\ast} \rightarrow {t_2^\ast}
 \{ \mathsf{labels}~({t_2^\ast}) \} \oplus C \vdash {{\mathit{instr}}^\ast} : {t_1^\ast} \rightarrow_{{x^\ast}} {t_2^\ast}
 }{
 C \vdash \mathsf{block}~{\mathit{bt}}~{{\mathit{instr}}^\ast} : {t_1^\ast} \rightarrow {t_2^\ast}
-} \, {[\textsc{\scriptsize T{-}block}]}
+} \, {[\textsc{\scriptsize T{-}instr{-}block}]}
 \qquad
 \end{array}
 $$
@@ -200,7 +196,7 @@ C \vdash {\mathit{bt}} : {t_1^\ast} \rightarrow {t_2^\ast}
 \{ \mathsf{labels}~({t_1^\ast}) \} \oplus C \vdash {{\mathit{instr}}^\ast} : {t_1^\ast} \rightarrow_{{x^\ast}} {t_2^\ast}
 }{
 C \vdash \mathsf{loop}~{\mathit{bt}}~{{\mathit{instr}}^\ast} : {t_1^\ast} \rightarrow {t_2^\ast}
-} \, {[\textsc{\scriptsize T{-}loop}]}
+} \, {[\textsc{\scriptsize T{-}instr{-}loop}]}
 \qquad
 \end{array}
 $$
@@ -215,7 +211,7 @@ C \vdash {\mathit{bt}} : {t_1^\ast} \rightarrow {t_2^\ast}
 \{ \mathsf{labels}~({t_2^\ast}) \} \oplus C \vdash {{\mathit{instr}}_2^\ast} : {t_1^\ast} \rightarrow_{{x_2^\ast}} {t_2^\ast}
 }{
 C \vdash \mathsf{if}~{\mathit{bt}}~{{\mathit{instr}}_1^\ast}~\mathsf{else}~{{\mathit{instr}}_2^\ast} : {t_1^\ast}~\mathsf{i{\scriptstyle 32}} \rightarrow {t_2^\ast}
-} \, {[\textsc{\scriptsize T{-}if}]}
+} \, {[\textsc{\scriptsize T{-}instr{-}if}]}
 \qquad
 \end{array}
 $$
@@ -693,7 +689,7 @@ warning: grammar `Tannot` was never spliced
 warning: grammar `Tannotid` was never spliced
 warning: grammar `Tblockchar` was never spliced
 warning: grammar `Tblockcomment` was never spliced
-warning: grammar `Tblockinstr_` was never spliced
+warning: grammar `Tblockinstr_/plain` was never spliced
 warning: grammar `Tblockinstr_/abbrev` was never spliced
 warning: grammar `Tblocktype_` was never spliced
 warning: grammar `Tcatch_` was never spliced
@@ -702,15 +698,17 @@ warning: grammar `Tcomment` was never spliced
 warning: grammar `Tcomptype_` was never spliced
 warning: grammar `Tdata_` was never spliced
 warning: grammar `Tdataidx_` was never spliced
-warning: grammar `Tdatamemory_/abbrev` was never spliced
+warning: grammar `Tdatamem_/abbrev` was never spliced
 warning: grammar `Tdatastring` was never spliced
 warning: grammar `Tdecl_` was never spliced
+warning: grammar `Tdecldots_` was never spliced
 warning: grammar `Tdigit` was never spliced
-warning: grammar `Telem_` was never spliced
-warning: grammar `Telemexpr_` was never spliced
+warning: grammar `Telem_/plain` was never spliced
+warning: grammar `Telem_/abbrev` was never spliced
+warning: grammar `Telemexpr_/plain` was never spliced
 warning: grammar `Telemexpr_/abbrev` was never spliced
 warning: grammar `Telemidx_` was never spliced
-warning: grammar `Telemlist_` was never spliced
+warning: grammar `Telemlist_/plain` was never spliced
 warning: grammar `Telemlist_/abbrev` was never spliced
 warning: grammar `Telemtable_/abbrev` was never spliced
 warning: grammar `Teof` was never spliced
@@ -720,8 +718,8 @@ warning: grammar `Texportfunc_/abbrev` was never spliced
 warning: grammar `Texportfuncdots_` was never spliced
 warning: grammar `Texportglobal_/abbrev` was never spliced
 warning: grammar `Texportglobaldots_` was never spliced
-warning: grammar `Texportmemory_/abbrev` was never spliced
-warning: grammar `Texportmemorydots_` was never spliced
+warning: grammar `Texportmem_/abbrev` was never spliced
+warning: grammar `Texportmemdots_` was never spliced
 warning: grammar `Texporttable_/abbrev` was never spliced
 warning: grammar `Texporttabledots_` was never spliced
 warning: grammar `Texporttag_/abbrev` was never spliced
@@ -764,11 +762,15 @@ warning: grammar `TiN` was never spliced
 warning: grammar `Tid` was never spliced
 warning: grammar `Tidchar` was never spliced
 warning: grammar `Tidx_` was never spliced
-warning: grammar `Timport_` was never spliced
-warning: grammar `Timport_/abbrev` was never spliced
+warning: grammar `Timport_/plain` was never spliced
+warning: grammar `Timport_/abbrev-tag` was never spliced
+warning: grammar `Timport_/abbrev-global` was never spliced
+warning: grammar `Timport_/abbrev-mem` was never spliced
+warning: grammar `Timport_/abbrev-table` was never spliced
+warning: grammar `Timport_/abbrev-func` was never spliced
 warning: grammar `Timportdots` was never spliced
 warning: grammar `Tinstr_` was never spliced
-warning: grammar `Tinstrs_` was never spliced
+warning: grammar `Tinstrs_/unfolded` was never spliced
 warning: grammar `Tinstrs_/folded` was never spliced
 warning: grammar `Tkeyword` was never spliced
 warning: grammar `Tlabel_` was never spliced
@@ -778,7 +780,7 @@ warning: grammar `Tlimits` was never spliced
 warning: grammar `Tlinechar` was never spliced
 warning: grammar `Tlinecomment` was never spliced
 warning: grammar `Tlist` was never spliced
-warning: grammar `Tlocal_` was never spliced
+warning: grammar `Tlocal_/plain` was never spliced
 warning: grammar `Tlocal_/abbrev` was never spliced
 warning: grammar `Tlocalidx_` was never spliced
 warning: grammar `Tmant` was never spliced
@@ -786,9 +788,9 @@ warning: grammar `Tmem_` was never spliced
 warning: grammar `Tmemarg_` was never spliced
 warning: grammar `Tmemidx_` was never spliced
 warning: grammar `Tmemtype_` was never spliced
-warning: grammar `Tmemuse_` was never spliced
+warning: grammar `Tmemuse_/plain` was never spliced
 warning: grammar `Tmemuse_/abbrev` was never spliced
-warning: grammar `Tmodule` was never spliced
+warning: grammar `Tmodule/plain` was never spliced
 warning: grammar `Tmodule/abbrev` was never spliced
 warning: grammar `Tname` was never spliced
 warning: grammar `Tnewline` was never spliced
@@ -796,23 +798,23 @@ warning: grammar `Tnull` was never spliced
 warning: grammar `Tnum` was never spliced
 warning: grammar `Tnumtype` was never spliced
 warning: grammar `Toffset` was never spliced
-warning: grammar `Toffset_` was never spliced
+warning: grammar `Toffset_/plain` was never spliced
 warning: grammar `Toffset_/abbrev` was never spliced
 warning: grammar `Tpacktype` was never spliced
 warning: grammar `Tparam_/base` was never spliced
 warning: grammar `Tparam_/abbrev` was never spliced
 warning: grammar `Tplaininstr_/parametric` was never spliced
 warning: grammar `Tplaininstr_/br` was never spliced
-warning: grammar `Tplaininstr_/func` was never spliced
-warning: grammar `Tplaininstr_/func/abbrev` was never spliced
+warning: grammar `Tplaininstr_/func-plain` was never spliced
+warning: grammar `Tplaininstr_/func-abbrev` was never spliced
 warning: grammar `Tplaininstr_/exn` was never spliced
 warning: grammar `Tplaininstr_/local` was never spliced
 warning: grammar `Tplaininstr_/global` was never spliced
-warning: grammar `Tplaininstr_/table` was never spliced
-warning: grammar `Tplaininstr_/table/abbrev` was never spliced
+warning: grammar `Tplaininstr_/table-plain` was never spliced
+warning: grammar `Tplaininstr_/table-abbrev` was never spliced
 warning: grammar `Tplaininstr_/elem` was never spliced
-warning: grammar `Tplaininstr_/memory` was never spliced
-warning: grammar `Tplaininstr_/memory/abbrev` was never spliced
+warning: grammar `Tplaininstr_/memory-plain` was never spliced
+warning: grammar `Tplaininstr_/memory-abbrev` was never spliced
 warning: grammar `Tplaininstr_/data` was never spliced
 warning: grammar `Tplaininstr_/ref` was never spliced
 warning: grammar `Tplaininstr_/i31` was never spliced
@@ -918,11 +920,11 @@ warning: grammar `Tsubtype_/abbrev` was never spliced
 warning: grammar `Tsym` was never spliced
 warning: grammar `Tsymsplit/1` was never spliced
 warning: grammar `Tsymsplit/2` was never spliced
-warning: grammar `Ttable_` was never spliced
+warning: grammar `Ttable_/plain` was never spliced
 warning: grammar `Ttable_/abbrev` was never spliced
 warning: grammar `Ttableidx_` was never spliced
 warning: grammar `Ttabletype_` was never spliced
-warning: grammar `Ttableuse_` was never spliced
+warning: grammar `Ttableuse_/plain` was never spliced
 warning: grammar `Ttableuse_/abbrev` was never spliced
 warning: grammar `Ttag_` was never spliced
 warning: grammar `Ttagidx_` was never spliced
@@ -1152,6 +1154,7 @@ warning: rule `Limits_sub` was never spliced
 warning: rule `Local_ok/set` was never spliced
 warning: rule `Local_ok/unset` was never spliced
 warning: rule `Mem_ok` was never spliced
+warning: rule `Memarg_ok` was never spliced
 warning: rule `Memtype_ok` was never spliced
 warning: rule `Memtype_sub` was never spliced
 warning: rule `Module_ok` was never spliced
@@ -1517,6 +1520,7 @@ warning: definition `demote__` was never spliced
 warning: definition `diffrt` was never spliced
 warning: definition `dim` was never spliced
 warning: definition `disjoint_` was never spliced
+warning: definition `dots` was never spliced
 warning: definition `elem` was never spliced
 warning: definition `eleminst` was never spliced
 warning: definition `elemsd` was never spliced
@@ -1626,7 +1630,6 @@ warning: definition `funcsxx` was never spliced
 warning: definition `fvbinop_` was never spliced
 warning: definition `fvrelop_` was never spliced
 warning: definition `fvternop_` was never spliced
-warning: definition `fvtestop_` was never spliced
 warning: definition `fvunop_` was never spliced
 warning: definition `fzero` was never spliced
 warning: definition `global` was never spliced
@@ -1725,7 +1728,6 @@ warning: definition `ivshiftopsx_` was never spliced
 warning: definition `ivshufflop_` was never spliced
 warning: definition `ivswizzlop_` was never spliced
 warning: definition `ivternopnd_` was never spliced
-warning: definition `ivtestop_` was never spliced
 warning: definition `ivunop_` was never spliced
 warning: definition `ixor_` was never spliced
 warning: definition `jsize` was never spliced
@@ -1863,7 +1865,6 @@ warning: definition `vsize` was never spliced
 warning: definition `vsizenn` was never spliced
 warning: definition `vswizzlop_` was never spliced
 warning: definition `vternop_` was never spliced
-warning: definition `vtestop_` was never spliced
 warning: definition `vunop_` was never spliced
 warning: definition `vunpack` was never spliced
 warning: definition `vvbinop_` was never spliced
@@ -1916,6 +1917,10 @@ warning: rule prose `Elemmode_ok/active` was never spliced
 warning: rule prose `Elemmode_ok/declare` was never spliced
 warning: rule prose `Elemmode_ok/passive` was never spliced
 warning: rule prose `Eval_expr` was never spliced
+warning: rule prose `Expand` was never spliced
+warning: rule prose `Expand_use` was never spliced
+warning: rule prose `Expand_use/deftype` was never spliced
+warning: rule prose `Expand_use/typeidx` was never spliced
 warning: rule prose `Export_ok` was never spliced
 warning: rule prose `Expr_const` was never spliced
 warning: rule prose `Expr_ok` was never spliced
@@ -2120,6 +2125,7 @@ warning: rule prose `Local_ok` was never spliced
 warning: rule prose `Local_ok/set` was never spliced
 warning: rule prose `Local_ok/unset` was never spliced
 warning: rule prose `Mem_ok` was never spliced
+warning: rule prose `Memarg_ok` was never spliced
 warning: rule prose `Memtype_ok` was never spliced
 warning: rule prose `Memtype_sub` was never spliced
 warning: rule prose `Module_ok` was never spliced
@@ -2468,7 +2474,6 @@ warning: definition prose `funcsxx` was never spliced
 warning: definition prose `fvbinop_` was never spliced
 warning: definition prose `fvrelop_` was never spliced
 warning: definition prose `fvternop_` was never spliced
-warning: definition prose `fvtestop_` was never spliced
 warning: definition prose `fvunop_` was never spliced
 warning: definition prose `fzero` was never spliced
 warning: definition prose `global` was never spliced
@@ -2535,7 +2540,6 @@ warning: definition prose `ivshiftopsx_` was never spliced
 warning: definition prose `ivshufflop_` was never spliced
 warning: definition prose `ivswizzlop_` was never spliced
 warning: definition prose `ivternopnd_` was never spliced
-warning: definition prose `ivtestop_` was never spliced
 warning: definition prose `ivunop_` was never spliced
 warning: definition prose `jsize` was never spliced
 warning: definition prose `jsizenn` was never spliced
@@ -2662,7 +2666,6 @@ warning: definition prose `vsize` was never spliced
 warning: definition prose `vsizenn` was never spliced
 warning: definition prose `vswizzlop_` was never spliced
 warning: definition prose `vternop_` was never spliced
-warning: definition prose `vtestop_` was never spliced
 warning: definition prose `vunop_` was never spliced
 warning: definition prose `vunpack` was never spliced
 warning: definition prose `vvbinop_` was never spliced

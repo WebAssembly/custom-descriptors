@@ -157,17 +157,63 @@ let check_comptype (c : context) (ct : comptype) at =
     check_resulttype c ts1 at;
     check_resulttype c ts2 at
 
-(* TODO: Make sure the describes and descriptor clauses match. *)
 let check_desctype (c : context) (dt : desctype) at =
-  match dt with
-  | DescT (ht1, ht2, ct) -> check_comptype c ct at
-
-let check_desctype_sub (c : context) (dt : desctype) (dti : desctype) x xi at =
-  (* TODO: check rules *)
+  (match dt with
+  | DescT (None, None, _) -> ()
+  | DescT (_, _, StructT _) -> ()
+  | DescT (_, Some _, _) ->
+    error at "descriptor type must be a struct"
+  | DescT (Some _, _, _) ->
+    error at "described type must be a struct");
   let DescT (_, _, ct) = dt in
-  let DescT (_, _, cti) = dti in
-  require (match_comptype c.types ct cti) at ("sub type " ^ I32.to_string_u x ^
-      " does not match super type " ^ I32.to_string_u xi)
+  check_comptype c ct at
+
+let check_desctype_sub (c : context) (dt : desctype) (dt' : desctype) x x' at =
+  let DefT (rt, _) = type_ c (x @@ at) in
+  let DefT (rt', _) = type_ c (x' @@ at) in
+  let DescT (ut1, ut2, ct) = dt in
+  let DescT (ut1', ut2', ct') = dt' in
+  match ut1, ut1' with
+  | (Some ut1, Some ut1') ->
+    require (match_typeuse c.types ut1 ut1' rt rt') at ("described type " ^
+        string_of_typeuse ut1 ^ " does not match " ^ string_of_typeuse ut1')
+  | (Some _, None) | (None, Some _) ->
+    error at ("sub type " ^ I32.to_string_u x ^ " does not match super type " ^
+        I32.to_string_u x')
+  | (None, None) -> ();
+  match ut2, ut2' with
+  | (Some ut2, Some ut2') ->
+    require (match_typeuse c.types ut2 ut2' rt rt') at ("descriptor type " ^
+        string_of_typeuse ut2 ^ " does not match " ^ string_of_typeuse ut2')
+  | (None, Some _) ->
+    error at ("sub type " ^ I32.to_string_u x ^ " does not match super type " ^
+        I32.to_string_u x')
+  | (Some _, None) | (None, None) -> ();
+  require (match_comptype c.types ct ct') at ("sub type " ^ I32.to_string_u x ^
+      " does not match super type " ^ I32.to_string_u x')
+
+let check_descriptors (dts : deftype list) at =
+  List.iter (fun dt ->
+    let DefT ((RecT dts), x) = dt in
+    let SubT (_, _, DescT (ut1, ut2, _)) = Lib.List32.nth dts x in
+    Option.iter (fun ut ->
+      match ut with
+      | Rec x' ->
+        let SubT (_, _, DescT (_, ut', _)) = Lib.List32.nth dts x' in
+        require (ut' = Some (Rec x)) at
+            "described type is not described by descriptor";
+        require (x' < x) at "forward use of described type"
+      | _ -> error at "described type is outside rec group"
+    ) ut1;
+    Option.iter (fun ut ->
+      match ut with
+      | Rec x' ->
+        let SubT (_, _, DescT (ut', _, _)) = Lib.List32.nth dts x' in
+        require (ut' = Some (Rec x)) at
+            "type is not described by its descriptor";
+      | _ -> error at "descriptor type is outside rec group"
+    ) ut2
+  ) dts
 
 let check_subtype (c : context) (sut : subtype) at =
   let SubT (_fin, uts, dt) = sut in
@@ -189,7 +235,9 @@ let check_subtype_sub (c : context) (sut : subtype) x at =
 let check_rectype (c : context) (rt : rectype) at : context =
   let RecT sts = rt in
   let x = Lib.List32.length c.types in
-  let c' = {c with types = c.types @ roll_deftypes x rt} in
+  let dts = roll_deftypes x rt in
+  check_descriptors dts at;
+  let c' = {c with types = c.types @ dts} in
   List.iter (fun st -> check_subtype c' st at) sts;
   Lib.List32.iteri
     (fun i st -> check_subtype_sub c' st (Int32.add x i) at) sts;

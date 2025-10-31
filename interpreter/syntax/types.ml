@@ -49,7 +49,7 @@ type externtype =
   | ExternGlobalT of globaltype
   | ExternMemoryT of memorytype
   | ExternTableT of tabletype
-  | ExternFuncT of heaptype
+  | ExternFuncT of exact * typeuse
 
 type exporttype = ExportT of name * externtype
 type importtype = ImportT of name * name * externtype
@@ -125,8 +125,6 @@ let unpacked_fieldtype (FieldT (_mut, t)) = unpacked_storagetype t
 let idx_of_typeuse = function Idx x -> x | _ -> assert false
 let deftype_of_typeuse = function Def dt -> dt | _ -> assert false
 
-let typeuse_of_heaptype = function UseHT (_, ut) -> ut | _ -> assert false
-
 let structtype_of_comptype = function StructT fts -> fts | _ -> assert false
 let arraytype_of_comptype = function ArrayT ft -> ft | _ -> assert false
 let functype_of_comptype = function FuncT rt2 -> rt2 | _ -> assert false
@@ -141,7 +139,7 @@ let tags = List.filter_map (function ExternTagT tt -> Some tt | _ -> None)
 let globals = List.filter_map (function ExternGlobalT gt -> Some gt | _ -> None)
 let memories = List.filter_map (function ExternMemoryT mt -> Some mt | _ -> None)
 let tables = List.filter_map (function ExternTableT tt -> Some tt | _ -> None)
-let funcs = List.filter_map (function ExternFuncT ft -> Some ft | _ -> None)
+let funcs = List.filter_map (function ExternFuncT (exact, ut) -> Some (exact, ut) | _ -> None)
 
 
 (* Substitution *)
@@ -237,7 +235,7 @@ let subst_externtype s = function
   | ExternGlobalT gt -> ExternGlobalT (subst_globaltype s gt)
   | ExternMemoryT mt -> ExternMemoryT (subst_memorytype s mt)
   | ExternTableT tt -> ExternTableT (subst_tabletype s tt)
-  | ExternFuncT ht -> ExternFuncT (subst_heaptype s ht)
+  | ExternFuncT (exact, ut) -> ExternFuncT (exact, subst_typeuse s ut)
 
 
 let subst_exporttype s = function
@@ -448,8 +446,8 @@ let string_of_externtype = function
   | ExternGlobalT gt -> "global " ^ string_of_globaltype gt
   | ExternMemoryT mt -> "memory " ^ string_of_memorytype mt
   | ExternTableT tt -> "table " ^ string_of_tabletype tt
-  | ExternFuncT ht -> "func " ^ string_of_heaptype ht
-
+  | ExternFuncT (Inexact, ut) -> "func " ^ string_of_typeuse ut
+  | ExternFuncT (Exact, ut) -> "func exact " ^ string_of_typeuse ut
 
 let string_of_exporttype = function
   | ExportT (name, xt) ->

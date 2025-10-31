@@ -414,8 +414,10 @@ let exporttype_of (m : module_) (ex : export) : exporttype =
     | FuncX x ->
       let dts = funcs xts @ List.map (fun f ->
         let Func (y, _, _) = f.it in
-        UseHT (Exact, Def (Lib.List32.nth dts y.it))) m.it.funcs in
-      ExternFuncT (Lib.List32.nth dts x.it)
+        (Exact, Def (Lib.List32.nth dts y.it))) m.it.funcs
+      in
+      let (exact, dt) = Lib.List32.nth dts x.it in
+      ExternFuncT (exact, dt)
   in ExportT (name, subst_externtype (subst_of dts) xt)
 
 let moduletype_of (m : module_) : moduletype =

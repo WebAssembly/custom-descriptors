@@ -387,10 +387,10 @@ Function imports already give a type for the imported function;
 we must now make it possible for that type to be exact.
 
 The external type of a function import is currently represented as a `typeuse`,
-but we can change that to `heaptype` to allow for exact types.
+so we can just make it a pair of `exact` and `typeuse`:
 
 ```
-externtype ::= ... | func heaptype
+externtype ::= ... | func exact? heaptype
 ```
 
 In the text format,
@@ -398,15 +398,15 @@ function import types are given by `typeuse` and its associated sugar.
 We don't want to allow exactness everywhere `typeuse`
 appears in the text format,
 so instead of extending the syntax of `typeuse`,
-we introduce a new production, `heaptypeuse`.
+we introduce a new production, `exacttypeuse`.
 
 ```
-heaptypeuse ::= '(' 'exact' ut:typeuse ')' => exact ut
-              | ut:typeuse                 => inexact ut
+exacttypeuse ::= '(' 'exact' ut:typeuse ')' => exact ut
+               | ut:typeuse                 => inexact ut
 ```
 
 Function imports, including all their sytax sugars,
-are updated to use `heaptypeuse` in place of `typeuse`.
+are updated to use `exacttypeuse` in place of `typeuse`.
 For example:
 
 ```wasm
@@ -940,6 +940,23 @@ heaptype :: ... | 0x62 x:u32 => exact x
 
 Note that the type index being encoded as a `u32` instead of an `s33`
 intentionally makes it impossible to encode an exact abstract heap type.
+
+### Exact Function Imports
+
+The `externtype` encoding is updated
+with a new variant for exact function imports:
+
+```
+externtype = 0x00 x:typeidx => func x
+             ...
+             0x05 x:typeidx => func exact x
+```
+
+Note that we do not add support for exactly exported functions.
+An export section using 0x05 is malfomed.
+
+> We may add support for exact function exports in the future if there is
+> some reason to do so.
 
 ### Instructions
 

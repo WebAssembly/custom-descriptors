@@ -84,7 +84,7 @@ let heaptype t = string_of_heaptype t
 let valtype t = string_of_valtype t
 let storagetype t = string_of_storagetype t
 
-let heaptypeuse = function
+let exacttypeuse = function
   | (Inexact, ut) -> typeuse ut
   | (Exact, ut) -> Node ("exact", [typeuse ut])
 
@@ -713,7 +713,7 @@ let importtype fx tx mx tgx gx = function
   | ExternMemoryT mt -> incr mx; Node ("memory $" ^ nat (!mx - 1), memorytype mt)
   | ExternTableT tt -> incr tx; Node ("table $" ^ nat (!tx - 1), tabletype tt)
   | ExternFuncT (exact, ut) ->
-    incr fx; Node ("func $" ^ nat (!fx - 1), [heaptypeuse (exact, ut)])
+    incr fx; Node ("func $" ^ nat (!fx - 1), [exacttypeuse (exact, ut)])
 
 let import fx tx mx ex gx im =
   let Import (module_name, item_name, xt) = im.it in

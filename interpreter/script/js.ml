@@ -424,7 +424,7 @@ let invoke dt vs at =
   let rts0 = Lib.List32.init subject_type_idx (fun i -> dummy, (dummy, i)) in
   let rts, i = statify_deftype rts0 dt in
   List.map (fun (_, (rt, _)) -> rt @@ at) (Lib.List32.drop subject_type_idx rts),
-  ExternFuncT (Inexact, (Idx i)),
+  ExternFuncT (Inexact, Idx i),
   List.concat (List.map value vs) @ [Call (subject_idx @@ at) @@ at]
 
 let get t at =
@@ -606,9 +606,9 @@ let wrap item_name wrap_action wrap_assertion at =
   let imports =
     [ Import (Utf8.decode "module", item_name, idesc) @@ at;
       Import (Utf8.decode "spectest", Utf8.decode "hostref",
-        ExternFuncT (Inexact, (Idx 1l))) @@ at;
+        ExternFuncT (Inexact, Idx 1l)) @@ at;
       Import (Utf8.decode "spectest", Utf8.decode "eq_ref",
-        ExternFuncT (Inexact, (Idx 2l))) @@ at;
+        ExternFuncT (Inexact, Idx 2l)) @@ at;
     ]
   in
   let item =
@@ -775,7 +775,7 @@ let of_action env act =
     "call(" ^ of_inst_opt env x_opt ^ ", " ^ of_name name ^ ", " ^
       "[" ^ String.concat ", " (List.map of_value vs) ^ "])",
     (match lookup_export env x_opt name act.at with
-    | ExternFuncT (_exact, (Def dt)) ->
+    | ExternFuncT (_exact, Def dt) ->
       let (_, out) as ft = functype_of_comptype (expand_deftype dt) in
       if is_js_functype ft then
         None

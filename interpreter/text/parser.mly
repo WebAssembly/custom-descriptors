@@ -1000,7 +1000,7 @@ func_fields :
       [Func (y, ls, es) @@ loc], [], [] }
   | inline_import exacttypeuse func_fields_import  /* Sugar */
     { fun c x loc ->
-      let exact, y = ($2 c) in
+      let exact, y = $2 c in
       let y = inline_functype_explicit c y ($3 c) in
       [],
       [Import (fst $1, snd $1, ExternFuncT (exact, Idx y.it)) @@ loc ], [] }
@@ -1252,7 +1252,7 @@ table_fields :
 externtype :
   | LPAR FUNC bindidx_opt exacttypeuse RPAR
     { fun c -> ignore ($3 c anon_func bind_func);
-      fun () -> let exact, y = ($4 c) in ExternFuncT (exact, Idx y.it) }
+      fun () -> let exact, y = $4 c in ExternFuncT (exact, Idx y.it) }
   | LPAR TAG bindidx_opt typeuse RPAR
     { fun c -> ignore ($3 c anon_tag bind_tag);
       fun () -> ExternTagT (TagT (Idx ($4 c).it)) }

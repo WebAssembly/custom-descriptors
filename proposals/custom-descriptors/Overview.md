@@ -405,7 +405,7 @@ exacttypeuse ::= '(' 'exact' ut:typeuse ')' => exact ut
                | ut:typeuse                 => inexact ut
 ```
 
-Function imports, including all their sytax sugars,
+Function imports, including all their syntax sugars,
 are updated to use `exacttypeuse` in place of `typeuse`.
 For example:
 

@@ -1267,7 +1267,7 @@ let check_export (c : context) (ex : export) : exporttype =
     | GlobalX x -> ExternGlobalT (global c x)
     | MemoryX x -> ExternMemoryT (memory c x)
     | TableX x -> ExternTableT (table c x)
-    | FuncX x -> ExternFuncT (Inexact, Def (snd (func c x)))
+    | FuncX x -> let exact, dt = func c x in ExternFuncT (exact, Def dt)
   in ExportT (name, xt)
 
 let check_list f xs (c : context) : context =

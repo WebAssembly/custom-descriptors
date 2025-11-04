@@ -949,14 +949,17 @@ with a new variant for exact function imports:
 ```
 externtype = 0x00 x:typeidx => func x
              ...
-             0x05 x:typeidx => func exact x
+             0x20 x:typeidx => func exact x
 ```
 
-Note that we do not add support for exactly exported functions.
-An export section using 0x05 is malfomed.
+> The intention is that bit 6 is reserved to indicate exactness of other kinds
+> of `externtype`s in the future.
 
-> We may add support for exact function exports in the future if there is
-> some reason to do so.
+Note that exports do not need to separately declare exactness.
+Exported functions are exact if and only if
+the internal type of the function is exact
+(i.e. the function is imported exactly or defined in the module).
+An export section using 0x20 is malfomed.
 
 ### Instructions
 

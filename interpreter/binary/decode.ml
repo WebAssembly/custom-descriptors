@@ -325,7 +325,7 @@ let externtype s =
   | 0x02 -> ExternMemoryT (memorytype s)
   | 0x03 -> ExternGlobalT (globaltype s)
   | 0x04 -> ExternTagT (tagtype s)
-  | 0x05 -> ExternFuncT (Exact, typeuse idx s)
+  | 0x20 -> ExternFuncT (Exact, typeuse idx s)
   | _ -> error s (pos s - 1) "malformed import kind"
 
 

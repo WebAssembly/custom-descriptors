@@ -169,26 +169,26 @@ let check_desctype (c : context) (dt : desctype) at =
   check_comptype c ct at
 
 let check_desctype_sub (c : context) (dt : desctype) (dt' : desctype) x x' at =
-  let DefT (rt, _) = type_ c (x @@ at) in
-  let DefT (rt', _) = type_ c (x' @@ at) in
   let DescT (ut1, ut2, ct) = dt in
   let DescT (ut1', ut2', ct') = dt' in
-  match ut1, ut1' with
+  (match ut1, ut1' with
   | (Some ut1, Some ut1') ->
-    require (match_typeuse c.types ut1 ut1' rt rt') at ("described type " ^
+    require (match_typeuse c.types ut1 ut1') at ("described type " ^
         string_of_typeuse ut1 ^ " does not match " ^ string_of_typeuse ut1')
   | (Some _, None) | (None, Some _) ->
     error at ("sub type " ^ I32.to_string_u x ^ " does not match super type " ^
         I32.to_string_u x')
-  | (None, None) -> ();
-  match ut2, ut2' with
+  | (None, None) -> ()
+  );
+  (match ut2, ut2' with
   | (Some ut2, Some ut2') ->
-    require (match_typeuse c.types ut2 ut2' rt rt') at ("descriptor type " ^
+    require (match_typeuse c.types ut2 ut2') at ("descriptor type " ^
         string_of_typeuse ut2 ^ " does not match " ^ string_of_typeuse ut2')
   | (None, Some _) ->
     error at ("sub type " ^ I32.to_string_u x ^ " does not match super type " ^
         I32.to_string_u x')
-  | (Some _, None) | (None, None) -> ();
+  | (Some _, None) | (None, None) -> ()
+  );
   require (match_comptype c.types ct ct') at ("sub type " ^ I32.to_string_u x ^
       " does not match super type " ^ I32.to_string_u x')
 

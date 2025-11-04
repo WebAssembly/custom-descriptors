@@ -161,17 +161,7 @@ and match_deftype c dt1 dt2 =
   ) uts1
 
 let match_typeuse c ut1 ut2 =
-  let dt1 = match ut1 with
-    | Idx x -> lookup c x
-    | Def dt -> dt
-    | Rec _ -> assert false
-  in
-  let dt2 = match ut2 with
-    | Idx x -> lookup c x
-    | Def dt -> dt
-    | Rec _ -> assert false
-  in
-  match_deftype c dt1 dt2
+  match_heaptype c (UseHT (Inexact, ut1)) (UseHT (Inexact, ut2))
 
 let match_tagtype c (TagT ut1) (TagT ut2) =
   match ut1, ut2 with

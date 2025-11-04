@@ -160,16 +160,16 @@ and match_deftype c dt1 dt2 =
     match_heaptype c (UseHT (Inexact, ut1)) (UseHT (Inexact, (Def dt2)))
   ) uts1
 
-let match_typeuse c ut1 ut2 (rt1 : rectype) (rt2 : rectype) =
+let match_typeuse c ut1 ut2 =
   let dt1 = match ut1 with
     | Idx x -> lookup c x
-    | Rec i -> DefT (rt1, i)
     | Def dt -> dt
+    | Rec _ -> assert false
   in
   let dt2 = match ut2 with
     | Idx x -> lookup c x
-    | Rec i -> DefT (rt2, i)
     | Def dt -> dt
+    | Rec _ -> assert false
   in
   match_deftype c dt1 dt2
 

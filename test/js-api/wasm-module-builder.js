@@ -79,6 +79,8 @@ let kWasmArrayTypeForm = 0x5e;
 let kWasmSubtypeForm = 0x50;
 let kWasmSubtypeFinalForm = 0x4f;
 let kWasmRecursiveTypeGroupForm = 0x4e;
+let kWasmDescriptorTypeForm = 0x4d;
+let kWasmDescribesTypeForm = 0x4c;
 
 let kNoSuperType = 0xFFFFFFFF;
 
@@ -139,11 +141,29 @@ let kNullRefCode = kWasmNullRef & kLeb128Mask;
 
 let kWasmRefNull = 0x63;
 let kWasmRef = 0x64;
-function wasmRefNullType(heap_type, is_shared = false) {
-  return {opcode: kWasmRefNull, heap_type: heap_type, is_shared: is_shared};
+let kWasmExact = 0x62;
+
+// Implementation detail of `wasmRef[Null]Type`, don't use directly.
+class RefTypeBuilder {
+  constructor(opcode, heap_type) {
+    this.opcode = opcode;
+    this.heap_type = heap_type;
+    this.is_exact = false;
+  }
+  nullable() {
+    this.opcode = kWasmRefNull;
+    return this;
+  }
+  exact() {
+    this.is_exact = true;
+    return this;
+  }
 }
-function wasmRefType(heap_type, is_shared = false) {
-  return {opcode: kWasmRef, heap_type: heap_type, is_shared: is_shared};
+function wasmRefNullType(heap_type) {
+  return new RefTypeBuilder(kWasmRefNull, heap_type);
+}
+function wasmRefType(heap_type) {
+  return new RefTypeBuilder(kWasmRef, heap_type);
 }
 
 // Packed storage types
@@ -469,6 +489,13 @@ let kExprRefI31 = 0x1c;
 let kExprI31GetS = 0x1d;
 let kExprI31GetU = 0x1e;
 
+// Custom Descriptors proposal:
+let kExprRefGetDesc = 0x22;
+let kExprRefCastDesc = 0x23;
+let kExprRefCastDescNull = 0x24;
+let kExprBrOnCastDesc = 0x25;
+let kExprBrOnCastDescFail = 0x26;
+
 // Numeric opcodes.
 let kExprMemoryInit = 0x08;
 let kExprDataDrop = 0x09;
@@ -660,7 +687,7 @@ class Binary {
       this.emit_u8(type >= 0 ? type : type & kLeb128Mask);
     } else {
       this.emit_u8(type.opcode);
-      if ('depth' in type) this.emit_u8(type.depth);
+      if (type.is_exact) this.emit_u8(kWasmExact);
       this.emit_heap_type(type.heap_type);
     }
   }
@@ -808,15 +835,37 @@ function makeField(type, mutability) {
   return {type: type, mutability: mutability};
 }
 
+function MustBeNumber(x, name) {
+  if (typeof x !== 'undefined' && typeof x !== 'number') {
+    throw new Error(`${name} must be a number, was ${x}`);
+  }
+  return x;
+}
+
 class WasmStruct {
   constructor(fields, is_final, supertype_idx) {
-    if (!Array.isArray(fields)) {
+    let descriptor = undefined;
+    let describes = undefined;
+    if (Array.isArray(fields)) {
+      // Fall through.
+    } else if (fields.constructor === Object) {
+      // Options bag.
+      is_final = fields.is_final ?? fields.final ?? false;
+      supertype_idx = MustBeNumber(
+          fields.supertype_idx ?? fields.supertype ?? kNoSuperType,
+          "supertype");
+      descriptor = MustBeNumber(fields.descriptor, "'descriptor'");
+      describes = MustBeNumber(fields.describes, "'describes'");
+      fields = fields.fields ?? [];  // This must happen last.
+    } else {
       throw new Error('struct fields must be an array');
     }
     this.fields = fields;
     this.type_form = kWasmStructTypeForm;
     this.is_final = is_final;
     this.supertype = supertype_idx;
+    this.descriptor = descriptor;
+    this.describes = describes;
   }
 }
 
@@ -905,6 +954,9 @@ class WasmModuleBuilder {
     this.types.push(new WasmArray(type, mutability, is_final, supertype_idx));
     return this.types.length - 1;
   }
+
+
+  nextTypeIndex() { return this.types.length; }
 
   static defaultFor(type) {
     switch (type) {
@@ -1130,6 +1182,14 @@ class WasmModuleBuilder {
           } else if (!type.is_final) {
             section.emit_u8(kWasmSubtypeForm);
             section.emit_u8(0);  // no supertypes
+          }
+          if (type.describes !== undefined) {
+            section.emit_u8(kWasmDescribesTypeForm);
+            section.emit_u32v(type.describes);
+          }
+          if (type.descriptor !== undefined) {
+            section.emit_u8(kWasmDescriptorTypeForm);
+            section.emit_u32v(type.descriptor);
           }
           if (type instanceof WasmStruct) {
             section.emit_u8(kWasmStructTypeForm);
@@ -1491,8 +1551,8 @@ class WasmModuleBuilder {
     return Array.from(this.toBuffer(debug));
   }
 
-  instantiate(ffi) {
-    let module = this.toModule();
+  instantiate(ffi, options) {
+    let module = this.toModule(options);
     let instance = new WebAssembly.Instance(module, ffi);
     return instance;
   }
@@ -1502,8 +1562,8 @@ class WasmModuleBuilder {
         .then(({module, instance}) => instance);
   }
 
-  toModule(debug = false) {
-    return new WebAssembly.Module(this.toBuffer(debug));
+  toModule(options, debug = false) {
+    return new WebAssembly.Module(this.toBuffer(debug), options);
   }
 }
 
@@ -1543,3 +1603,35 @@ function wasmF64Const(f) {
     byte_view[3], byte_view[4], byte_view[5], byte_view[6], byte_view[7]
   ];
 }
+
+let wasmEncodeHeapType = function(type) {
+  let result = wasmSignedLeb(type.heap_type, kMaxVarInt32Size);
+  if (type.is_exact) {
+    result = [kWasmExact].concat(result);
+  }
+  return result;
+};
+
+let [wasmBrOnCast, wasmBrOnCastFail, wasmBrOnCastDesc, wasmBrOnCastDescFail] =
+(function() {
+  return [
+    (labelIdx, sourceType, targetType) =>
+      wasmBrOnCastImpl(labelIdx, sourceType, targetType, kExprBrOnCast),
+    (labelIdx, sourceType, targetType) =>
+      wasmBrOnCastImpl(labelIdx, sourceType, targetType, kExprBrOnCastFail),
+    (labelIdx, sourceType, targetType) =>
+      wasmBrOnCastImpl(labelIdx, sourceType, targetType, kExprBrOnCastDesc),
+    (labelIdx, sourceType, targetType) =>
+      wasmBrOnCastImpl(labelIdx, sourceType, targetType, kExprBrOnCastDescFail),
+  ];
+  function wasmBrOnCastImpl(labelIdx, sourceType, targetType, opcode) {
+    labelIdx = wasmUnsignedLeb(labelIdx, kMaxVarInt32Size);
+    let srcIsNullable = sourceType.opcode == kWasmRefNull;
+    let tgtIsNullable = targetType.opcode == kWasmRefNull;
+    flags = (tgtIsNullable << 1) + srcIsNullable;
+    return [
+      kGCPrefix, opcode, flags, ...labelIdx, ...wasmEncodeHeapType(sourceType),
+      ...wasmEncodeHeapType(targetType)
+    ];
+  }
+})();

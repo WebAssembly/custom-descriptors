@@ -22,7 +22,7 @@ type context =
   globals : globaltype list;
   memories : memorytype list;
   tables : tabletype list;
-  funcs : heaptype list;
+  funcs : (exact * deftype) list;
   datas : unit list;
   elems : reftype list;
   locals : localtype list;
@@ -243,7 +243,6 @@ let check_rectype (c : context) (rt : rectype) at : context =
     (fun i st -> check_subtype_sub c' st (Int32.add x i) at) sts;
   c'
 
-
 let check_tagtype (c : context) (tt : tagtype) at =
   let TagT ut = tt in
   let (ts1, ts2) = func_type c (idx_of_typeuse ut @@ at) in
@@ -283,14 +282,8 @@ let check_externtype (c : context) (xt : externtype) at =
     check_memorytype c mt at
   | ExternTableT tt ->
     check_tabletype c tt at
-  | ExternFuncT (UseHT (_exact, ut)) ->
+  | ExternFuncT (_exact, ut) ->
     let _ft = func_type c (idx_of_typeuse ut @@ at) in ()
-  | ExternFuncT ht ->
-    error at
-      ("external function type should have defined type, but has " ^
-       string_of_heaptype ht)
-
-
 
 let diff_reftype (nul1, ht1) (nul2, ht2) =
   match nul2 with
@@ -639,7 +632,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     c.results -->... [], []
 
   | Call x ->
-    let dt = deftype_of_typeuse (typeuse_of_heaptype (func c x)) in
+    let (_, dt) = func c x in
     let (ts1, ts2) = functype_of_comptype (expand_deftype dt) in
     ts1 --> ts2, []
 
@@ -656,7 +649,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     (ts1 @ [NumT (numtype_of_addrtype at)]) --> ts2, []
 
   | ReturnCall x ->
-    let dt = deftype_of_typeuse (typeuse_of_heaptype (func c x)) in
+    let (_, dt) = func c x in
     let (ts1, ts2) = functype_of_comptype (expand_deftype dt) in
     require (match_resulttype c.types ts2 c.results) e.at
       ("type mismatch: current function requires result type " ^
@@ -832,9 +825,9 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     [] --> [RefT (Null, ht)], []
 
   | RefFunc x ->
-    let ht = func c x in
+    let (exact, dt) = func c x in
     refer_func c x;
-    [] --> [RefT (NoNull, ht)], []
+    [] --> [RefT (NoNull, UseHT (exact, Def dt))], []
 
   | RefIsNull ->
     let (_nul, ht) = peek_ref 0 s e.at in
@@ -1152,7 +1145,7 @@ let check_local (c : context) (loc : local) : localtype =
 let check_func (c : context) (f : func) : context =
   let Func (x, _ls, _es) = f.it in
   let _ft = func_type c x in
-  {c with funcs = c.funcs @ [UseHT (Exact, Def (type_ c x))]}
+  {c with funcs = c.funcs @ [(Exact, type_ c x)]}
 
 let check_func_body (c : context) (f : func) =
   let Func (x, ls, es) = f.it in
@@ -1248,7 +1241,7 @@ let check_type (c : context) (t : type_) : context =
 
 let check_start (c : context) (start : start) =
   let Start x = start.it in
-  let dt = deftype_of_typeuse (typeuse_of_heaptype (func c x)) in
+  let (_, dt) = func c x in
   let ft = functype_of_comptype (expand_deftype dt) in
   require (ft = ([], [])) start.at
     "start function must not have parameters or results"
@@ -1261,7 +1254,8 @@ let check_import (c : context) (im : import) : context =
   | ExternGlobalT gt -> {c with globals = c.globals @ [gt]}
   | ExternMemoryT mt -> {c with memories = c.memories @ [mt]}
   | ExternTableT tt -> {c with tables = c.tables @ [tt]}
-  | ExternFuncT ht -> {c with funcs = c.funcs @ [ht]}
+  | ExternFuncT (exact, ut) ->
+    {c with funcs = c.funcs @ [(exact, deftype_of_typeuse ut)]}
 
 module NameSet = Set.Make(struct type t = Ast.name let compare = compare end)
 
@@ -1273,7 +1267,7 @@ let check_export (c : context) (ex : export) : exporttype =
     | GlobalX x -> ExternGlobalT (global c x)
     | MemoryX x -> ExternMemoryT (memory c x)
     | TableX x -> ExternTableT (table c x)
-    | FuncX x -> ExternFuncT (func c x)
+    | FuncX x -> let exact, dt = func c x in ExternFuncT (exact, Def dt)
   in ExportT (name, xt)
 
 let check_list f xs (c : context) : context =

@@ -129,7 +129,7 @@ let externtype = function
   | ExternGlobalT gt -> globaltype gt
   | ExternMemoryT mt -> memorytype mt
   | ExternTableT tt -> tabletype tt
-  | ExternFuncT ht -> heaptype ht
+  | ExternFuncT (_, ut) -> typeuse ut
 
 let blocktype = function
   | VarBlockType x -> types (idx x)

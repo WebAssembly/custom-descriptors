@@ -320,11 +320,12 @@ let tabletype s =
 
 let externtype s =
   match byte s with
-  | 0x00 -> ExternFuncT (heaptype s)
+  | 0x00 -> ExternFuncT (Inexact, typeuse idx s)
   | 0x01 -> ExternTableT (tabletype s)
   | 0x02 -> ExternMemoryT (memorytype s)
   | 0x03 -> ExternGlobalT (globaltype s)
   | 0x04 -> ExternTagT (tagtype s)
+  | 0x20 -> ExternFuncT (Exact, typeuse idx s)
   | _ -> error s (pos s - 1) "malformed import kind"
 
 

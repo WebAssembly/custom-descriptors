@@ -387,10 +387,10 @@ Function imports already give a type for the imported function;
 we must now make it possible for that type to be exact.
 
 The external type of a function import is currently represented as a `typeuse`,
-but we can change that to `heaptype` to allow for exact types.
+so we can just make it a pair of `exact` and `typeuse`:
 
 ```
-externtype ::= ... | func heaptype
+externtype ::= ... | func exact? heaptype
 ```
 
 In the text format,
@@ -398,15 +398,15 @@ function import types are given by `typeuse` and its associated sugar.
 We don't want to allow exactness everywhere `typeuse`
 appears in the text format,
 so instead of extending the syntax of `typeuse`,
-we introduce a new production, `heaptypeuse`.
+we introduce a new production, `exacttypeuse`.
 
 ```
-heaptypeuse ::= '(' 'exact' ut:typeuse ')' => exact ut
-              | ut:typeuse                 => inexact ut
+exacttypeuse ::= '(' 'exact' ut:typeuse ')' => exact ut
+               | ut:typeuse                 => inexact ut
 ```
 
-Function imports, including all their sytax sugars,
-are updated to use `heaptypeuse` in place of `typeuse`.
+Function imports, including all their syntax sugars,
+are updated to use `exacttypeuse` in place of `typeuse`.
 For example:
 
 ```wasm
@@ -940,6 +940,26 @@ heaptype :: ... | 0x62 x:u32 => exact x
 
 Note that the type index being encoded as a `u32` instead of an `s33`
 intentionally makes it impossible to encode an exact abstract heap type.
+
+### Exact Function Imports
+
+The `externtype` encoding is updated
+with a new variant for exact function imports:
+
+```
+externtype = 0x00 x:typeidx => func x
+             ...
+             0x20 x:typeidx => func exact x
+```
+
+> The intention is that bit 6 is reserved to indicate exactness of other kinds
+> of `externtype`s in the future.
+
+Note that exports do not need to separately declare exactness.
+Exported functions are exact if and only if
+the internal type of the function is exact
+(i.e. the function is imported exactly or defined in the module).
+An export section using 0x20 is malfomed.
 
 ### Instructions
 

@@ -110,7 +110,6 @@ let data (inst : moduleinst) x = lookup "data segment" inst.datas x
 let elem (inst : moduleinst) x = lookup "element segment" inst.elems x
 let local (frame : frame) x = lookup "local" frame.locals x
 
-let desc_type (inst : moduleinst) x = expand_deftype_to_desctype (type_ inst x)
 let comp_type (inst : moduleinst) x = expand_deftype (type_ inst x)
 let struct_type (inst : moduleinst) x = structtype_of_comptype  (comp_type inst x)
 let array_type (inst : moduleinst) x = arraytype_of_comptype (comp_type inst x)
@@ -726,12 +725,11 @@ let rec step (c : config) : config =
       | I31Get ext, Ref (I31.I31Ref i) :: vs' ->
         Num (I32 (I31.to_i32 ext i)) :: vs', []
 
-      | StructNew (x, initop), vs' ->
-        let DescT (_, dt, _) = desc_type c.frame.inst x in
+      | StructNew (x, initop, descop), vs' ->
         let desc, vs'' =
-          match dt, vs' with
-          | Some _, Ref desc :: vs'' -> Some desc, vs''
-          | None, _ -> None, vs'
+          match descop, vs' with
+          | Desc, Ref desc :: vs'' -> Some desc, vs''
+          | NoDesc, _ -> None, vs'
           | _ -> Crash.error e.at "missing descriptor"
         in
         let fts = struct_type c.frame.inst x in

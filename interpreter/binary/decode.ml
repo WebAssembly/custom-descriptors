@@ -629,6 +629,8 @@ let rec instr s =
     (match u32 s with
     | 0x00l -> let x = at idx s in struct_new x
     | 0x01l -> let x = at idx s in struct_new_default x
+    | 0x20l -> let x = at idx s in struct_new_desc x
+    | 0x21l -> let x = at idx s in struct_new_default_desc x
     | 0x02l -> let x = at idx s in let i = idx s in struct_get x i
     | 0x03l -> let x = at idx s in let i = idx s in struct_get_s x i
     | 0x04l -> let x = at idx s in let i = idx s in struct_get_u x i

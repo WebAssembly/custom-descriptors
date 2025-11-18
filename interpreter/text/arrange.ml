@@ -479,6 +479,10 @@ let initop = function
   | Explicit -> ""
   | Implicit -> "_default"
 
+let descop = function
+  | Desc -> "_desc"
+  | NoDesc -> ""
+
 let constop v = string_of_numtype (type_of_num v) ^ ".const"
 let vconstop v = string_of_vectype (type_of_vec v) ^ ".const i32x4"
 
@@ -570,7 +574,8 @@ let rec instr e =
     | RefEq -> "ref.eq", []
     | RefI31 -> "ref.i31", []
     | I31Get sx -> "i31.get" ^ ext sx, []
-    | StructNew (x, op) -> "struct.new" ^ initop op ^ " " ^ idx x, []
+    | StructNew (x, init, desc) ->
+      "struct.new" ^ initop init ^ descop desc ^ " " ^ idx x, []
     | StructGet (x, i, sxo) ->
       "struct.get" ^ opt_s ext sxo ^ " " ^ idx x ^ " " ^ nat32 i, []
     | StructSet (x, i) -> "struct.set " ^ idx x ^ " " ^ nat32 i, []

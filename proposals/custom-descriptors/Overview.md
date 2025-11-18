@@ -21,15 +21,11 @@ to alleviate anticipated problems that will arise from the use of its primary fe
     to reduce startup time when there are many prototypes to populate.
 
  2. A way to deduplicate lists of fields in type sections.
-    Using custom RTTs may otherwise lead to more duplication in the type section
+    Using custom descriptors may otherwise lead to more duplication in the type section
     than there is today.
 
 We should validate that these problem actually arise in practice and quantify their cost
 before we commit to including these extra solutions in the final version of the proposal.
-
-This proposal and the custom descriptors are informally called "custom RTTs,"
-although the RTT is more precisely the engine-managed type information inside the custom descriptor,
-not the custom descriptor itself.
 
 ## Custom Descriptor Definitions
 
@@ -40,8 +36,8 @@ what type their custom descriptors have.
 
 ```wasm
 (rec
-  (type $foo (descriptor $foo.rtt) (struct (field ...)))
-  (type $foo.rtt (describes $foo) (struct (field ...)))
+  (type $foo (descriptor $foo.desc) (struct (field ...)))
+  (type $foo.desc (describes $foo) (struct (field ...)))
 )
 ```
 
@@ -59,19 +55,19 @@ but type `$C` is different.
 
 ```wasm
 (rec
-  (type $A (descriptor $A.rtt) (struct (field i32)))
-  (type $A.rtt (describes $A) (struct (field i32)))
+  (type $A (descriptor $A.desc) (struct (field i32)))
+  (type $A.desc (describes $A) (struct (field i32)))
 )
 
 (rec
-  (type $B (descriptor $B.rtt) (struct (field i32)))
-  (type $B.rtt (describes $B) (struct (field i32)))
+  (type $B (descriptor $B.desc) (struct (field i32)))
+  (type $B.desc (describes $B) (struct (field i32)))
 )
 
 (rec
   ;; Different: no describes or descriptor clauses.
   (type $C (struct (field i32)))
-  (type $C.rtt (struct (field i32)))
+  (type $C.desc (struct (field i32)))
 )
 ```
 
@@ -80,9 +76,9 @@ creating arbitrarily long chains of meta-descriptors:
 
 ```wasm
 (rec
-  (type $foo (descriptor $foo.rtt) (struct))
-  (type $foo.rtt (describes $foo) (descriptor $foo.meta-rtt) (struct))
-  (type $foo.meta-rtt (describes $foo.rtt) (struct))
+  (type $foo (descriptor $foo.desc) (struct))
+  (type $foo.desc (describes $foo) (descriptor $foo.meta-desc) (struct))
+  (type $foo.meta-desc (describes $foo.desc) (struct))
 )
 ```
 
@@ -123,8 +119,8 @@ This is the same strategy we use for ensuring supertype chains do not have cycle
   (type $pong (describes $ping) (descriptor $ping) (struct))
 
   ;; Invalid describes clause: $foo is not a previously defined type.
-  (type $foo.rtt (describes $foo) (struct))
-  (type $foo (descriptor $foo.rtt) (struct))
+  (type $foo.desc (describes $foo) (struct))
+  (type $foo (descriptor $foo.desc) (struct))
 )
 ```
 
@@ -165,50 +161,50 @@ might be laid out after the engine-managed RTT for the type they describe.
 
 ```wasm
 (rec
-  (type $super (sub (descriptor $super.rtt) (struct)))
-  (type $super.rtt (sub (describes $super) (struct)))
+  (type $super (sub (descriptor $super.desc) (struct)))
+  (type $super.desc (sub (describes $super) (struct)))
 
   ;; Ok
-  (type $sub (sub $super (descriptor $sub.rtt) (struct)))
-  (type $sub.rtt (sub $super.rtt (describes $sub) (struct)))
+  (type $sub (sub $super (descriptor $sub.desc) (struct)))
+  (type $sub.desc (sub $super.desc (describes $sub) (struct)))
 )
 
 (rec
   (type $super (sub (struct)))
 
   ;; Ok
-  (type $sub (sub $super (descriptor $sub.rtt) (struct)))
-  (type $sub.rtt (describes $sub) (struct))
+  (type $sub (sub $super (descriptor $sub.desc) (struct)))
+  (type $sub.desc (describes $sub) (struct))
 )
 
 (rec
-  (type $super (sub (descriptor $super.rtt) (struct )))
-  (type $super.rtt (sub (describes $super) (struct)))
+  (type $super (sub (descriptor $super.desc) (struct )))
+  (type $super.desc (sub (describes $super) (struct)))
 
-  (type $other (descriptor $sub.rtt) (struct))
+  (type $other (descriptor $sub.desc) (struct))
 
   ;; Invalid: Must describe an immediate subtype of $super.
-  (type $sub.rtt (sub $super.rtt (describes $other) (struct)))
+  (type $sub.desc (sub $super.desc (describes $other) (struct)))
 )
 
 (rec
-  (type $super (sub (descriptor $super.rtt) (struct)))
-  (type $super.rtt (sub (describes $super) (struct)))
+  (type $super (sub (descriptor $super.desc) (struct)))
+  (type $super.desc (sub (describes $super) (struct)))
 
-  ;; Invalid: Must be described by an immediate subtype of $super.rtt.
+  ;; Invalid: Must be described by an immediate subtype of $super.desc.
   (type $sub (sub $super (struct)))
 
   ;; Invalid: Must describe an immediate subtype of $super.
-  (type $sub.rtt (sub $super.rtt (struct)))
+  (type $sub.desc (sub $super.desc (struct)))
 )
 
 (rec
-  (type $super (sub (descriptor $super.rtt) (struct)))
-  (type $super.rtt (sub (describes $super) (struct)))
+  (type $super (sub (descriptor $super.desc) (struct)))
+  (type $super.desc (sub (describes $super) (struct)))
 
-  ;; Invalid: $other.rtt must be a an immediate subtype of $super.rtt.
-  (type $sub (sub $super (descriptor $other.rtt) (struct)))
-  (type $other.rtt (describes $sub) (struct))
+  ;; Invalid: $other.desc must be a an immediate subtype of $super.desc.
+  (type $sub (sub $super (descriptor $other.desc) (struct)))
+  (type $other.desc (describes $sub) (struct))
 )
 ```
 
@@ -228,12 +224,78 @@ This may be relaxed in the future.
 ```wasm
 (rec
   ;; Invalid: descriptor clauses may only be used with structs.
-  (type $array (descriptor $array.rtt) (array i8))
+  (type $array (descriptor $array.desc) (array i8))
 
   ;; Invalid: describes clauses may only be used with structs.
-  (type $array.rtt (describes $array) (func))
+  (type $array.desc (describes $array) (func))
 )
 ```
+
+## Allocation With Descriptors
+
+`struct.new` and `struct.new_default` cannot be used
+to allocate types with descriptors.
+Instead, the new instructions `struct.new_desc` and
+`struct.new_default_desc` must be used.
+`struct.new_desc` and `struct.new_default_desc` take
+exact references (described below) to the descriptors of the allocated type
+as their last operands.
+
+```wasm
+(rec
+  (type $A (descriptor $A.desc) (struct (field i32)))
+  (type $A.desc (describes $A) (struct (field i32)))
+)
+
+(func $new (param $desc (ref null (exact $A.desc)))
+  (drop
+    ;; Valid
+    (struct.new_desc $A
+      (i32.const 1)
+      (local.get $desc)
+    )
+  )
+  (drop
+    ;; Valid
+    (struct.new_default_desc $A
+      (local.get $desc)
+    )
+  )
+  (drop
+    ;; Not valid. Cannot use struct.new to allocate $A.
+    (struct.new $A
+      (i32.const 1)
+    )
+  )
+  (drop
+    ;; Not valid. Cannot use struct.new_default to allocate $A.
+    (struct.new_default $A)
+  )
+)
+```
+
+```
+struct.new_desc x
+
+C |- struct.new_desc x : t* (ref null (exact y)) -> (ref (exact x))
+ -- C.types[x] ~ descriptor y (struct (field t)*)
+```
+
+```
+struct.new_default_desc x
+
+C |- struct.new_default_desc x : (ref null (exact y)) -> (ref (exact x))
+ -- C.types[x] ~ descriptor y (struct (field t)*)
+ -- defaultable(t)*
+```
+
+`struct.new_desc` and `struct.new_default_desc` are constant instructions.
+
+> Note: The descriptors could alternatively be the first operands.
+> They are chosen to be the last operands here because in a hypothetical future
+> where we have variants of these instructions that do not take type immediates,
+> the descriptors would have to be on top of the stack to determine the type of
+> the allocation. This is consistent with GC accessor instructions.
 
 ## Exact Types
 
@@ -244,20 +306,21 @@ this could allow the following unsound program to validate and run:
 
 ```wasm
 (rec
-  (type $foo (sub (descriptor $foo.rtt) (struct)))
-  (type $foo.rtt (sub (describes $foo) (struct)))
+  (type $foo (sub (descriptor $foo.desc) (struct)))
+  (type $foo.desc (sub (describes $foo) (struct)))
 
-  (type $bar (sub $foo (descriptor $bar.rtt) (struct (field $bar-only i32))))
-  (type $bar.rtt (sub $foo.rtt (describes $bar) (struct)))
+  (type $bar (sub $foo (descriptor $bar.desc) (struct (field $bar-only i32))))
+  (type $bar.desc (sub $foo.desc (describes $bar) (struct)))
 )
 
 (func $unsound (result i32)
-  (local $rtt (ref $foo.rtt))
-  ;; We can store a $bar.rtt in the local due to subtyping.
-  (local.set $rtt (struct.new $bar.rtt))
-  ;; Allocate a $foo with a $foo.rtt that is actually a $bar.rtt.
-  (struct.new $foo (local.get $rtt))
-  ;; Now cast the $foo to a $bar. This will succeed because it has an RTT for $bar.
+  (local $desc (ref $foo.desc))
+  ;; We can store a $bar.desc in the local due to subtyping.
+  (local.set $desc (struct.new $bar.desc))
+  ;; Allocate a $foo with a $foo.desc that is actually a $bar.desc.
+  (struct.new_desc $foo (local.get $desc))
+  ;; Now cast the $foo to a $bar. This will succeed because it has a descriptor
+  ;; for $bar and therefore an RTT for $bar.
   (ref.cast (ref $bar))
   ;; Out-of-bounds read.
   (struct.get $bar $bar-only)
@@ -267,7 +330,8 @@ this could allow the following unsound program to validate and run:
 The problem here is that the normal subtyping rules make it possible
 to allocate a `$foo` with an RTT for `$bar`,
 causing subsequent casts to behave incorrectly.
-One solution would be to have `struct.new` dynamically check that the provided descriptor value
+One solution would be to have `struct.new_desc` dynamically check
+that the provided descriptor value
 describes precisely the allocated type.
 A better solution would be to allow userspace to perform that check if necessary,
 but also be able to statically prove via the type system that it is not necessary.
@@ -306,7 +370,6 @@ none <: (exact $sub) <: $sub <: $super <: struct <: eq <: any
 
 But no version of `$sub` is in a subtyping relation with `(exact $super)`.
 
-
 All instructions that create references to a particular defined heap type
 (e.g. `ref.func`, `struct.new`, `array.new`,  etc.)
 are refined to produce references to the exact version of that heap type.
@@ -315,31 +378,10 @@ Since only defined types have exact versions,
 instructions like `ref.i31` or `any.convert_extern` that produce
 references to abstract heap types do not produce references to exact types.
 
-When allocating types with custom descriptors,
-`struct.new` and `struct.new_default` take references to the exact descriptors
-as their last operands.
-This makes the unsound program above invalid.
-
-```
-struct.new x
-
-C |- struct.new x : t* (ref null (exact y)) -> (ref (exact x))
- -- C.types[x] ~ descriptor y (struct (field t)*)
-```
-
-```
-struct.new_default x
-
-C |- struct.new_default x : (ref null (exact y)) -> (ref (exact x))
- -- C.types[x] ~ descriptor y (struct (field t)*)
- -- defaultable(t)*
-```
-
-> Note: The descriptors could alternatively be the first operands.
-> They are chosen to be the last operands here because in a hypothetical future
-> where we have variants of these instructions that do not take type immediates,
-> the descriptors would have to be on top of the stack to determine the type of
-> the allocation. This is consistent with GC accessor instructions.
+Since `struct.new_desc` and `struct.new_default_desc`
+take references to the exact descriptors
+as their last operands,
+the unsound program above is invalid.
 
 ### Exact Function Imports
 
@@ -573,7 +615,7 @@ WebAssembly.
   )
 
   (global $counter (export "counter") (ref $counter)
-    (struct.new_default $counter
+    (struct.new_default_desc $counter
       (global.get $counter.vtable)
     )
   )
@@ -821,7 +863,7 @@ and additionally expose a constructor:
   )
 
   (func $counter.new (type $new_t) (param i32) (result (ref $counter))
-    (struct.new $counter
+    (struct.new_desc $counter
       (local.get 0)
       (global.get $counter.vtable)
     )
@@ -970,6 +1012,8 @@ The new instructions are encoded as follows:
 
 ```
 instr ::= ...
+  | 0xFB 32:u32 x:typeidx => struct.new_desc x
+  | 0xFB 33:u32 x:typeidx => struct.new_default_desc x
   | 0xFB 34:u32 x:typeidx => ref.get_desc x
   | 0xFB 35:u32 ht:heaptype => ref.cast_desc (ref ht)
   | 0xFB 36:u32 ht:heaptype => ref.cast_desc (ref null ht)

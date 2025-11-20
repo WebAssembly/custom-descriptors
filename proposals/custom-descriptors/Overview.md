@@ -328,7 +328,7 @@ this could allow the following unsound program to validate and run:
 ```
 
 The problem here is that the normal subtyping rules make it possible
-to allocate a `$foo` with an RTT for `$bar`,
+to allocate a `$foo` with a descriptor for `$bar`,
 causing subsequent casts to behave incorrectly.
 One solution would be to have `struct.new_desc` dynamically check
 that the provided descriptor value

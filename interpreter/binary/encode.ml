@@ -445,8 +445,10 @@ struct
     | I31Get S -> op 0xfb; op 0x1d
     | I31Get U -> op 0xfb; op 0x1e
 
-    | StructNew (x, Explicit) -> op 0xfb; op 0x00; idx x
-    | StructNew (x, Implicit) -> op 0xfb; op 0x01; idx x
+    | StructNew (x, Explicit, NoDesc) -> op 0xfb; op 0x00; idx x
+    | StructNew (x, Implicit, NoDesc) -> op 0xfb; op 0x01; idx x
+    | StructNew (x, Explicit, Desc) -> op 0xfb; op 0x20; idx x
+    | StructNew (x, Implicit, Desc) -> op 0xfb; op 0x21; idx x
     | StructGet (x, i, None) -> op 0xfb; op 0x02; idx x; u32 i
     | StructGet (x, i, Some S) -> op 0xfb; op 0x03; idx x; u32 i
     | StructGet (x, i, Some U) -> op 0xfb; op 0x04; idx x; u32 i

@@ -140,6 +140,7 @@ type vstoreop = (vectype, unit) memop
 type vlaneop = (vectype, packsize) memop
 
 type initop = Explicit | Implicit
+type descop = Desc | NoDesc
 type externop = Internalize | Externalize
 
 
@@ -229,7 +230,7 @@ and instr' =
   | RefEq                                (* reference equality *)
   | RefI31                               (* scalar reference *)
   | I31Get of sx                         (* read scalar *)
-  | StructNew of typeidx * initop        (* allocate structure *)
+  | StructNew of typeidx * initop * descop (* allocate structure *)
   | StructGet of typeidx * fieldidx * sx option  (* read structure field *)
   | StructSet of typeidx * fieldidx      (* write structure field *)
   | ArrayNew of typeidx * initop         (* allocate array *)

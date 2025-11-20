@@ -350,6 +350,8 @@ rule token = parse
 
       | "struct.new" -> STRUCT_NEW struct_new
       | "struct.new_default" -> STRUCT_NEW struct_new_default
+      | "struct.new_desc" -> STRUCT_NEW struct_new_desc
+      | "struct.new_default_desc" -> STRUCT_NEW struct_new_default_desc
       | "struct.get" -> STRUCT_GET struct_get
       | "struct.get_u" -> STRUCT_GET struct_get_u
       | "struct.get_s" -> STRUCT_GET struct_get_s

@@ -875,7 +875,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
   | I31Get ext ->
     [RefT (Null, I31HT)] --> [NumT I32T], []
 
-  | StructNew (x, initop) ->
+  | StructNew (x, initop, descop) ->
     let fts = struct_type c x in
     require
       ( initop = Explicit || List.for_all (fun ft ->
@@ -884,8 +884,14 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     let ts = if initop = Implicit then [] else List.map unpacked_fieldtype fts in
     let DescT (_, dt, _) = expand_deftype_to_desctype (type_ c x) in
     let dt = match dt with
-      | Some dt -> [RefT (Null, UseHT (Exact, dt))]
-      | None -> []
+      | Some dt ->
+        require (descop = Desc) x.at
+          "type with descriptor requires descriptor allocation";
+        [RefT (Null, UseHT (Exact, dt))]
+      | None ->
+        require (descop = NoDesc) x.at
+          "type without descriptor requires non-descriptor allocation";
+        []
     in
     (ts @ dt) --> [RefT (NoNull, UseHT (Exact, Def (type_ c x)))], []
 

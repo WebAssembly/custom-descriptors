@@ -404,12 +404,15 @@ test(() => {
   const proto = {};
   const constructors = {};
   var count = 0;
+  const method = asWasmFunction((x) => { return count + x; }, kSig_i_i);
+  const getter = asWasmFunction(() => { return count; }, kSig_i_v);
+  const setter = asWasmFunction((x) => { count = x; }, kSig_v_i);
   configureAll(makeProtosArray([proto]),
                makeMethodsArray([
                  makeStructWithProto,
-                 asWasmFunction((x) => { return count + x; }, kSig_i_i),
-                 asWasmFunction(() => { return count; }, kSig_i_v),
-                 asWasmFunction((x) => { count = x; }, kSig_v_i),
+                 method,
+                 getter,
+                 setter,
                ]),
                makeDataArray(data),
                constructors);
@@ -457,6 +460,7 @@ test(() => {
   assert_true(Object.hasOwn(methodProp, "value"));
   assert_false(Object.hasOwn(methodProp, "get"));
   assert_false(Object.hasOwn(methodProp, "set"));
+  assert_equals(MyStruct.method, method);
 
   const nameProp = Object.getOwnPropertyDescriptor(MyStruct, "name");
   assert_true(nameProp.configurable);
@@ -474,6 +478,8 @@ test(() => {
   assert_false(Object.hasOwn(xProp, "value"));
   assert_true(Object.hasOwn(xProp, "get"));
   assert_true(Object.hasOwn(xProp, "set"));
+  assert_equals(xProp.get, getter);
+  assert_equals(xProp.set, setter);
 
   assert_true(makeStructWithProto(proto) instanceof MyStruct);
   assert_true(MyStruct(proto) instanceof MyStruct);

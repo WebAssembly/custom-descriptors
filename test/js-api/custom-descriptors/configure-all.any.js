@@ -438,6 +438,7 @@ test(() => {
 
   assert_true(Object.hasOwn(MyStruct, "prototype"));
   assert_true(Object.hasOwn(MyStruct, "method"));
+  assert_true(Object.hasOwn(MyStruct, "name"));
   assert_true(Object.hasOwn(MyStruct, "x"));
 
   const prototypeProp = Object.getOwnPropertyDescriptor(MyStruct, "prototype");
@@ -456,6 +457,15 @@ test(() => {
   assert_true(Object.hasOwn(methodProp, "value"));
   assert_false(Object.hasOwn(methodProp, "get"));
   assert_false(Object.hasOwn(methodProp, "set"));
+
+  const nameProp = Object.getOwnPropertyDescriptor(MyStruct, "name");
+  assert_true(nameProp.configurable);
+  assert_false(nameProp.enumerable);
+  assert_false(nameProp.writable);
+  assert_true(Object.hasOwn(nameProp, "value"));
+  assert_false(Object.hasOwn(nameProp, "get"));
+  assert_false(Object.hasOwn(nameProp, "set"));
+  assert_equals(MyStruct.name, "MyStruct");
 
   const xProp = Object.getOwnPropertyDescriptor(MyStruct, "x");
   assert_true(xProp.configurable);

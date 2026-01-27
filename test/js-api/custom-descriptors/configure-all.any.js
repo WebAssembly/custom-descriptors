@@ -322,36 +322,26 @@ test(() => {
 }, "configure methods");
 
 test(() => {
-  // It is valid to use null function references as methods, but calling them
-  // is a TypeError.
-  const proto = {};
-  const data = [
-    1, // one prototype
-    0, // no constructor
-    3, // three method configs
-    0x00, // method "count"
-    ...stringToBytes("count"),
-    0x01, // getter "x"
-    ...stringToBytes("x"),
-    0x02, // setter "x"
-    ...stringToBytes("x"),
-    ...wasmSignedLeb(-1), // no parent prototype
-  ];
+  // Null methods cause traps.
+  for (let methodKind of [0x00, 0x01, 0x02]) {
+    const data = [
+      1, // one prototype
+      0, // no constructor
+      1, // one method configs
+      methodKind, // method, getter, or setter "count"
+      ...stringToBytes("count"),
+      ...wasmSignedLeb(-1), // no parent prototype
+    ];
 
-  configureAll(makeProtosArray([proto]),
-               makeMethodsArray([null, null, null]),
-               makeDataArray(data),
-               null);
-
-  assert_true(Object.hasOwn(proto, "count"));
-  assert_true(Object.hasOwn(proto, "x"));
-
-  let struct = makeStructWithProto(proto);
-
-  assert_throws_js(TypeError, () => { struct.count(); });
-  assert_throws_js(TypeError, () => { struct.x; });
-  assert_throws_js(TypeError, () => { struct.x = 42; });
-}, "null methods")
+    const proto = {};
+    assert_throws_js(WebAssembly.RuntimeError, () => {
+      configureAll(makeProtosArray([proto]),
+                  makeMethodsArray([null]),
+                  makeDataArray(data),
+                  null);
+    });
+  }
+}, "null methods");
 
 test(() => {
   // Configuring methods where properties cannot be written fails.
@@ -536,40 +526,28 @@ test(() => {
 }, "unwritable constructors object");
 
 test(() => {
-  // It is valid to use null function references as static methods, but calling
-  // them is a TypeError.
-  const data = [
-    1, // one prototype
-    1, // one constructor
-    ...stringToBytes("Foo"),
-    3, // three static method configs
-    0x00, // method "method"
-    ...stringToBytes("method"),
-    0x01, // getter "x"
-    ...stringToBytes("x"),
-    0x02, // setter "x"
-    ...stringToBytes("x"),
-    0, // no non-static methods
-    ...wasmSignedLeb(-1), // no parent prototype
-  ];
+  // Null static methods cause traps.
+  for (let methodKind of [0x00, 0x01, 0x02]) {
+    const data = [
+      1, // one prototype
+      1, // one constructor
+      ...stringToBytes("Foo"),
+      1, // one static method configs
+      methodKind, // method, getter, or setter "method"
+      ...stringToBytes("method"),
+      0, // no non-static methods
+      ...wasmSignedLeb(-1), // no parent prototype
+    ];
 
-  const proto = {};
-  const constructors = {};
-  configureAll(makeProtosArray([proto]),
-               makeMethodsArray([makeStructWithProto, null, null, null]),
-               makeDataArray(data),
-               constructors);
-
-  assert_true(Object.hasOwn(proto, "constructor"));
-  assert_true(Object.hasOwn(constructors, "Foo"));
-
-  const Foo = constructors.Foo;
-  assert_true(Object.hasOwn(Foo, "method"));
-  assert_true(Object.hasOwn(Foo, "x"));
-
-  assert_throws_js(TypeError, () => { Foo.method(); });
-  assert_throws_js(TypeError, () => { Foo.x; });
-  assert_throws_js(TypeError, () => { Foo.x = 42; });
+    const proto = {};
+    const constructors = {};
+    assert_throws_js(WebAssembly.RuntimeError, () => {
+      configureAll(makeProtosArray([proto]),
+                  makeMethodsArray([makeStructWithProto, null, null, null]),
+                  makeDataArray(data),
+                  constructors);
+    });
+  }
 }, "null static methods");
 
 test(() => {

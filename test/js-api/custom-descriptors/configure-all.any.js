@@ -438,6 +438,7 @@ test(() => {
 
   const MyStruct = constructors.MyStruct;
   assert_equals(proto.constructor, MyStruct);
+  assert_not_equals(MyStruct, makeStructWithProto);
 
   assert_true(Object.hasOwn(MyStruct, "prototype"));
   assert_true(Object.hasOwn(MyStruct, "method"));

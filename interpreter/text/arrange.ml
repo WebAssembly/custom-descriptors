@@ -521,10 +521,10 @@ let rec instr e =
       "br_on_cast " ^ idx x, [Atom (reftype t1); Atom (reftype t2)]
     | BrOnCastFail (x, t1, t2) ->
       "br_on_cast_fail " ^ idx x, [Atom (reftype t1); Atom (reftype t2)]
-    | BrOnCastDesc (x, t1, t2) ->
-      "br_on_cast_desc " ^ idx x, [Atom (reftype t1); Atom (reftype t2)]
-    | BrOnCastDescFail (x, t1, t2) ->
-      "br_on_cast_desc_fail " ^ idx x, [Atom (reftype t1); Atom (reftype t2)]
+    | BrOnCastDescEq (x, t1, t2) ->
+      "br_on_cast_desc_eq " ^ idx x, [Atom (reftype t1); Atom (reftype t2)]
+    | BrOnCastDescEqFail (x, t1, t2) ->
+      "br_on_cast_desc_eq_fail " ^ idx x, [Atom (reftype t1); Atom (reftype t2)]
     | Return -> "return", []
     | Call x -> "call " ^ idx x, []
     | CallRef x -> "call_ref " ^ idx x, []
@@ -569,7 +569,7 @@ let rec instr e =
     | RefAsNonNull -> "ref.as_non_null", []
     | RefTest t -> "ref.test", [Atom (reftype t)]
     | RefCast t -> "ref.cast", [Atom (reftype t)]
-    | RefCastDesc t -> "ref.cast_desc", [Atom (reftype t)]
+    | RefCastDescEq t -> "ref.cast_desc_eq", [Atom (reftype t)]
     | RefGetDesc x -> "ref.get_desc " ^ idx x, []
     | RefEq -> "ref.eq", []
     | RefI31 -> "ref.i31", []

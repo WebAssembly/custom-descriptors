@@ -591,7 +591,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
        " but label has " ^ string_of_resulttype (label c x));
     (ts0 @ [RefT rt1]) --> (ts0 @ [RefT rt2]), []
 
-  | BrOnCastDesc (x, rt1, rt2) ->
+  | BrOnCastDescEq (x, rt1, rt2) ->
     check_reftype c rt1 e.at;
     check_reftype c rt2 e.at;
     let (_, ht1), (_, ht2) = rt1, rt2 in
@@ -609,7 +609,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     let rt = desc_cast_ref c rt2 e.at in
     (ts0 @ [RefT rt1; RefT rt]) --> (ts0 @ [RefT (diff_reftype rt1 rt2)]), []
 
-  | BrOnCastDescFail (x, rt1, rt2) ->
+  | BrOnCastDescEqFail (x, rt1, rt2) ->
     check_reftype c rt1 e.at;
     check_reftype c rt2 e.at;
     let rt1' = diff_reftype rt1 rt2 in
@@ -847,7 +847,7 @@ let rec check_instr (c : context) (e : instr) (s : infer_resulttype) : infer_ins
     check_reftype c rt e.at;
     [RefT (Null, top_of_heaptype c.types ht)] --> [RefT (nul, ht)], []
 
-  | RefCastDesc rt ->
+  | RefCastDescEq rt ->
     let (nul, ht) = rt in
     check_reftype c rt e.at;
     let rt' = desc_cast_ref c rt e.at in

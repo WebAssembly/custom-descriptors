@@ -35,8 +35,8 @@ let br_on_null x = BrOnNull x
 let br_on_non_null x = BrOnNonNull x
 let br_on_cast x t1 t2 = BrOnCast (x, t1, t2)
 let br_on_cast_fail x t1 t2 = BrOnCastFail (x, t1, t2)
-let br_on_cast_desc x t1 t2 = BrOnCastDesc (x, t1, t2)
-let br_on_cast_desc_fail x t1 t2 = BrOnCastDescFail (x, t1, t2)
+let br_on_cast_desc_eq x t1 t2 = BrOnCastDescEq (x, t1, t2)
+let br_on_cast_desc_eq_fail x t1 t2 = BrOnCastDescEqFail (x, t1, t2)
 
 let catch x1 x2 = Catch (x1, x2)
 let catch_ref x1 x2 = CatchRef (x1, x2)
@@ -175,7 +175,7 @@ let ref_is_null = RefIsNull
 let ref_as_non_null = RefAsNonNull  
 let ref_test t = RefTest t
 let ref_cast t = RefCast t
-let ref_cast_desc t = RefCastDesc t
+let ref_cast_desc_eq t = RefCastDescEq t
 let ref_get_desc x = RefGetDesc x
 let ref_eq = RefEq
 

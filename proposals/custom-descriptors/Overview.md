@@ -501,18 +501,18 @@ then the type of the cast output can also be exact.
 If the provided descriptor is a null value, these instructions trap.
 
 ```
-ref.cast_desc reftype
+ref.cast_desc_eq reftype
 
-C |- ref.cast_desc rt : (ref null ht) (ref null (exact_1 y)) -> rt
+C |- ref.cast_desc_eq rt : (ref null ht) (ref null (exact_1 y)) -> rt
 -- rt = (ref null? (exact_1 x))
 -- C |- C.types[x] <: ht
 -- C.types[x] ~ descriptor y ct
 ```
 
 ```
-br_on_cast_desc labelidx reftype reftype
+br_on_cast_desc_eq labelidx reftype reftype
 
-C |- br_on_cast_desc l rt_1 rt_2 : t* rt_1 (ref null (exact_1 y)) -> t* (rt_1 \ rt_2)
+C |- br_on_cast_desc_eq l rt_1 rt_2 : t* rt_1 (ref null (exact_1 y)) -> t* (rt_1 \ rt_2)
 -- C.labels[l] = t* rt
 -- C |- rt_2 <: rt
 -- C |- rt_1 <: rt'
@@ -523,9 +523,9 @@ C |- br_on_cast_desc l rt_1 rt_2 : t* rt_1 (ref null (exact_1 y)) -> t* (rt_1 \ 
 ```
 
 ```
-br_on_cast_desc_fail labelidx reftype reftype
+br_on_cast_desc_eq_fail labelidx reftype reftype
 
-C |- br_on_cast_desc_fail l rt_1 rt_2 : t* rt_1 (ref null (exact_1 y)) -> t* rt_2
+C |- br_on_cast_desc_eq_fail l rt_1 rt_2 : t* rt_1 (ref null (exact_1 y)) -> t* rt_2
 -- C.labels[l] = t* rt
 -- C |- rt_1 \ rt_2 <: rt
 -- C |- rt_1 <: rt'
@@ -538,7 +538,7 @@ C |- br_on_cast_desc_fail l rt_1 rt_2 : t* rt_1 (ref null (exact_1 y)) -> t* rt_
 Note that the constraint `C |- rt_2 <: rt_1` on branching cast instructions before this proposal
 is relaxed to the constraint that `rt_1` and `rt_2` share some arbitrary valid supertype `rt'`,
 i.e. that `rt_1` and `rt_2` must be in the same heap type hierarchy.
-This relaxation is applied not only to the new `br_on_cast_desc` and `br_on_cast_desc_fail` instructions,
+This relaxation is applied not only to the new `br_on_cast_desc_eq` and `br_on_cast_desc_eq_fail` instructions,
 but also the existing `br_on_cast` and `br_on_cast_fail` instructions.
 
 ## JS Prototypes
@@ -1015,12 +1015,12 @@ instr ::= ...
   | 0xFB 32:u32 x:typeidx => struct.new_desc x
   | 0xFB 33:u32 x:typeidx => struct.new_default_desc x
   | 0xFB 34:u32 x:typeidx => ref.get_desc x
-  | 0xFB 35:u32 ht:heaptype => ref.cast_desc (ref ht)
-  | 0xFB 36:u32 ht:heaptype => ref.cast_desc (ref null ht)
+  | 0xFB 35:u32 ht:heaptype => ref.cast_desc_eq (ref ht)
+  | 0xFB 36:u32 ht:heaptype => ref.cast_desc_eq (ref null ht)
   | 0xFB 37:u32 (null_1?, null_2?):castflags
         l:labelidx ht_1:heaptype ht_2:heaptype =>
-      br_on_cast_desc l (ref null_1? ht_1) (ref null_2? ht_2)
+      br_on_cast_desc_eq l (ref null_1? ht_1) (ref null_2? ht_2)
   | 0xFB 38:u32 (null_1?, null_2?):castflags
         l:labelidx ht_1:heaptype ht_2:heaptype =>
-      br_on_cast_desc_fail l (ref null_1? ht_1) (ref null_2? ht_2)
+      br_on_cast_desc_eq_fail l (ref null_1? ht_1) (ref null_2? ht_2)
 ```

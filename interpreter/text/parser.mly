@@ -640,7 +640,7 @@ plaininstr :
   | REF_AS_NON_NULL { fun c -> ref_as_non_null }
   | REF_TEST reftype { fun c -> ref_test ($2 c) }
   | REF_CAST reftype { fun c -> ref_cast ($2 c) }
-  | REF_CAST_DESC reftype { fun c -> ref_cast_desc ($2 c) }
+  | REF_CAST_DESC reftype { fun c -> ref_cast_desc_eq ($2 c) }
   | REF_GET_DESC idx { fun c -> ref_get_desc ($2 c type_) }
   | REF_EQ { fun c -> ref_eq }
   | REF_I31 { fun c -> ref_i31 }

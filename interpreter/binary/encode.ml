@@ -277,10 +277,10 @@ struct
     | BrOnCastFail (x, (nul1, t1), (nul2, t2)) ->
       let flags = bit 0 (nul1 = Null) + bit 1 (nul2 = Null) in
       op 0xfb; op 0x19; byte flags; idx x; heaptype t1; heaptype t2
-    | BrOnCastDesc (x, (nul1, t1), (nul2, t2)) ->
+    | BrOnCastDescEq (x, (nul1, t1), (nul2, t2)) ->
       let flags = bit 0 (nul1 = Null) + bit 1 (nul2 = Null) in
       op 0xfb; op 0x25; byte flags; idx x; heaptype t1; heaptype t2
-    | BrOnCastDescFail (x, (nul1, t1), (nul2, t2)) ->
+    | BrOnCastDescEqFail (x, (nul1, t1), (nul2, t2)) ->
       let flags = bit 0 (nul1 = Null) + bit 1 (nul2 = Null) in
       op 0xfb; op 0x26; byte flags; idx x; heaptype t1; heaptype t2
     | Return -> op 0x0f
@@ -436,8 +436,8 @@ struct
     | RefTest (Null, t) -> op 0xfb; op 0x15; heaptype t
     | RefCast (NoNull, t) -> op 0xfb; op 0x16; heaptype t
     | RefCast (Null, t) -> op 0xfb; op 0x17; heaptype t
-    | RefCastDesc (NoNull, t) -> op 0xfb; op 0x23; heaptype t
-    | RefCastDesc (Null, t) -> op 0xfb; op 0x24; heaptype t
+    | RefCastDescEq (NoNull, t) -> op 0xfb; op 0x23; heaptype t
+    | RefCastDescEq (Null, t) -> op 0xfb; op 0x24; heaptype t
 
     | RefGetDesc x -> op 0xfb; op 0x22; idx x
 

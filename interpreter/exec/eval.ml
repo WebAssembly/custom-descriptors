@@ -258,31 +258,31 @@ let rec step (c : config) : config =
         else
           Ref r :: vs', [Plain (Br x) @@ e.at]
 
-      | BrOnCastDesc (x, _rt1, _rt2), Ref (NullRef _) :: vs' ->
+      | BrOnCastDescEq (x, _rt1, _rt2), Ref (NullRef _) :: vs' ->
         vs', [Trapping "null descriptor reference" @@ e.at]
 
-      | BrOnCastDesc (x, _rt1, (Null, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+      | BrOnCastDescEq (x, _rt1, (Null, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
         Ref r :: vs', [Plain (Br x) @@ e.at]
 
-      | BrOnCastDesc (x, _rt1, (NoNull, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+      | BrOnCastDescEq (x, _rt1, (NoNull, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
         Ref r :: vs', []
 
-      | BrOnCastDesc (x, _rt1, _rt2), Ref desc :: Ref r :: vs' ->
+      | BrOnCastDescEq (x, _rt1, _rt2), Ref desc :: Ref r :: vs' ->
         (match Aggr.read_desc r with
         | Some desc' when eq_ref desc desc' -> Ref r :: vs', [Plain (Br x) @@ e.at]
         | _ -> Ref r :: vs', []
         )
 
-      | BrOnCastDescFail (x, _rt1, _rt2), Ref (NullRef _) :: vs' ->
+      | BrOnCastDescEqFail (x, _rt1, _rt2), Ref (NullRef _) :: vs' ->
         vs', [Trapping "null descriptor reference" @@ e.at]
 
-      | BrOnCastDescFail (x, _rt1, (Null, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+      | BrOnCastDescEqFail (x, _rt1, (Null, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
         Ref r :: vs', []
 
-      | BrOnCastDescFail (x, _rt1, (NoNull, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+      | BrOnCastDescEqFail (x, _rt1, (NoNull, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
         Ref r :: vs', [Plain (Br x) @@ e.at]
 
-      | BrOnCastDescFail (x, _rt1, _rt2), Ref desc :: Ref r :: vs' ->
+      | BrOnCastDescEqFail (x, _rt1, _rt2), Ref desc :: Ref r :: vs' ->
         (match Aggr.read_desc r with
         | Some desc' when eq_ref desc desc' -> Ref r :: vs', []
         | _ -> Ref r :: vs', [Plain (Br x) @@ e.at]
@@ -689,16 +689,16 @@ let rec step (c : config) : config =
             string_of_reftype rt ^ " but got " ^
             string_of_reftype (type_of_ref r)) @@ e.at]
 
-      | RefCastDesc _rt, Ref (NullRef _) :: vs' ->
+      | RefCastDescEq _rt, Ref (NullRef _) :: vs' ->
         vs', [Trapping "null descriptor reference" @@ e.at]
 
-      | RefCastDesc (NoNull, _), Ref _desc :: Ref (NullRef _) :: vs' ->
+      | RefCastDescEq (NoNull, _), Ref _desc :: Ref (NullRef _) :: vs' ->
         vs', [Trapping "descriptor cast failure" @@ e.at]
 
-      | RefCastDesc (Null, _), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+      | RefCastDescEq (Null, _), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
         Ref r :: vs', []
 
-      | RefCastDesc rt, Ref desc :: Ref r :: vs' ->
+      | RefCastDescEq rt, Ref desc :: Ref r :: vs' ->
         (match Aggr.read_desc r with
         | Some desc' when eq_ref desc desc' -> Ref r :: vs', []
         | _ -> vs', [Trapping "descriptor cast failure" @@ e.at]

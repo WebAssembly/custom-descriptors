@@ -664,8 +664,8 @@ let rec instr s =
       (match opcode with
       | 0x18l -> br_on_cast x rt1 rt2
       | 0x19l -> br_on_cast_fail x rt1 rt2
-      | 0x25l -> br_on_cast_desc x rt1 rt2
-      | 0x26l -> br_on_cast_desc_fail x rt1 rt2
+      | 0x25l -> br_on_cast_desc_eq x rt1 rt2
+      | 0x26l -> br_on_cast_desc_eq_fail x rt1 rt2
       | _ -> assert false
       )
 
@@ -677,8 +677,8 @@ let rec instr s =
     | 0x1el -> i31_get_u
 
     | 0x22l -> let x = at idx s in ref_get_desc x
-    | 0x23l -> let ht = heaptype s in ref_cast_desc (NoNull, ht)
-    | 0x24l -> let ht = heaptype s in ref_cast_desc (Null, ht)
+    | 0x23l -> let ht = heaptype s in ref_cast_desc_eq (NoNull, ht)
+    | 0x24l -> let ht = heaptype s in ref_cast_desc_eq (Null, ht)
 
     | n -> illegal2 s pos b n
     )

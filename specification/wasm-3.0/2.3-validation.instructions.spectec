@@ -98,7 +98,9 @@ rule Instr_ok/br_on_cast:
   -- if C.LABELS[l] = t* rt
   -- Reftype_ok: C |- rt_1 : OK
   -- Reftype_ok: C |- rt_2 : OK
-  -- Reftype_sub: C |- rt_2 <: rt_1
+  -- Reftype_ok: C |- rt_3 : OK
+  -- Reftype_sub: C |- rt_1 <: rt_3
+  -- Reftype_sub: C |- rt_2 <: rt_3
   -- Reftype_sub: C |- rt_2 <: rt
 
 rule Instr_ok/br_on_cast_fail:
@@ -106,7 +108,9 @@ rule Instr_ok/br_on_cast_fail:
   -- if C.LABELS[l] = t* rt
   -- Reftype_ok: C |- rt_1 : OK
   -- Reftype_ok: C |- rt_2 : OK
-  -- Reftype_sub: C |- rt_2 <: rt_1
+  -- Reftype_ok: C |- rt_3 : OK
+  -- Reftype_sub: C |- rt_1 <: rt_3
+  -- Reftype_sub: C |- rt_2 <: rt_3
   -- Reftype_sub: C |- $diffrt(rt_1, rt_2) <: rt
 
 

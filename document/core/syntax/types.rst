@@ -110,6 +110,7 @@ $${syntax: {absheaptype/syn heaptype}}
 
 A heap type is either *abstract* or *concrete*.
 A concrete heap type consists of a :ref:`type use <syntax-typeuse>` that classifies an object of the respective :ref:`type <syntax-type>` defined in a module.
+A concrete heap type may be *exact*, in which case it classifies objects of precisely the respective :ref:`type <syntax-type>` and not any other type that may :ref:`match <match-heaptype>` it.
 Abstract types are denoted by individual keywords.
 
 The type ${:FUNC} denotes the common supertype of all :ref:`function types <syntax-functype>`, regardless of their concrete definition.

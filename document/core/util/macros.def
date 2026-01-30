@@ -238,6 +238,7 @@
 .. |REF| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{ref}}
 .. |NULL| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{null}}
 
+.. |EXACT| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{exact}}
 .. |ANY| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{any}}
 .. |EQT| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{eq}}
 .. |I31| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{i\scriptstyle31}}

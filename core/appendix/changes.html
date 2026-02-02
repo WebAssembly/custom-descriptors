@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Change History &#8212; WebAssembly 3.0 + Custom Descriptors (2025-09-20)</title>
+    <title>Change History &#8212; WebAssembly 3.0 + Custom Descriptors (2026-02-02)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=560be7ba"></script>
+    <script src="../_static/documentation_options.js?v=4c24f7a8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}, "options": {"menuOptions": {"settings": {"enrich": false}}}}</script>
@@ -128,7 +128,7 @@ a prior module may encounter new behaviours,
 e.g., new forms of control flow or side effects when calling into a latter module.</p>
 </div>
 </div></blockquote>
-<p>In addition, future versions of WebAssembly will not allocate the <a class="reference internal" href="../binary/instructions.html#binary-instr"><span class="std std-ref">opcode</span></a> <span class="math notranslate nohighlight">\(\def\mathdef89#1{\mathtt{0x#1}}\mathdef89{FF}\)</span> to represent an instruction or instruction prefix.</p>
+<p>In addition, future versions of WebAssembly will not allocate the <a class="reference internal" href="../binary/instructions.html#binary-instr"><span class="std std-ref">opcode</span></a> <span class="math notranslate nohighlight">\(\def\mathdef63#1{\mathtt{0x#1}}\mathdef63{FF}\)</span> to represent an instruction or instruction prefix.</p>
 <section id="release-2-0">
 <h2>Release 2.0<a class="headerlink" href="#release-2-0" title="Link to this heading">¶</a></h2>
 <section id="sign-extension-instructions">
@@ -452,7 +452,7 @@ e.g., new forms of control flow or side effects when calling into a latter modul
 </section>
 <section id="exception-handling">
 <span id="index-11"></span><h3>Exception Handling<a class="headerlink" href="#exception-handling" title="Link to this heading">¶</a></h3>
-<p>Added tag definitions, imports, and exports, and instructions to throw and catch exceptions <a class="footnote-reference brackets" href="#proposal-exn" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p>
+<p>Added tag definitions, imports, and exports, and instructions to throw and catch exceptions. <a class="footnote-reference brackets" href="#proposal-exn" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../syntax/modules.html#syntax-module"><span class="std std-ref">Modules</span></a> may</p>
 <ul>
@@ -584,7 +584,7 @@ e.g., new forms of control flow or side effects when calling into a latter modul
 </ul>
 </li>
 <li><p>Refined typing of <a class="reference internal" href="../valid/instructions.html#valid-instr-variable"><span class="std std-ref">local instructions</span></a> and <a class="reference internal" href="../valid/instructions.html#valid-instrs"><span class="std std-ref">instruction sequences</span></a> to track the <a class="reference internal" href="../valid/conventions.html#syntax-init"><span class="std std-ref">initialization status</span></a> of <a class="reference internal" href="../syntax/modules.html#syntax-local"><span class="std std-ref">locals</span></a> with non-defaultable type</p></li>
-<li><p>Refined decoding of <a class="reference internal" href="../syntax/modules.html#syntax-elemmode"><span class="std std-ref">active</span></a> <a class="reference internal" href="../binary/modules.html#binary-elem"><span class="std std-ref">element segments</span></a> with implicit element type and plain function indices (opcode <span class="math notranslate nohighlight">\(0\)</span>) to produce <a class="reference internal" href="../syntax/types.html#syntax-null"><span class="std std-ref">non-null</span></a> <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a>.</p></li>
+<li><p>Refined decoding of <a class="reference internal" href="../syntax/modules.html#syntax-elemmode"><span class="std std-ref">active</span></a> <a class="reference internal" href="../binary/modules.html#binary-elem"><span class="std std-ref">element segments</span></a> with implicit element type and plain function indices (opcode <span class="math notranslate nohighlight">\(0\)</span>) to produce <a class="reference internal" href="../syntax/types.html#syntax-null"><span class="std std-ref">non-null</span></a> <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a></p></li>
 <li><p>Extended <a class="reference internal" href="../syntax/modules.html#syntax-table"><span class="std std-ref">table definitions</span></a> with optional initializer expression</p></li>
 </ul>
 </section>
@@ -730,9 +730,9 @@ whose behaviour is non-deterministic and implementation-dependent. <a class="foo
 <p>Added generic syntax for custom annotations in the text format,
 mirroring the role of custom sections in the binary format. <a class="footnote-reference brackets" href="#proposal-annot" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a></p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../text/lexical.html#text-annot"><span class="std std-ref">Annotations</span></a> of the form <span class="math notranslate nohighlight">\(\def\mathdef90#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef90{(&#64;id~\dots)}\)</span> are allowed anywhere in the <a class="reference internal" href="../text/index.html#text"><span class="std std-ref">text format</span></a></p></li>
-<li><p><a class="reference internal" href="../text/values.html#text-id"><span class="std std-ref">Identifiers</span></a> can be escaped as <span class="math notranslate nohighlight">\(\def\mathdef91#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef91{&#64;&quot;\dots&quot;}\)</span> with arbitrary <a class="reference internal" href="../text/values.html#text-name"><span class="std std-ref">names</span></a></p></li>
-<li><p>Defined <a class="reference internal" href="custom.html#text-nameannot"><span class="std std-ref">name annotations</span></a> <span class="math notranslate nohighlight">\(\def\mathdef92#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef92{(&#64;name~&quot;\dots&quot;)}\)</span> for:</p>
+<li><p><a class="reference internal" href="../text/lexical.html#text-annot"><span class="std std-ref">Annotations</span></a> of the form <span class="math notranslate nohighlight">\(\def\mathdef64#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef64{(&#64;id~\dots)}\)</span> are allowed anywhere in the <a class="reference internal" href="../text/index.html#text"><span class="std std-ref">text format</span></a></p></li>
+<li><p><a class="reference internal" href="../text/values.html#text-id"><span class="std std-ref">Identifiers</span></a> can be escaped as <span class="math notranslate nohighlight">\(\def\mathdef65#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef65{&#64;&quot;\dots&quot;}\)</span> with arbitrary <a class="reference internal" href="../text/values.html#text-name"><span class="std std-ref">names</span></a></p></li>
+<li><p>Defined <a class="reference internal" href="custom.html#text-nameannot"><span class="std std-ref">name annotations</span></a> <span class="math notranslate nohighlight">\(\def\mathdef66#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef66{(&#64;name~&quot;\dots&quot;)}\)</span> for:</p>
 <ul>
 <li><p><a class="reference internal" href="custom.html#text-modulenameannot"><span class="std std-ref">module names</span></a></p></li>
 <li><p><a class="reference internal" href="custom.html#text-typenameannot"><span class="std std-ref">type names</span></a></p></li>
@@ -741,7 +741,7 @@ mirroring the role of custom sections in the binary format. <a class="footnote-r
 <li><p><a class="reference internal" href="custom.html#text-fieldnameannot"><span class="std std-ref">field names</span></a></p></li>
 </ul>
 </li>
-<li><p>Defined <a class="reference internal" href="custom.html#text-customannot"><span class="std std-ref">custom annotation</span></a> <span class="math notranslate nohighlight">\(\def\mathdef93#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef93{(&#64;custom~&quot;\dots&quot;)}\)</span> to represent arbitrary <a class="reference internal" href="../binary/modules.html#binary-customsec"><span class="std std-ref">custom sections</span></a> in the text format</p></li>
+<li><p>Defined <a class="reference internal" href="custom.html#text-customannot"><span class="std std-ref">custom annotation</span></a> <span class="math notranslate nohighlight">\(\def\mathdef67#1{\mbox{‘}\mathtt{#1}\mbox{’}}\mathdef67{(&#64;custom~&quot;\dots&quot;)}\)</span> to represent arbitrary <a class="reference internal" href="../binary/modules.html#binary-customsec"><span class="std std-ref">custom sections</span></a> in the text format</p></li>
 </ul>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="proposal-extconst" role="doc-footnote">

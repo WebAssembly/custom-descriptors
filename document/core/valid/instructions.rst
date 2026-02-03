@@ -235,6 +235,9 @@ $${rule-prose: Instr_ok/br_on_cast}
 
 $${rule: Instr_ok/br_on_cast}
 
+.. note::
+   The existence of a common supertype ${:rt_3} means that ${:rt_1} and ${:rt_2} must be in the same heap subtyping hierarchy.
+
 
 .. _valid-br_on_cast_fail:
 
@@ -244,6 +247,9 @@ $${rule: Instr_ok/br_on_cast}
 $${rule-prose: Instr_ok/br_on_cast_fail}
 
 $${rule: Instr_ok/br_on_cast_fail}
+
+.. note::
+   The existence of a common supertype ${:rt_3} means that ${:rt_1} and ${:rt_2} must be in the same heap subtyping hierarchy.
 
 
 .. _valid-call:

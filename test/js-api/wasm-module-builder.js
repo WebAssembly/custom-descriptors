@@ -957,7 +957,6 @@ class WasmModuleBuilder {
     return this.types.length - 1;
   }
 
-
   nextTypeIndex() { return this.types.length; }
 
   static defaultFor(type) {

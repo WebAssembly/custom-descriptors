@@ -28,7 +28,7 @@ setup(() => {
     .addBody([
       kExprLocalGet, 0,
       kGCPrefix, kExprStructNew, descIndex,
-      kGCPrefix, kExprStructNew, structIndex
+      kGCPrefix, kExprStructNewDesc, structIndex
     ])
     .exportFunc();
 
@@ -68,7 +68,7 @@ test(() => {
   const objIndex = builder.addGlobal(wasmRefType(structIndex), false, [
     kExprGlobalGet, 0,
     kGCPrefix, kExprStructNew, descIndex,
-    kGCPrefix, kExprStructNew, structIndex,
+    kGCPrefix, kExprStructNewDesc, structIndex,
   ]);
   builder.addExportOfKind("obj", kExternalGlobal, objIndex.index);
 
@@ -102,7 +102,7 @@ test(() => {
     .addBody([
       kExprLocalGet, 0,
       kGCPrefix, kExprStructNew, descIndex,
-      kGCPrefix, kExprStructNew, structIndex
+      kGCPrefix, kExprStructNewDesc, structIndex
     ])
     .exportFunc();
 
@@ -135,7 +135,7 @@ test(() => {
       kExprI32Const, 0,
       kExprLocalGet, 0,
       kGCPrefix, kExprStructNew, descIndex,
-      kGCPrefix, kExprStructNew, structIndex
+      kGCPrefix, kExprStructNewDesc, structIndex
     ])
     .exportFunc();
 
@@ -166,7 +166,7 @@ test(() => {
     .addBody([
       kExprLocalGet, 0,
       kGCPrefix, kExprStructNew, descIndex,
-      kGCPrefix, kExprStructNew, structIndex
+      kGCPrefix, kExprStructNewDesc, structIndex
     ])
     .exportFunc();
 
@@ -203,7 +203,7 @@ test(() => {
     .addBody([
       kExprLocalGet, 0,
       kGCPrefix, kExprStructNew, metaIndex,
-      kGCPrefix, kExprStructNew, descIndex,
+      kGCPrefix, kExprStructNewDesc, descIndex,
     ])
     .exportFunc();
 

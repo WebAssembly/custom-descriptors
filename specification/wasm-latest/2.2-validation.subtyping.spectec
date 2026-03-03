@@ -20,6 +20,10 @@ rule Vectype_sub:
 rule Heaptype_sub/refl:
   C |- heaptype <: heaptype
 
+rule Heaptype_sub/exact-l:
+  C |- EXACT typeuse <: heaptype
+  -- Heaptype_sub: C |- typeuse <: heaptype
+
 rule Heaptype_sub/trans:
   C |- heaptype_1 <: heaptype_2
   -- Heaptype_ok: C |- heaptype' : OK

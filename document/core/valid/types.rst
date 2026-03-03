@@ -58,6 +58,10 @@ $${rule-prose: Heaptype_ok/abs}
 
 $${rule: Heaptype_ok/abs}
 
+$${rule-prose: Heaptype_ok/exact}
+
+$${rule: Heaptype_ok/exact}
+
 
 .. index:: reference type, heap type
    pair: validation; reference type

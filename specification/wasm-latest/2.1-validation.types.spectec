@@ -153,13 +153,13 @@ rule Desctype_ok:
 
 
 rule Subtype_ok:
-  C |- SUB FINAL? (_IDX x)* dct : OK(x_0)
+  C |- SUB FINAL? (_IDX x)* desctype : OK(x_0)
   -- if |x*| <= 1
   -- (if x < x_0)*
-  -- (if $unrolldt(C.TYPES[x]) = SUB (_IDX x')* dct')*
+  -- (if $unrolldt(C.TYPES[x]) = SUB (_IDX x')* desctype')*
   ----
-  -- Desctype_ok: C |- dct : OK
-  -- (Desctype_sub: C |- dct <: dct')*
+  -- Desctype_ok: C |- desctype : OK
+  -- (Desctype_sub: C |- desctype <: desctype')*
 
 def $before(typeuse, typeidx, nat) : bool   hint(show % << %,%) hint(macro "before")
 def $before(deftype, x, i) = true

@@ -309,17 +309,20 @@ $${definition: unpack}
 .. index:: ! recursive type, ! sub type, composite type, ! final, subtyping, ! roll, ! unroll, recursive type index
    pair: abstract syntax; recursive type
    pair: abstract syntax; sub type
+   pair: abstract syntax; descriptor type
 .. _syntax-rectype:
 .. _syntax-subtype:
 .. _syntax-final:
+.. _syntax-desctype:
 
 Recursive Types
 ~~~~~~~~~~~~~~~
 
 *Recursive types* denote a group of mutually recursive :ref:`composite types <syntax-comptype>`, each of which can optionally declare a list of :ref:`type uses <syntax-typeuse>` of supertypes that it :ref:`matches <match-comptype>`.
 Each type can also be declared *final*, preventing further subtyping.
+Each composite type can also optionally have a :ref:`described <syntax-desctype>` :ref:`type use <syntax-typeuse>` and a :ref:`descriptor <syntax-desctype>` :ref:`type use <syntax-typeuse>`.
 
-$${syntax: {rectype subtype}}
+$${syntax: {rectype subtype describestype descriptortype desctype}}
 
 In a :ref:`module <syntax-module>`, each member of a recursive type is assigned a separate :ref:`type index <syntax-typeidx>`.
 

@@ -270,6 +270,8 @@
 .. |TFINAL| mathdef:: \xref{syntax/types}{syntax-subtype}{\K{final}}
 .. |TDESCRIBES| mathdef:: \xref{syntax/types}{syntax-desctype}{\K{describes}}
 .. |TDESCRIPTOR| mathdef:: \xref{syntax/types}{syntax-desctype}{\K{descriptor}}
+.. |Tdescribes| mathdef:: \xref{syntax/types}{syntax-desctype}{\K{describes}}
+.. |Tdescriptor| mathdef:: \xref{syntax/types}{syntax-desctype}{\K{descriptor}}
 
 .. |TMUT| mathdef:: \xref{syntax/types}{syntax-mut}{\K{mut}}
 
@@ -303,6 +305,8 @@
 .. |fieldtype| mathdef:: \xref{syntax/types}{syntax-fieldtype}{\X{fieldtype}}
 .. |storagetype| mathdef:: \xref{syntax/types}{syntax-storagetype}{\X{storagetype}}
 .. |comptype| mathdef:: \xref{syntax/types}{syntax-comptype}{\X{comptype}}
+.. |describestype| mathdef:: \xref{syntax/types}{syntax-desctype}{\X{describestype}}
+.. |descriptortype| mathdef:: \xref{syntax/types}{syntax-desctype}{\X{descriptortype}}
 .. |desctype| mathdef:: \xref{syntax/types}{syntax-desctype}{\X{desctype}}
 .. |subtype| mathdef:: \xref{syntax/types}{syntax-subtype}{\X{subtype}}
 .. |rectype| mathdef:: \xref{syntax/types}{syntax-rectype}{\X{rectype}}

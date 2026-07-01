@@ -41,7 +41,7 @@ syntax typevar hint(desc "type variable") =
   | _IDX typeidx | REC n hint(show REC.%)
 
 syntax heaptype hint(desc "heap type") =
-  | absheaptype | typeuse | EXACT typeuse
+  | absheaptype | typeuse
 
 syntax reftype hint(desc "reference type") =
   | REF null? heaptype
@@ -116,14 +116,8 @@ syntax comptype hint(desc "composite type") hint(macro "%" "T%") =
   | ARRAY fieldtype
   | FUNC resulttype -> resulttype
 
-syntax describestype hint(desc "describes type") hint(macro "%" "T%") = DESCRIBES typeuse
-syntax descriptortype hint(desc "descriptor type") hint(macro "%" "T%") = DESCRIPTOR typeuse
-
-syntax desctype hint(desc "descriptor type") =
-  | describestype? descriptortype? comptype
-
 syntax subtype hint(desc "sub type") hint(macro "%" "T%") =
-  | SUB final? typeuse* desctype
+  | SUB final? typeuse* comptype
 
 syntax rectype hint(desc "recursive type") hint(macro "%" "T%") =
   | REC list(subtype)
@@ -353,11 +347,8 @@ def $subst_valtype(valtype, typevar*, typeuse*) : valtype             hint(show 
 def $subst_packtype(packtype, typevar*, typeuse*) : packtype          hint(show %#`[%:=%]) hint(macro "%subst")
 def $subst_storagetype(storagetype, typevar*, typeuse*) : storagetype hint(show %#`[%:=%]) hint(macro "%subst")
 def $subst_fieldtype(fieldtype, typevar*, typeuse*) : fieldtype       hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_describestype(describestype, typevar*, typeuse*) : describestype     hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_descriptortype(descriptortype, typevar*, typeuse*) : descriptortype  hint(show %#`[%:=%]) hint(macro "%subst")
 
 def $subst_comptype(comptype, typevar*, typeuse*) : comptype          hint(show %#`[%:=%]) hint(macro "%subst")
-def $subst_desctype(desctype, typevar*, typeuse*) : desctype          hint(show %#`[%:=%]) hint(macro "%subst")
 def $subst_subtype(subtype, typevar*, typeuse*) : subtype             hint(show %#`[%:=%]) hint(macro "%subst")
 def $subst_rectype(rectype, typevar*, typeuse*) : rectype             hint(show %#`[%:=%]) hint(macro "%subst")
 def $subst_deftype(deftype, typevar*, typeuse*) : deftype             hint(show %#`[%:=%]) hint(macro "%subst")
@@ -404,14 +395,8 @@ def $subst_comptype((STRUCT ft*), tv*, tu*) = STRUCT $subst_fieldtype(ft, tv*, t
 def $subst_comptype((ARRAY ft), tv*, tu*) = ARRAY $subst_fieldtype(ft, tv*, tu*)
 def $subst_comptype((FUNC t_1* -> t_2*), tv*, tu*) = FUNC $subst_valtype(t_1, tv*, tu*)* -> $subst_valtype(t_2, tv*, tu*)*
 
-def $subst_describestype(DESCRIBES tu', tv*, tu*) = DESCRIBES $subst_typeuse(tu', tv*, tu*)
-def $subst_descriptortype(DESCRIPTOR tu', tv*, tu*) = DESCRIPTOR $subst_typeuse(tu', tv*, tu*)
-
-def $subst_desctype(dc1? dc2? ct, tv*, tu*) =
-  $subst_describestype(dc1, tv*, tu*)? $subst_descriptortype(dc2, tv*, tu*)? $subst_comptype(ct, tv*, tu*)
-
-def $subst_subtype((SUB final? tu'* desctype), tv*, tu*) =
-  SUB final? $subst_typeuse(tu', tv*, tu*)* $subst_desctype(desctype, tv*, tu*)
+def $subst_subtype((SUB final? tu'* ct), tv*, tu*) =
+  SUB final? $subst_typeuse(tu', tv*, tu*)* $subst_comptype(ct, tv*, tu*)
 
 def $minus_recs(typevar*, typeuse*) : (typevar*, typeuse*)
 def $minus_recs(eps, eps) = (eps, eps)
@@ -474,7 +459,6 @@ def $rollrt(typeidx, rectype) : rectype  hint(show $roll_(%, %))   hint(macro "r
 def $unrollrt(rectype) : rectype         hint(show $unroll(%))     hint(macro "unrollrt")
 def $rolldt(typeidx, rectype) : deftype* hint(show $roll_(%)*#((%))) hint(macro "rolldt")
 def $unrolldt(deftype) : subtype         hint(show $unroll(%))     hint(macro "unrolldt")
-def $expanddt_to_desctype(deftype) : desctype  hint(show $expand_desc(%))
 def $expanddt(deftype) : comptype        hint(show $expand(%))     hint(macro "expanddt")
 
 def $rollrt(x, rectype) = REC ($subst_subtype(subtype, ((_IDX $(x + i)))^(i<n), (REC i)^(i<n)))^n
@@ -485,8 +469,7 @@ def $unrollrt(rectype) = REC ($subst_subtype(subtype, (REC i)^(i<n), (_DEF recty
 def $rolldt(x, rectype) = (_DEF (REC subtype^n) i)^(i<n)  -- if $rollrt(x, rectype) = REC subtype^n
 def $unrolldt(_DEF rectype i) = subtype*[i]               -- if $unrollrt(rectype) = REC subtype*
 
-def $expanddt_to_desctype(deftype) = desctype                  -- if $unrolldt(deftype) = SUB final? typeuse* desctype
-def $expanddt(deftype) = ct                               -- if $expanddt_to_desctype(deftype) = dc1? dc2? ct
+def $expanddt(deftype) = comptype                         -- if $unrolldt(deftype) = SUB final? typeuse* comptype
 
 
 ;; Free indices
@@ -508,9 +491,6 @@ def $free_resulttype(resulttype) : free
 def $free_storagetype(storagetype) : free
 def $free_fieldtype(fieldtype) : free
 def $free_comptype(comptype) : free
-def $free_describestype(describestype) : free
-def $free_descriptortype(descriptortype) : free
-def $free_desctype(desctype) : free
 def $free_subtype(subtype) : free
 def $free_rectype(rectype) : free
 
@@ -570,14 +550,8 @@ def $free_comptype(STRUCT fieldtype*) = $free_list($free_fieldtype(fieldtype)*)
 def $free_comptype(ARRAY fieldtype) = $free_fieldtype(fieldtype)
 def $free_comptype(FUNC resulttype_1 -> resulttype_2) = $free_resulttype(resulttype_1) ++ $free_resulttype(resulttype_2)
 
-def $free_describestype(DESCRIBES tu) = $free_typeuse(tu)
-def $free_descriptortype(DESCRIPTOR tu) = $free_typeuse(tu)
-
-def $free_desctype(dc1? dc2? ct) =
-  $free_opt($free_describestype(dc1)?) ++ $free_opt($free_descriptortype(dc2)?) ++ $free_comptype(ct)
-
-def $free_subtype(SUB final? typeuse* desctype) =
-  $free_list($free_typeuse(typeuse)*) ++ $free_desctype(desctype)
+def $free_subtype(SUB final? typeuse* comptype) =
+  $free_list($free_typeuse(typeuse)*) ++ $free_comptype(comptype)
 
 def $free_rectype(REC subtype*) = $free_list($free_subtype(subtype)*)
 

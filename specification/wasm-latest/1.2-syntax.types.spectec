@@ -116,11 +116,8 @@ syntax comptype hint(desc "composite type") hint(macro "%" "T%") =
   | ARRAY fieldtype
   | FUNC resulttype -> resulttype
 
-syntax describes hint(macro "T%" "T%") = DESCRIBES
-syntax descriptor hint(macro "T%" "T%") = DESCRIPTOR
-
-syntax describestype hint(desc "describes type") hint(macro "%" "T%") = describes typeuse
-syntax descriptortype hint(desc "descriptor type") hint(macro "%" "T%") = descriptor typeuse
+syntax describestype hint(desc "describes type") hint(macro "%" "T%") = DESCRIBES typeuse
+syntax descriptortype hint(desc "descriptor type") hint(macro "%" "T%") = DESCRIPTOR typeuse
 
 syntax desctype hint(desc "descriptor type") =
   | describestype? descriptortype? comptype

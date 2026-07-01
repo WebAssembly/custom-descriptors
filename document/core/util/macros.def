@@ -270,8 +270,6 @@
 .. |TFINAL| mathdef:: \xref{syntax/types}{syntax-subtype}{\K{final}}
 .. |TDESCRIBES| mathdef:: \xref{syntax/types}{syntax-desctype}{\K{describes}}
 .. |TDESCRIPTOR| mathdef:: \xref{syntax/types}{syntax-desctype}{\K{descriptor}}
-.. |Tdescribes| mathdef:: \xref{syntax/types}{syntax-desctype}{\K{describes}}
-.. |Tdescriptor| mathdef:: \xref{syntax/types}{syntax-desctype}{\K{descriptor}}
 
 .. |TMUT| mathdef:: \xref{syntax/types}{syntax-mut}{\K{mut}}
 

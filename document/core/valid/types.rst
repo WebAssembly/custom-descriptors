@@ -189,7 +189,20 @@ $${rule-prose: Packtype_ok}
 $${rule: Packtype_ok}
 
 
-.. index:: recursive type, sub type, composite type, final, subtyping
+.. index:: descriptor type, describes, descriptor
+   pair: validation; descriptor type
+   single: abstract syntax; descriptor type
+.. _valid-desctype:
+
+Descriptor Types
+~~~~~~~~~~~~~~~~
+
+$${rule-prose: Desctype_ok}
+
+$${rule: Desctype_ok}
+
+
+.. index:: recursive type, sub type,final, subtyping
    pair: abstract syntax; recursive type
    pair: abstract syntax; sub type
 .. _valid-rectype:
@@ -208,7 +221,7 @@ $${rule-prose: Rectype_ok}
 $${rule: {Rectype_ok/empty Rectype_ok/cons}}
 
 
-:math:`\TSUB~\TFINAL^?~y^\ast~\comptype`
+:math:`\TSUB~\TFINAL^?~y^\ast~\desctype`
 ........................................
 
 $${rule-prose: Subtype_ok}

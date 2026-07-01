@@ -143,6 +143,19 @@ $${rule-prose: Packtype_sub}
 $${rule: Packtype_sub}
 
 
+.. index:: descriptor type, describes, descriptor
+.. _match-desctype:
+
+Descriptor Types
+~~~~~~~~~~~~~~~~
+
+.. note:: TODO: Complete these rules.
+
+$${rule-prose: Desctype_sub}
+
+$${rule: Desctype_sub}
+
+
 .. index:: defined type, recursive type, unroll, type equivalence
    pair: abstract syntax; defined type
 .. _match-deftype:

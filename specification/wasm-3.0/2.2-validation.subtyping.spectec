@@ -20,6 +20,10 @@ rule Vectype_sub:
 rule Heaptype_sub/refl:
   C |- heaptype <: heaptype
 
+rule Heaptype_sub/exact-l:
+  C |- EXACT typeuse <: heaptype
+  -- Heaptype_sub: C |- typeuse <: heaptype
+
 rule Heaptype_sub/trans:
   C |- heaptype_1 <: heaptype_2
   -- Heaptype_ok: C |- heaptype' : OK
@@ -64,7 +68,7 @@ rule Heaptype_sub/typeidx-r:
 
 rule Heaptype_sub/rec:
   C |- REC i <: typeuse*[j]
-  -- if C.RECS[i] = SUB final? typeuse* ct
+  -- if C.RECS[i] = SUB final? typeuse* desctype
 
 rule Heaptype_sub/none:
   C |- NONE <: heaptype
@@ -135,6 +139,7 @@ relation Storagetype_sub: context |- storagetype <: storagetype hint(name "S-sto
 relation Fieldtype_sub: context |- fieldtype <: fieldtype       hint(name "S-field")   hint(macro "%fieldtypematch")
 
 ;; Forward declared in validation.types
+;;relation Desctype_sub: context |- desctype <: desctype        hint(name "S-desc")    hint(macro "%desctypematch")
 ;;relation Comptype_sub: context |- comptype <: comptype        hint(name "S-comp")    hint(macro "%comptypematch")
 ;;relation Deftype_sub: context |- deftype <: deftype           hint(name "S-def")     hint(macro "%deftypematch")
 
@@ -175,6 +180,13 @@ rule Comptype_sub/func:
   -- Resulttype_sub: C |- t_21* <: t_11*
   -- Resulttype_sub: C |- t_12* <: t_22*
 
+;; TODO: Check descriptor square rules
+rule Desctype_sub:
+  C |- (DESCRIBES tu_11) (DESCRIPTOR tu_12) ct_1 <: (DESCRIBES tu_21) (DESCRIPTOR tu_22) ct_2
+  -- Heaptype_sub: C |- tu_11 <: tu_21
+  -- Heaptype_sub: C |- tu_12 <: tu_22
+  -- Comptype_sub: C |- ct_1 <: ct_2
+
 
 rule Deftype_sub/refl:
   C |- deftype_1 <: deftype_2
@@ -182,7 +194,7 @@ rule Deftype_sub/refl:
 
 rule Deftype_sub/super:
   C |- deftype_1 <: deftype_2
-  -- if $unrolldt(deftype_1) = SUB final? typeuse* ct
+  -- if $unrolldt(deftype_1) = SUB final? typeuse* desctype
   -- Heaptype_sub: C |- typeuse*[i] <: deftype_2
 
 

@@ -24,6 +24,10 @@ rule Heaptype_ok/typeuse:
   C |- typeuse : OK
   -- Typeuse_ok: C |- typeuse : OK
 
+rule Heaptype_ok/exact:
+  C |- EXACT typeuse : OK
+  -- Typeuse_ok: C |- typeuse : OK
+
 rule Reftype_ok:
   C |- REF NULL? heaptype : OK
   -- Heaptype_ok: C |- heaptype : OK
@@ -85,6 +89,7 @@ relation Packtype_ok: context |- packtype : OK          hint(name "K-pack")    h
 relation Fieldtype_ok: context |- fieldtype : OK        hint(name "K-field")   hint(macro "%fieldtype")
 relation Storagetype_ok: context |- storagetype : OK    hint(name "K-storage") hint(macro "%storagetype")
 relation Comptype_ok: context |- comptype : OK          hint(name "K-comp")    hint(macro "%comptype")
+relation Desctype_ok: context |- desctype : OK          hint(name "K-desc")    hint(macro "%desctype")
 relation Subtype_ok: context |- subtype : oktypeidx     hint(name "K-sub")     hint(macro "%subtype")     hint(prosepp "for")
 relation Rectype_ok: context |- rectype : oktypeidx     hint(name "K-rect")    hint(macro "%rectype")     hint(prosepp "for")
 relation Subtype_ok2: context |- subtype : oktypeidxnat hint(name "K-sub2")    hint(macro "%subtypeext")  hint(prosepp "for")
@@ -93,6 +98,7 @@ relation Deftype_ok: context |- deftype : OK            hint(name "K-def")     h
 
 ;; Forward declarations for validation.subtyping
 relation Comptype_sub: context |- comptype <: comptype  hint(name "S-comp")    hint(macro "%comptypematch")
+relation Desctype_sub: context |- desctype <: desctype  hint(name "S-desc")    hint(macro "%desctypematch")
 relation Deftype_sub: context |- deftype <: deftype     hint(name "S-def")     hint(macro "%deftypematch")
 
 
@@ -139,14 +145,21 @@ rule Comptype_ok/func:
   -- Resulttype_ok: C |- t_2* : OK
 
 
+rule Desctype_ok:
+  C |- (DESCRIBES tu_1)? (DESCRIPTOR tu_2)? ct : OK
+  -- (Typeuse_ok: C |- tu_1 : OK)?
+  -- (Typeuse_ok: C |- tu_2 : OK)?
+  -- Comptype_ok: C |- ct : OK
+
+
 rule Subtype_ok:
-  C |- SUB FINAL? (_IDX x)* comptype : OK(x_0)
+  C |- SUB FINAL? (_IDX x)* desctype : OK(x_0)
   -- if |x*| <= 1
   -- (if x < x_0)*
-  -- (if $unrolldt(C.TYPES[x]) = SUB (_IDX x')* comptype')*
+  -- (if $unrolldt(C.TYPES[x]) = SUB (_IDX x')* desctype')*
   ----
-  -- Comptype_ok: C |- comptype : OK
-  -- (Comptype_sub: C |- comptype <: comptype')*
+  -- Desctype_ok: C |- desctype : OK
+  -- (Desctype_sub: C |- desctype <: desctype')*
 
 def $before(typeuse, typeidx, nat) : bool   hint(show % << %,%) hint(macro "before")
 def $before(deftype, x, i) = true
@@ -159,13 +172,13 @@ def $unrollht(C, _IDX typeidx) = $unrolldt(C.TYPES[typeidx])
 def $unrollht(C, REC i) = C.RECS[i]
 
 rule Subtype_ok2:
-  C |- SUB FINAL? typeuse* compttype : OK x i
+  C |- SUB FINAL? typeuse* desctype : OK x i
   -- if |typeuse*| <= 1
   -- (if $before(typeuse, x, i))*
-  -- (if $unrollht(C, typeuse) = SUB typeuse'* comptype')*
+  -- (if $unrollht(C, typeuse) = SUB typeuse'* desctype')*
   ----
-  -- Comptype_ok: C |- comptype : OK
-  -- (Comptype_sub: C |- comptype <: comptype')*
+  -- Desctype_ok: C |- desctype : OK
+  -- (Desctype_sub: C |- desctype <: desctype')*
 
 
 rule Rectype_ok/empty:

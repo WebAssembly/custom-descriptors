@@ -251,11 +251,20 @@ rule Instr_ok/i31.get:
 
 rule Instr_ok/struct.new:
   C |- STRUCT.NEW x : $unpack(zt)* -> (REF (_IDX x))
-  -- Expand: C.TYPES[x] ~~ STRUCT (mut? zt)*
+  -- ExpandDesc: C.TYPES[x] ~~ describestype? eps STRUCT (mut? zt)*
 
 rule Instr_ok/struct.new_default:
   C |- STRUCT.NEW_DEFAULT x : eps -> (REF (_IDX x))
-  -- Expand: C.TYPES[x] ~~ STRUCT (mut? zt)*
+  -- ExpandDesc: C.TYPES[x] ~~ describestype? eps STRUCT (mut? zt)*
+  -- (Defaultable: |- $unpack(zt) DEFAULTABLE)*
+
+rule Instr_ok/struct.new_desc:
+  C |- STRUCT.NEW_DESC x : $unpack(zt)* (REF NULL (EXACT (_IDX y))) -> (REF (EXACT (_IDX x)))
+  -- ExpandDesc: C.TYPES[x] ~~ describestype? (DESCRIPTOR (_IDX y)) (STRUCT (mut? zt)*)
+
+rule Instr_ok/struct.new_default_desc:
+  C |- STRUCT.NEW_DEFAULT_DESC x : (REF NULL (EXACT (_IDX y))) -> (REF (EXACT (_IDX x)))
+  -- ExpandDesc: C.TYPES[x] ~~ describestype? (DESCRIPTOR (_IDX y)) (STRUCT (mut? zt)*)
   -- (Defaultable: |- $unpack(zt) DEFAULTABLE)*
 
 def $is_packtype(storagetype) : bool             hint(show %1 = $unpack(%1)) hint(prose "%1 is a packed type")

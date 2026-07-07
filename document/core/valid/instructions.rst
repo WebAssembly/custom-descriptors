@@ -854,6 +854,26 @@ $${rule-prose: Instr_ok/struct.new_default}
 $${rule: Instr_ok/struct.new_default}
 
 
+.. _valid-struct.new_desc:
+
+:math:`\STRUCTNEWDESC~x`
+........................
+
+$${rule-prose: Instr_ok/struct.new_desc}
+
+$${rule: Instr_ok/struct.new_desc}
+
+
+.. _valid-struct.new_default_desc:
+
+:math:`\STRUCTNEWDEFAULTDESC~x`
+...............................
+
+$${rule-prose: Instr_ok/struct.new_default_desc}
+
+$${rule: Instr_ok/struct.new_default_desc}
+
+
 .. _valid-struct.get:
 .. _valid-struct.get_u:
 .. _valid-struct.get_s:

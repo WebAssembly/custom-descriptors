@@ -342,8 +342,10 @@
 .. |rolldt| mathdef:: \xref{valid/conventions}{aux-roll-deftype}{\F{roll}}
 .. |unrolldt| mathdef:: \xref{valid/conventions}{aux-unroll-deftype}{\F{unroll}}
 .. |expanddt| mathdef:: \xref{valid/conventions}{aux-expand-deftype}{\F{expand}}
+.. |expanddttodesctype| mathdef:: \xref{valid/conventions}{aux-expand-deftype-to-desctype}{\F{expand}}
 .. |approxexpanddt| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype}{\approx}}
 .. |approxexpandyy| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-typeuse}{\approx}}
+.. |approxexpanddttodesctype| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype-to-desctype}{\approx}}
 .. |unrollht| mathdef:: \xref{appendix/properties}{aux-unroll-heaptype}{\F{unroll}}
 
 .. |unpack| mathdef:: \xref{syntax/types}{aux-unpack}{\F{unpack}}
@@ -551,6 +553,8 @@
 
 .. |STRUCTNEW| mathdef:: \xref{syntax/instructions}{syntax-instr-struct}{\K{struct{.}new}}
 .. |STRUCTNEWDEFAULT| mathdef:: \xref{syntax/instructions}{syntax-instr-struct}{\K{struct{.}new\_default}}
+.. |STRUCTNEWDESC| mathdef:: \xref{syntax/instructions}{syntax-instr-struct}{\K{struct{.}new\_desc}}
+.. |STRUCTNEWDEFAULTDESC| mathdef:: \xref{syntax/instructions}{syntax-instr-struct}{\K{struct{.}new\_default\_desc}}
 .. |STRUCTGET| mathdef:: \xref{syntax/instructions}{syntax-instr-struct}{\K{struct{.}get}}
 .. |STRUCTGETS| mathdef:: \xref{syntax/instructions}{syntax-instr-struct}{\K{struct{.}get\_s}}
 .. |STRUCTGETU| mathdef:: \xref{syntax/instructions}{syntax-instr-struct}{\K{struct{.}get\_u}}

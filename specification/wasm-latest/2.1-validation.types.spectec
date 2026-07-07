@@ -77,6 +77,11 @@ rule Expand: deftype ~~ comptype   -- if $expanddt(deftype) = comptype
 rule Expand_use/deftype: deftype ~~_C comptype       -- Expand: deftype ~~ comptype
 rule Expand_use/typeidx: _IDX typeidx ~~_C comptype  -- Expand: C.TYPES[typeidx] ~~ comptype
 
+relation ExpandDesc: deftype ~~ desctype hint(macro "%expanddt_to_desctype") hint(tabular)
+  hint(prose "The :ref:`expansion <aux-expand-deftype-to-desctype>` of %1 is %2") ;; TODO(3, ?): avoid hardcoding reST
+
+rule ExpandDesc: deftype ~~ desctype  -- if $expanddt_to_desctype(deftype) = desctype
+
 
 ;; Type definitions
 

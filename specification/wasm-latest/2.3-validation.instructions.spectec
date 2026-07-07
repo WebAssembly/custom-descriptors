@@ -682,6 +682,12 @@ rule Instr_const/struct.new:
 rule Instr_const/struct.new_default:
   C |- (STRUCT.NEW_DEFAULT x) CONST
 
+rule Instr_const/struct.new_desc:
+  C |- (STRUCT.NEW_DESC x) CONST
+
+rule Instr_const/struct.new_default_desc:
+  C |- (STRUCT.NEW_DEFAULT_DESC x) CONST
+
 rule Instr_const/array.new:
   C |- (ARRAY.NEW x) CONST
 

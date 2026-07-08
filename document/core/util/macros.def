@@ -239,6 +239,7 @@
 .. |NULL| mathdef:: \xref{syntax/types}{syntax-reftype}{\K{null}}
 
 .. |EXACT| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{exact}}
+.. |INEXACT| mathdef:: {}
 .. |ANY| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{any}}
 .. |EQT| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{eq}}
 .. |I31| mathdef:: \xref{syntax/types}{syntax-heaptype}{\K{i\scriptstyle31}}
@@ -309,6 +310,7 @@
 .. |subtype| mathdef:: \xref{syntax/types}{syntax-subtype}{\X{subtype}}
 .. |rectype| mathdef:: \xref{syntax/types}{syntax-rectype}{\X{rectype}}
 .. |deftype| mathdef:: \xref{valid/conventions}{syntax-deftype}{\X{deftype}}
+.. |exact| mathdef:: \X{exact}
 
 .. |globaltype| mathdef:: \xref{syntax/types}{syntax-globaltype}{\X{globaltype}}
 .. |tabletype| mathdef:: \xref{syntax/types}{syntax-tabletype}{\X{tabletype}}
@@ -349,6 +351,7 @@
 .. |unrollht| mathdef:: \xref{appendix/properties}{aux-unroll-heaptype}{\F{unroll}}
 
 .. |unpack| mathdef:: \xref{syntax/types}{aux-unpack}{\F{unpack}}
+.. |exactheaptype| mathdef:: \F{exactheaptype}
 
 .. |funcsxt| mathdef:: \xref{syntax/types}{syntax-externtype}{\F{funcs}}
 .. |tablesxt| mathdef:: \xref{syntax/types}{syntax-externtype}{\F{tables}}

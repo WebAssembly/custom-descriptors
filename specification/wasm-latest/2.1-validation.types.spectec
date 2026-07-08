@@ -265,6 +265,6 @@ rule Externtype_ok/table:
   -- Tabletype_ok: C |- tabletype : OK
 
 rule Externtype_ok/func:
-  C |- FUNC typeuse : OK
+  C |- FUNC exact typeuse : OK
   -- Typeuse_ok: C |- typeuse : OK
   -- Expand_use: typeuse ~~_C $($(FUNC t_1* -> t_2*))

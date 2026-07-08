@@ -100,7 +100,8 @@ grammar Btabletype : tabletype =
 
 
 grammar Bexterntype : externtype =
-  | 0x00 x:Btypeidx => FUNC (_IDX x)
+  | 0x00 x:Btypeidx => FUNC INEXACT (_IDX x)
+  | 0x20 x:Btypeidx => FUNC EXACT (_IDX x)
   | 0x01 tt:Btabletype => TABLE tt
   | 0x02 mt:Bmemtype => MEM mt
   | 0x03 gt:Bglobaltype => GLOBAL gt

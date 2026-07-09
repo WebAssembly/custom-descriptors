@@ -306,6 +306,7 @@ syntax instr/ref hint(desc "reference instruction") = ...
   | REF.IS_NULL
   | REF.AS_NON_NULL
   | REF.EQ
+  | REF.GET_DESC typeidx
   | REF.TEST reftype
   | REF.CAST reftype
   | ...

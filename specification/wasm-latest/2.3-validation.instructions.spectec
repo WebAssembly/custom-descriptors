@@ -231,6 +231,14 @@ rule Instr_ok/ref.as_non_null:
 rule Instr_ok/ref.eq:
   C |- REF.EQ : (REF NULL EQ) (REF NULL EQ) -> I32
 
+rule Instr_ok/ref.get_desc:
+  C |- REF.GET_DESC x : (REF NULL (_IDX x)) -> (REF (_IDX y))
+  -- ExpandDesc: C.TYPES[x] ~~ describestype? (DESCRIPTOR (_IDX y)) ct
+
+rule Instr_ok/ref.get_desc-exact:
+  C |- REF.GET_DESC x : (REF NULL (EXACT (_IDX x))) -> (REF (EXACT (_IDX y)))
+  -- ExpandDesc: C.TYPES[x] ~~ describestype? (DESCRIPTOR (_IDX y)) ct
+
 rule Instr_ok/ref.test:
   C |- REF.TEST rt : rt' -> I32
   -- Reftype_ok: C |- rt : OK

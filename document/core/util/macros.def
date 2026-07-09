@@ -551,6 +551,7 @@
 .. |REFISNULL| mathdef:: \xref{syntax/instructions}{syntax-instr-ref}{\K{ref{.}is\_null}}
 .. |REFASNONNULL| mathdef:: \xref{syntax/instructions}{syntax-instr-ref}{\K{ref{.}as\_non\_null}}
 .. |REFEQ| mathdef:: \xref{syntax/instructions}{syntax-instr-ref}{\K{ref{.}eq}}
+.. |REFGETDESC| mathdef:: \xref{syntax/instructions}{syntax-instr-ref}{\K{ref.get\_desc}}
 .. |REFTEST| mathdef:: \xref{syntax/instructions}{syntax-instr-ref}{\K{ref{.}test}}
 .. |REFCAST| mathdef:: \xref{syntax/instructions}{syntax-instr-ref}{\K{ref{.}cast}}
 

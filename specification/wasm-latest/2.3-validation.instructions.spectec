@@ -217,11 +217,6 @@ rule Instr_ok/ref.func:
   -- if ht = $exactheaptype(exact, dt)
   -- if x <- C.REFS
 
-rule Instr_ok/ref.func-exact:
-  C |- REF.FUNC x : eps -> (REF (EXACT dt))
-  -- if C.FUNCS[x] = EXACT dt
-  -- if x <- C.REFS
-
 rule Instr_ok/ref.i31:
   C |- REF.I31 : I32 -> (REF I31)
 

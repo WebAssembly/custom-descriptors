@@ -253,11 +253,11 @@ rule Instr_ok/i31.get:
 ;; Structure instructions
 
 rule Instr_ok/struct.new:
-  C |- STRUCT.NEW x : $unpack(zt)* -> (REF (_IDX x))
+  C |- STRUCT.NEW x : $unpack(zt)* -> (REF (EXACT (_IDX x)))
   -- ExpandDesc: C.TYPES[x] ~~ describestype? eps STRUCT (mut? zt)*
 
 rule Instr_ok/struct.new_default:
-  C |- STRUCT.NEW_DEFAULT x : eps -> (REF (_IDX x))
+  C |- STRUCT.NEW_DEFAULT x : eps -> (REF (EXACT (_IDX x)))
   -- ExpandDesc: C.TYPES[x] ~~ describestype? eps STRUCT (mut? zt)*
   -- (Defaultable: |- $unpack(zt) DEFAULTABLE)*
 
@@ -288,25 +288,25 @@ rule Instr_ok/struct.set:
 ;; Array instructions
 
 rule Instr_ok/array.new:
-  C |- ARRAY.NEW x : $unpack(zt) I32 -> (REF (_IDX x))
+  C |- ARRAY.NEW x : $unpack(zt) I32 -> (REF (EXACT (_IDX x)))
   -- Expand: C.TYPES[x] ~~ ARRAY (mut? zt)
 
 rule Instr_ok/array.new_default:
-  C |- ARRAY.NEW_DEFAULT x : I32 -> (REF (_IDX x))
+  C |- ARRAY.NEW_DEFAULT x : I32 -> (REF (EXACT (_IDX x)))
   -- Expand: C.TYPES[x] ~~ ARRAY (mut? zt)
   -- Defaultable: |- $unpack(zt) DEFAULTABLE
 
 rule Instr_ok/array.new_fixed:
-  C |- ARRAY.NEW_FIXED x n : $unpack(zt)^n -> (REF (_IDX x))
+  C |- ARRAY.NEW_FIXED x n : $unpack(zt)^n -> (REF (EXACT (_IDX x)))
   -- Expand: C.TYPES[x] ~~ ARRAY (mut? zt)
 
 rule Instr_ok/array.new_elem:
-  C |- ARRAY.NEW_ELEM x y : I32 I32 -> (REF (_IDX x))
+  C |- ARRAY.NEW_ELEM x y : I32 I32 -> (REF (EXACT (_IDX x)))
   -- Expand: C.TYPES[x] ~~ ARRAY (mut? rt)
   -- Reftype_sub: C |- C.ELEMS[y] <: rt
 
 rule Instr_ok/array.new_data:
-  C |- ARRAY.NEW_DATA x y : I32 I32 -> (REF (_IDX x))
+  C |- ARRAY.NEW_DATA x y : I32 I32 -> (REF (EXACT (_IDX x)))
   -- Expand: C.TYPES[x] ~~ ARRAY (mut? zt)
   -- if $unpack(zt) = numtype \/ $unpack(zt) = vectype
   -- if C.DATAS[y] = OK

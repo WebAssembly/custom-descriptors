@@ -7,7 +7,7 @@
 ;; TODO(3, rossberg): add ability to do this inline
 syntax null hint(show NULL) hint(macro "%" "%") = NULL
 
-syntax exact hint(desc "exactness") = EXACT
+syntax exact hint(show EXACT) = EXACT
 
 syntax addrtype hint(desc "address type") =
   | I32 | I64

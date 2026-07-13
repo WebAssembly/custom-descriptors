@@ -115,6 +115,54 @@ rule Instr_ok/br_on_cast_fail:
   -- Reftype_sub: C |- rt_2 <: rt_3
   -- Reftype_sub: C |- $diffrt(rt_1, rt_2) <: rt
 
+rule Instr_ok/br_on_cast_desc_eq:
+  C |- BR_ON_CAST_DESC_EQ l rt_1 (REF null_2 (_IDX x)) : t* rt_1 (REF NULL (_IDX y)) -> t* ($diffrt(rt_1, (REF null_2 (_IDX x))))
+  -- if C.LABELS[l] = t* rt
+  -- ExpandDesc: C.TYPES[x] ~~ describestype? (DESCRIPTOR (_IDX y)) ct
+  -- Reftype_ok: C |- rt_1 : OK
+  -- Reftype_ok: C |- (REF null_2 (_IDX x)) : OK
+  -- Reftype_ok: C |- rt_3 : OK
+  ----
+  -- Reftype_sub: C |- rt_1 <: rt_3
+  -- Reftype_sub: C |- (REF null_2 (_IDX x)) <: rt_3
+  -- Reftype_sub: C |- (REF null_2 (_IDX x)) <: rt
+
+rule Instr_ok/br_on_cast_desc_eq-exact:
+  C |- BR_ON_CAST_DESC_EQ l rt_1 (REF null_2 (EXACT (_IDX x))) : t* rt_1 (REF NULL (EXACT (_IDX y))) -> t* ($diffrt(rt_1, (REF null_2 (EXACT (_IDX x)))))
+  -- if C.LABELS[l] = t* rt
+  -- ExpandDesc: C.TYPES[x] ~~ describestype? (DESCRIPTOR (_IDX y)) ct
+  -- Reftype_ok: C |- rt_1 : OK
+  -- Reftype_ok: C |- (REF null_2 (EXACT (_IDX x))) : OK
+  -- Reftype_ok: C |- rt_3 : OK
+  ----
+  -- Reftype_sub: C |- rt_1 <: rt_3
+  -- Reftype_sub: C |- (REF null_2 (EXACT (_IDX x))) <: rt_3
+  -- Reftype_sub: C |- (REF null_2 (EXACT (_IDX x))) <: rt
+
+rule Instr_ok/br_on_cast_desc_eq_fail:
+  C |- BR_ON_CAST_DESC_EQ_FAIL l rt_1 (REF null_2 (_IDX x)) : t* rt_1 (REF NULL (_IDX y)) -> t* (REF null_2 (_IDX x))
+  -- if C.LABELS[l] = t* rt
+  -- ExpandDesc: C.TYPES[x] ~~ describestype? (DESCRIPTOR (_IDX y)) ct
+  -- Reftype_ok: C |- rt_1 : OK
+  -- Reftype_ok: C |- (REF null_2 (_IDX x)) : OK
+  -- Reftype_ok: C |- rt_3 : OK
+  ----
+  -- Reftype_sub: C |- rt_1 <: rt_3
+  -- Reftype_sub: C |- (REF null_2 (_IDX x)) <: rt_3
+  -- Reftype_sub: C |- $diffrt(rt_1, (REF null_2 (_IDX x))) <: rt
+
+rule Instr_ok/br_on_cast_desc_eq_fail-exact:
+  C |- BR_ON_CAST_DESC_EQ_FAIL l rt_1 (REF null_2 (EXACT (_IDX x))) : t* rt_1 (REF NULL (EXACT (_IDX y))) -> t* (REF null_2 (EXACT (_IDX x)))
+  -- if C.LABELS[l] = t* rt
+  -- ExpandDesc: C.TYPES[x] ~~ describestype? (DESCRIPTOR (_IDX y)) ct
+  -- Reftype_ok: C |- rt_1 : OK
+  -- Reftype_ok: C |- (REF null_2 (EXACT (_IDX x))) : OK
+  -- Reftype_ok: C |- rt_3 : OK
+  ----
+  -- Reftype_sub: C |- rt_1 <: rt_3
+  -- Reftype_sub: C |- (REF null_2 (EXACT (_IDX x))) <: rt_3
+  -- Reftype_sub: C |- $diffrt(rt_1, (REF null_2 (EXACT (_IDX x)))) <: rt
+
 
 ;; Function instructions
 
@@ -250,6 +298,16 @@ rule Instr_ok/ref.cast:
   -- Reftype_ok: C |- rt : OK
   -- Reftype_ok: C |- rt' : OK
   -- Reftype_sub: C |- rt <: rt'
+
+rule Instr_ok/ref.cast_desc_eq:
+  C |- REF.CAST_DESC_EQ (REF null_1 (_IDX x)) : (REF NULL ht) (REF NULL (_IDX y)) -> (REF null_1 (_IDX x))
+  -- ExpandDesc: C.TYPES[x] ~~ describestype? (DESCRIPTOR (_IDX y)) ct
+  -- Heaptype_sub: C |- (_IDX x) <: ht
+
+rule Instr_ok/ref.cast_desc_eq-exact:
+  C |- REF.CAST_DESC_EQ (REF null_1 (EXACT (_IDX x))) : (REF NULL ht) (REF NULL (EXACT (_IDX y))) -> (REF null_1 (EXACT (_IDX x)))
+  -- ExpandDesc: C.TYPES[x] ~~ describestype? (DESCRIPTOR (_IDX y)) ct
+  -- Heaptype_sub: C |- (_IDX x) <: ht
 
 
 ;; Scalar reference instructions

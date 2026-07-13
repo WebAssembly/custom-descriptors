@@ -252,6 +252,32 @@ $${rule: Instr_ok/br_on_cast_fail}
    The existence of a common supertype ${:rt_3} means that ${:rt_1} and ${:rt_2} must be in the same heap subtyping hierarchy.
 
 
+.. _valid-br_on_cast_desc_eq:
+
+:math:`\BRONCASTDESCEQ~l~\X{rt}_1~\X{rt}_2`
+...........................................
+
+$${rule-prose: Instr_ok/br_on_cast_desc_eq}
+
+$${rule: Instr_ok/br_on_cast_desc_eq Instr_ok/br_on_cast_desc_eq-exact}
+
+.. note::
+   The existence of a common supertype ${:rt_3} means that ${:rt_1} and ${:rt_2} must be in the same heap subtyping hierarchy.
+
+
+.. _valid-br_on_cast_desc_eq_fail:
+
+:math:`\BRONCASTDESCEQFAIL~l~\X{rt}_1~\X{rt}_2`
+................................................
+
+$${rule-prose: Instr_ok/br_on_cast_desc_eq_fail}
+
+$${rule: Instr_ok/br_on_cast_desc_eq_fail Instr_ok/br_on_cast_desc_eq_fail-exact}
+
+.. note::
+   The existence of a common supertype ${:rt_3} means that ${:rt_1} and ${:rt_2} must be in the same heap subtyping hierarchy.
+
+
 .. _valid-call:
 
 :math:`\CALL~x`
@@ -837,6 +863,16 @@ $${rule: Instr_ok/ref.cast}
 
 .. note::
    The liberty to pick a supertype ${:rt'} allows typing the instruction with the least precise super type of ${:rt} as input, that is, the top type in the corresponding heap subtyping hierarchy.
+
+
+.. _valid-ref.cast_desc_eq:
+
+:math:`\REFCASTDESCEQ~\X{rt}`
+.............................
+
+$${rule-prose: Instr_ok/ref.cast_desc_eq}
+
+$${rule: Instr_ok/ref.cast_desc_eq Instr_ok/ref.cast_desc_eq-exact}
 
 
 .. index:: aggregate reference

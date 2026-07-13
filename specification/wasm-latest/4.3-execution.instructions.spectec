@@ -203,10 +203,10 @@ rule Step_read/return_call_ref-frame-addr:
 
 
 rule Step_pure/call_indirect:
-  (CALL_INDIRECT x yy)  ~>  (TABLE.GET x) (REF.CAST (REF NULL yy)) (CALL_REF yy)
+  (CALL_INDIRECT x yy)  ~>  (TABLE.GET x) (REF.CAST (REF NULL (_HT yy))) (CALL_REF yy)
 
 rule Step_pure/return_call_indirect:
-  (RETURN_CALL_INDIRECT x yy)  ~>  (TABLE.GET x) (REF.CAST (REF NULL yy)) (RETURN_CALL_REF yy)
+  (RETURN_CALL_INDIRECT x yy)  ~>  (TABLE.GET x) (REF.CAST (REF NULL (_HT yy))) (RETURN_CALL_REF yy)
 
 
 rule Step_pure/frame-vals:
@@ -616,7 +616,7 @@ rule Step/data.drop:
 ;; Reference instructions
 
 rule Step_read/ref.null-idx:
-  z; (REF.NULL (_IDX x))  ~>  (REF.NULL $type(z, x))
+  z; (REF.NULL (_HT _IDX x))  ~>  (REF.NULL (_HT $type(z, x)))
 
 rule Step_read/ref.func:
   z; (REF.FUNC x)  ~>  (REF.FUNC_ADDR $moduleinst(z).FUNCS[x])

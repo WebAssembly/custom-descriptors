@@ -30,7 +30,7 @@ grammar Tabsheaptype : heaptype =
 
 grammar Theaptype_(I) : heaptype =
   | ht:Tabsheaptype => ht
-  | x:Ttypeidx_(I) => _IDX x
+  | x:Ttypeidx_(I) => _HT (_IDX x)
 
 grammar Tnull : null =
   | "null" => NULL

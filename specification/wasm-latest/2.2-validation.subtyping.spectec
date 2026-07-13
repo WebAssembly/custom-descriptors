@@ -21,8 +21,8 @@ rule Heaptype_sub/refl:
   C |- heaptype <: heaptype
 
 rule Heaptype_sub/exact-l:
-  C |- EXACT typeuse <: heaptype
-  -- Heaptype_sub: C |- typeuse <: heaptype
+  C |- _HT exact typeuse <: heaptype
+  -- Heaptype_sub: C |- _HT typeuse <: heaptype
 
 rule Heaptype_sub/trans:
   C |- heaptype_1 <: heaptype_2
@@ -43,31 +43,31 @@ rule Heaptype_sub/array-eq:
   C |- ARRAY <: EQ
 
 rule Heaptype_sub/struct:
-  C |- deftype <: STRUCT
+  C |- _HT deftype <: STRUCT
   -- Expand: deftype ~~ STRUCT fieldtype*
 
 rule Heaptype_sub/array:
-  C |- deftype <: ARRAY
+  C |- _HT deftype <: ARRAY
   -- Expand: deftype ~~ ARRAY fieldtype
 
 rule Heaptype_sub/func:
-  C |- deftype <: FUNC
+  C |- _HT deftype <: FUNC
   -- Expand: deftype ~~ FUNC t_1* -> t_2*
 
 rule Heaptype_sub/def:
-  C |- deftype_1 <: deftype_2
+  C |- _HT deftype_1 <: _HT deftype_2
   -- Deftype_sub: C |- deftype_1 <: deftype_2
 
 rule Heaptype_sub/typeidx-l:
-  C |- _IDX typeidx <: heaptype
-  -- Heaptype_sub: C |- C.TYPES[typeidx] <: heaptype
+  C |- _HT _IDX typeidx <: heaptype
+  -- Heaptype_sub: C |- _HT C.TYPES[typeidx] <: heaptype
 
 rule Heaptype_sub/typeidx-r:
-  C |- heaptype <: _IDX typeidx
-  -- Heaptype_sub: C |- heaptype <: C.TYPES[typeidx]
+  C |- heaptype <: _HT _IDX typeidx
+  -- Heaptype_sub: C |- heaptype <: _HT C.TYPES[typeidx]
 
 rule Heaptype_sub/rec:
-  C |- REC i <: typeuse*[j]
+  C |- _HT REC i <: _HT typeuse*[j]
   -- if C.RECS[i] = SUB final? typeuse* desctype
 
 rule Heaptype_sub/none:
@@ -183,8 +183,8 @@ rule Comptype_sub/func:
 ;; TODO: Check descriptor square rules
 rule Desctype_sub:
   C |- (DESCRIBES tu_11) (DESCRIPTOR tu_12) ct_1 <: (DESCRIBES tu_21) (DESCRIPTOR tu_22) ct_2
-  -- Heaptype_sub: C |- tu_11 <: tu_21
-  -- Heaptype_sub: C |- tu_12 <: tu_22
+  -- Heaptype_sub: C |- _HT tu_11 <: _HT tu_21
+  -- Heaptype_sub: C |- _HT tu_12 <: _HT tu_22
   -- Comptype_sub: C |- ct_1 <: ct_2
 
 
@@ -195,7 +195,7 @@ rule Deftype_sub/refl:
 rule Deftype_sub/super:
   C |- deftype_1 <: deftype_2
   -- if $unrolldt(deftype_1) = SUB final? typeuse* desctype
-  -- Heaptype_sub: C |- typeuse*[i] <: deftype_2
+  -- Heaptype_sub: C |- _HT typeuse*[i] <: _HT deftype_2
 
 
 ;; External types

@@ -7,6 +7,8 @@
 ;; TODO(3, rossberg): add ability to do this inline
 syntax null hint(show NULL) hint(macro "%" "%") = NULL
 
+syntax exact hint(desc "exactness") = EXACT
+
 syntax addrtype hint(desc "address type") =
   | I32 | I64
 
@@ -41,7 +43,7 @@ syntax typevar hint(desc "type variable") =
   | _IDX typeidx | REC n hint(show REC.%)
 
 syntax heaptype hint(desc "heap type") =
-  | absheaptype | typeuse | EXACT typeuse
+  | absheaptype | _HT exact? typeuse
 
 syntax reftype hint(desc "reference type") =
   | REF null? heaptype
@@ -382,8 +384,8 @@ def $subst_addrtype(at, tv*, tu*) = at
 def $subst_numtype(nt, tv*, tu*) = nt
 def $subst_vectype(vt, tv*, tu*) = vt
 
-def $subst_heaptype(tv', tv*, tu*) = $subst_typevar(tv', tv*, tu*)
-def $subst_heaptype(dt, tv*, tu*) = $subst_deftype(dt, tv*, tu*)
+def $subst_heaptype(_HT exact? tv', tv*, tu*) = _HT exact? $subst_typevar(tv', tv*, tu*)
+def $subst_heaptype(_HT exact? dt, tv*, tu*) = _HT exact? $subst_deftype(dt, tv*, tu*)
 def $subst_heaptype(ht, tv*, tu*) = ht  -- otherwise
 
 def $subst_reftype((REF null? ht), tv*, tu*) = REF null? $subst_heaptype(ht, tv*, tu*)
@@ -550,7 +552,7 @@ def $free_typeuse(typevar) = $free_typevar(typevar)
 def $free_typeuse(deftype) = $free_deftype(deftype)
 
 def $free_heaptype(absheaptype) = $free_absheaptype(absheaptype)
-def $free_heaptype(typeuse) = $free_typeuse(typeuse)
+def $free_heaptype(_HT exact? typeuse) = $free_typeuse(typeuse)
 
 def $free_reftype(REF null? heaptype) = $free_heaptype(heaptype)
 

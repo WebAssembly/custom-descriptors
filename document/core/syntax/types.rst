@@ -92,6 +92,7 @@ The syntax of type uses is :ref:`extended <syntax-typeuse-ext>` with additional 
 .. _syntax-i31:
 .. _syntax-heaptype:
 .. _syntax-absheaptype:
+.. _syntax-exact:
 
 Heap Types
 ~~~~~~~~~~

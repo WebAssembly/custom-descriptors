@@ -29,7 +29,7 @@ grammar Babsheaptype : heaptype =
 
 grammar Bheaptype : heaptype =
   | ht:Babsheaptype => ht
-  | x33:Bs33 => _IDX $s33_to_u32(x33)  -- if x33 >= 0
+  | x33:Bs33 => _HT (_IDX $s33_to_u32(x33))  -- if x33 >= 0
 
 grammar Breftype : reftype =
   | 0x63 ht:Bheaptype => REF NULL ht

@@ -40,15 +40,15 @@ rule Ref_ok/i31:
   s |- REF.I31_NUM i : (REF I31)
 
 rule Ref_ok/struct:
-  s |- REF.STRUCT_ADDR a : (REF dt)
+  s |- REF.STRUCT_ADDR a : (REF (_HT dt))
   -- if s.STRUCTS[a].TYPE = dt
 
 rule Ref_ok/array:
-  s |- REF.ARRAY_ADDR a : (REF dt)
+  s |- REF.ARRAY_ADDR a : (REF (_HT dt))
   -- if s.ARRAYS[a].TYPE = dt
 
 rule Ref_ok/func:
-  s |- REF.FUNC_ADDR a : (REF dt)
+  s |- REF.FUNC_ADDR a : (REF (_HT dt))
   -- if s.FUNCS[a].TYPE = dt
 
 rule Ref_ok/exn:

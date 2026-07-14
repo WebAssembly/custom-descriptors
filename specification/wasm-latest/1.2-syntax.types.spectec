@@ -7,8 +7,7 @@
 ;; TODO(3, rossberg): add ability to do this inline
 syntax null hint(show NULL) hint(macro "%" "%") = NULL
 
-syntax exact hint(desc "exactness") =
-  | EXACT | INEXACT
+syntax exact hint(show EXACT) = EXACT
 
 syntax addrtype hint(desc "address type") =
   | I32 | I64
@@ -35,8 +34,6 @@ syntax rectype hint(desc "recursive type")  ;; forward decl
 syntax deftype hint(desc "defined type") =
   | _DEF rectype n hint(show %.%)
 
-syntax exactdeftype hint(show (exact deftype)) = exact deftype
-
 syntax typeuse/syn hint(desc "type use") =
   | _IDX typeidx | ...
 syntax typeuse/sem =
@@ -46,7 +43,7 @@ syntax typevar hint(desc "type variable") =
   | _IDX typeidx | REC n hint(show REC.%)
 
 syntax heaptype hint(desc "heap type") =
-  | absheaptype | typeuse | EXACT typeuse
+  | absheaptype | _HT exact? typeuse
 
 syntax reftype hint(desc "reference type") =
   | REF null? heaptype
@@ -88,12 +85,6 @@ def $NULLREF   = (REF NULL NONE)
 def $NULLFUNCREF = (REF NULL NOFUNC)
 def $NULLEXNREF  = (REF NULL NOEXN)
 def $NULLEXTERNREF = (REF NULL NOEXTERN)
-
-
-def $exactheaptype(exact, typeuse) : heaptype
-
-def $exactheaptype(EXACT, typeuse) = EXACT typeuse
-def $exactheaptype(INEXACT, typeuse) = typeuse
 
 
 ;; Packed types
@@ -152,7 +143,7 @@ syntax datatype hint(desc "data type") = OK hint(macro "%data")
 syntax elemtype hint(desc "element type") = reftype
 
 syntax externtype hint(desc "external type") hint(macro "%" "XT%") =
-  | TAG tagtype | GLOBAL globaltype | MEM memtype | TABLE tabletype | FUNC exact typeuse
+  | TAG tagtype | GLOBAL globaltype | MEM memtype | TABLE tabletype | FUNC heaptype
 
 syntax moduletype hint(desc "module type") =
   externtype* -> externtype* hint(macro "toM")
@@ -167,7 +158,6 @@ var at : addrtype
 ;; var bt : blocktype  ;; defined below
 var ct : comptype
 var dt : deftype
-var edt : exactdeftype
 var et : elemtype
 var ft : fieldtype
 var gt : globaltype
@@ -327,7 +317,7 @@ def $tagsxt(externtype*) : tagtype*        hint(show $tags(%))    hint(macro "ta
 def $globalsxt(externtype*) : globaltype*  hint(show $globals(%)) hint(macro "globalsxt")
 def $memsxt(externtype*) : memtype*        hint(show $mems(%))    hint(macro "memsxt")
 def $tablesxt(externtype*) : tabletype*    hint(show $tables(%))  hint(macro "tablesxt")
-def $funcsxt(externtype*) : exactdeftype*  hint(show $funcs(%))   hint(macro "funcsxt")
+def $funcsxt(externtype*) : heaptype*      hint(show $funcs(%))   hint(macro "funcsxt")
 
 def $tagsxt(eps) = eps
 def $tagsxt((TAG jt) xt*) = jt $tagsxt(xt*)
@@ -346,7 +336,7 @@ def $tablesxt((TABLE tt) xt*) = tt $tablesxt(xt*)
 def $tablesxt(externtype xt*) = $tablesxt(xt*)  -- otherwise
 
 def $funcsxt(eps) = eps
-def $funcsxt((FUNC exact dt) xt*) = (exact dt) $funcsxt(xt*)
+def $funcsxt((FUNC ht) xt*) = ht $funcsxt(xt*)
 def $funcsxt(externtype xt*) = $funcsxt(xt*)  -- otherwise
 
 
@@ -394,8 +384,8 @@ def $subst_addrtype(at, tv*, tu*) = at
 def $subst_numtype(nt, tv*, tu*) = nt
 def $subst_vectype(vt, tv*, tu*) = vt
 
-def $subst_heaptype(tv', tv*, tu*) = $subst_typevar(tv', tv*, tu*)
-def $subst_heaptype(dt, tv*, tu*) = $subst_deftype(dt, tv*, tu*)
+def $subst_heaptype(_HT exact? tv', tv*, tu*) = _HT exact? $subst_typevar(tv', tv*, tu*)
+def $subst_heaptype(_HT exact? dt, tv*, tu*) = _HT exact? $subst_deftype(dt, tv*, tu*)
 def $subst_heaptype(ht, tv*, tu*) = ht  -- otherwise
 
 def $subst_reftype((REF null? ht), tv*, tu*) = REF null? $subst_heaptype(ht, tv*, tu*)
@@ -448,7 +438,7 @@ def $subst_externtype((TAG jt), tv*, tu*) = TAG $subst_tagtype(jt, tv*, tu*)
 def $subst_externtype((GLOBAL gt), tv*, tu*) = GLOBAL $subst_globaltype(gt, tv*, tu*)
 def $subst_externtype((TABLE tt), tv*, tu*) = TABLE $subst_tabletype(tt, tv*, tu*)
 def $subst_externtype((MEM mt), tv*, tu*) = MEM $subst_memtype(mt, tv*, tu*)
-def $subst_externtype((FUNC exact dt), tv*, tu*) = FUNC exact $subst_deftype(dt, tv*, tu*)
+def $subst_externtype((FUNC ht), tv*, tu*) = FUNC $subst_heaptype(ht, tv*, tu*)
 
 def $subst_moduletype(xt_1* -> xt_2*, tv*, tu*) = $subst_externtype(xt_1, tv*, tu*)* -> $subst_externtype(xt_2, tv*, tu*)*
 
@@ -562,7 +552,7 @@ def $free_typeuse(typevar) = $free_typevar(typevar)
 def $free_typeuse(deftype) = $free_deftype(deftype)
 
 def $free_heaptype(absheaptype) = $free_absheaptype(absheaptype)
-def $free_heaptype(typeuse) = $free_typeuse(typeuse)
+def $free_heaptype(_HT exact? typeuse) = $free_typeuse(typeuse)
 
 def $free_reftype(REF null? heaptype) = $free_heaptype(heaptype)
 
@@ -610,7 +600,7 @@ def $free_externtype(TAG tagtype) = $free_tagtype(tagtype)
 def $free_externtype(GLOBAL globaltype) = $free_globaltype(globaltype)
 def $free_externtype(MEM memtype) = $free_memtype(memtype)
 def $free_externtype(TABLE tabletype) = $free_tabletype(tabletype)
-def $free_externtype(FUNC exact typeuse) = $free_typeuse(typeuse)
+def $free_externtype(FUNC heaptype) = $free_heaptype(heaptype)
 
 def $free_moduletype(externtype_1* -> externtype_2*) =
   $free_list($free_externtype(externtype_1)*) ++

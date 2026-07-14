@@ -28,7 +28,7 @@ syntax context hint(desc "context") hint(macro "%" "C%") =
     GLOBALS globaltype*     hint(desc "global"),
     MEMS memtype*           hint(desc "memory"),
     TABLES tabletype*       hint(desc "table"),
-    FUNCS exactdeftype*     hint(desc "function"),
+    FUNCS heaptype*         hint(desc "function"),
     DATAS datatype*         hint(desc "data segment"),
     ELEMS elemtype*         hint(desc "element segment"),
     LOCALS localtype*       hint(desc "local"),

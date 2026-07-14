@@ -836,7 +836,7 @@ $${rule: Instr_ok/ref.eq}
 
 $${rule-prose: Instr_ok/ref.get_desc}
 
-$${rule: Instr_ok/ref.get_desc Instr_ok/ref.get_desc-exact}
+$${rule: Instr_ok/ref.get_desc}
 
 
 .. _valid-ref.test:

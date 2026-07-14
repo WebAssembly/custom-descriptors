@@ -29,7 +29,7 @@ grammar Babsheaptype : heaptype =
 
 grammar Bheaptype : heaptype =
   | ht:Babsheaptype => ht
-  | x33:Bs33 => _IDX $s33_to_u32(x33)  -- if x33 >= 0
+  | x33:Bs33 => _HT (_IDX $s33_to_u32(x33))  -- if x33 >= 0
 
 grammar Breftype : reftype =
   | 0x63 ht:Bheaptype => REF NULL ht
@@ -100,8 +100,8 @@ grammar Btabletype : tabletype =
 
 
 grammar Bexterntype : externtype =
-  | 0x00 x:Btypeidx => FUNC INEXACT (_IDX x)
-  | 0x20 x:Btypeidx => FUNC EXACT (_IDX x)
+  | 0x00 x:Btypeidx => FUNC (_HT _IDX x)
+  | 0x20 x:Btypeidx => FUNC (_HT EXACT _IDX x)
   | 0x01 tt:Btabletype => TABLE tt
   | 0x02 mt:Bmemtype => MEM mt
   | 0x03 gt:Bglobaltype => GLOBAL gt

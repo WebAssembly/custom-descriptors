@@ -58,9 +58,9 @@ $${rule-prose: Heaptype_ok/abs}
 
 $${rule: Heaptype_ok/abs}
 
-$${rule-prose: Heaptype_ok/exact}
+$${rule-prose: Heaptype_ok/typeuse}
 
-$${rule: Heaptype_ok/exact}
+$${rule: Heaptype_ok/typeuse}
 
 
 .. index:: reference type, heap type

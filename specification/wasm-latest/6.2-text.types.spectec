@@ -30,7 +30,7 @@ grammar Tabsheaptype : heaptype =
 
 grammar Theaptype_(I) : heaptype =
   | ht:Tabsheaptype => ht
-  | x:Ttypeidx_(I) => _IDX x
+  | x:Ttypeidx_(I) => _HT (_IDX x)
 
 grammar Tnull : null =
   | "null" => NULL
@@ -152,8 +152,8 @@ grammar Texterntype_(I) : (externtype, idctxt) =
   | "(" "global" id?:Tid? gt:Tglobaltype_(I) ")" => (GLOBAL gt, {GLOBALS (id?)})
   | "(" "memory" id?:Tid? mt:Tmemtype_(I) ")" => (MEM mt, {MEMS (id?)})
   | "(" "table" id?:Tid? tt:Ttabletype_(I) ")" => (TABLE tt, {TABLES (id?)})
-  | "(" "func" id?:Tid? (x,I'):Ttypeuse_(I) ")" => (FUNC INEXACT $($(_IDX x)), {FUNCS (id?)})
-  | "(" "func" id?:Tid? "(" "exact" (x,I'):Ttypeuse_(I) ")" ")" => (FUNC EXACT $($(_IDX x)), {FUNCS (id?)})
+  | "(" "func" id?:Tid? (x,I'):Ttypeuse_(I) ")" => (FUNC $($(_HT _IDX x)), {FUNCS (id?)})
+  | "(" "func" id?:Tid? "(" "exact" (x,I'):Ttypeuse_(I) ")" ")" => (FUNC $($(_HT EXACT _IDX x)), {FUNCS (id?)})
 
 
 ;; Type uses

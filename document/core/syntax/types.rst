@@ -92,6 +92,7 @@ The syntax of type uses is :ref:`extended <syntax-typeuse-ext>` with additional 
 .. _syntax-i31:
 .. _syntax-heaptype:
 .. _syntax-absheaptype:
+.. _syntax-exact:
 
 Heap Types
 ~~~~~~~~~~
@@ -472,7 +473,7 @@ External Types
 
 $${syntax: externtype}
 
-For functions, the :ref:`type use <syntax-typeuse>` has to refer to the definition of a :ref:`function type <syntax-functype>`.
+For functions, the :ref:`heap type <syntax-heaptype>` has to refer to the definition of a :ref:`function type <syntax-functype>`.
 
 .. note::
    Future versions of WebAssembly may have additional uses for tags, and may allow non-empty result types in the function types of tags.

@@ -90,7 +90,7 @@ rule Elemmode_ok/active:
 
 rule Start_ok:
   C |- START x : OK
-  -- if C.FUNCS[x] = exact dt
+  -- if C.FUNCS[x] = _HT exact? dt
   -- Expand: dt ~~ FUNC eps -> eps
 
 
@@ -126,8 +126,8 @@ rule Externidx_ok/table:
   -- if C.TABLES[x] = tt
 
 rule Externidx_ok/func:
-  C |- FUNC x : FUNC exact dt
-  -- if C.FUNCS[x] = exact dt
+  C |- FUNC x : FUNC ht
+  -- if C.FUNCS[x] = ht
 
 
 ;; Modules
@@ -160,15 +160,15 @@ rule Module_ok:
   ----
   -- if C = C' ++ {TAGS jt_I* jt*, GLOBALS gt*, MEMS mt_I* mt*, TABLES tt_I* tt*, DATAS ok*, ELEMS rt*}
   ----
-  -- if C' = {TYPES dt'*, GLOBALS gt_I*, FUNCS edt_I* edt*, REFS x*}
-  -- if edt* = (EXACT dt)*
+  -- if C' = {TYPES dt'*, GLOBALS gt_I*, FUNCS ht_I* ht*, REFS x*}
+  -- if ht* = (_HT EXACT dt)*
   -- if x* = $funcidx_nonfuncs(global* mem* table* elem*)
   ----
   -- if jt_I* = $tagsxt(xt_I*)
   -- if gt_I* = $globalsxt(xt_I*)
   -- if mt_I* = $memsxt(xt_I*)
   -- if tt_I* = $tablesxt(xt_I*)
-  -- if edt_I* = $funcsxt(xt_I*)
+  -- if ht_I* = $funcsxt(xt_I*)
 
 
 rule Types_ok/empty:

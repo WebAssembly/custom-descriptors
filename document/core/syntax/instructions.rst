@@ -231,6 +231,7 @@ The ${:DATA.DROP} instruction prevents further use of a passive data segment. Th
 .. _syntax-ref.is_null:
 .. _syntax-ref.as_non_null:
 .. _syntax-ref.eq:
+.. _syntax-ref.get_desc:
 .. _syntax-ref.test:
 .. _syntax-ref.cast:
 .. _syntax-instr-ref:
@@ -247,7 +248,9 @@ The ${:REF.NULL} and ${:REF.FUNC} instructions produce a :ref:`null <syntax-null
 The instruction ${:REF.IS_NULL} checks for null,
 while ${:REF.AS_NON_NULL} converts a :ref:`nullable <syntax-reftype>` to a non-null one, and :ref:`traps <trap>` if it encounters null.
 
-The ${:REF.EQ} compares two references.
+The instruction ${:REF.EQ} compares two references.
+
+The instruction ${:REF.GET_DESC} gets the :ref:`descriptor <syntax-desctype>` of an allocated value.
 
 The instructions ${:REF.TEST} and ${:REF.CAST} test the :ref:`dynamic type <type-inst>` of a reference operand.
 The former merely returns the result of the test,

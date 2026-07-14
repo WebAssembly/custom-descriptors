@@ -259,7 +259,7 @@ $${rule: Instr_ok/br_on_cast_fail}
 
 $${rule-prose: Instr_ok/br_on_cast_desc_eq}
 
-$${rule: Instr_ok/br_on_cast_desc_eq Instr_ok/br_on_cast_desc_eq-exact}
+$${rule: Instr_ok/br_on_cast_desc_eq}
 
 .. note::
    The existence of a common supertype ${:rt_3} means that ${:rt_1} and ${:rt_2} must be in the same heap subtyping hierarchy.
@@ -272,7 +272,7 @@ $${rule: Instr_ok/br_on_cast_desc_eq Instr_ok/br_on_cast_desc_eq-exact}
 
 $${rule-prose: Instr_ok/br_on_cast_desc_eq_fail}
 
-$${rule: Instr_ok/br_on_cast_desc_eq_fail Instr_ok/br_on_cast_desc_eq_fail-exact}
+$${rule: Instr_ok/br_on_cast_desc_eq_fail}
 
 .. note::
    The existence of a common supertype ${:rt_3} means that ${:rt_1} and ${:rt_2} must be in the same heap subtyping hierarchy.
@@ -872,7 +872,7 @@ $${rule: Instr_ok/ref.cast}
 
 $${rule-prose: Instr_ok/ref.cast_desc_eq}
 
-$${rule: Instr_ok/ref.cast_desc_eq Instr_ok/ref.cast_desc_eq-exact}
+$${rule: Instr_ok/ref.cast_desc_eq}
 
 
 .. index:: aggregate reference

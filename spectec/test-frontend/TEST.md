@@ -616,7 +616,7 @@ syntax typeuse =
   | _DEF{rectype : rectype, n : n}(rectype : rectype, n : n)
   | REC{n : n}(n : n)
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:45.1-46.37
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:45.1-46.52
 syntax heaptype =
   | ANY
   | EQ

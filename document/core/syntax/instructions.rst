@@ -61,6 +61,8 @@ If missing, the operands must be of :ref:`numeric <syntax-numtype>` or :ref:`vec
 .. _syntax-br_on_non_null:
 .. _syntax-br_on_cast:
 .. _syntax-br_on_cast_fail:
+.. _syntax-br_on_cast_desc_eq:
+.. _syntax-br_on_cast_desc_eq_fail:
 .. _syntax-call:
 .. _syntax-call_ref:
 .. _syntax-call_indirect:
@@ -113,6 +115,7 @@ ${:BR_IF} performs a conditional branch,
 and ${:BR_TABLE} performs an indirect branch through an operand indexing into the label list that is an immediate to the instruction, or to a default target if the operand is out of bounds.
 The ${:BR_ON_NULL} and ${:BR_ON_NON_NULL} instructions check whether a reference operand is :ref:`null <syntax-nullref>` and branch if that is the case or not the case, respectively.
 Similarly, ${:BR_ON_CAST} and ${:BR_ON_CAST_FAIL} attempt a downcast on a reference operand and branch if that succeeds, or fails, respectively.
+The ${:BR_ON_CAST_DESC_EQ} and ${:BR_ON_CAST_DESC_EQ_FAIL} instructions perform a similar cast check but compare the operand's descriptor against a given descriptor value.
 
 The ${:RETURN} instruction is a shortcut for an unconditional branch to the outermost block, which implicitly is the body of the current function.
 Taking a branch *unwinds* the operand stack up to the height where the targeted structured control instruction was entered.
@@ -234,6 +237,7 @@ The ${:DATA.DROP} instruction prevents further use of a passive data segment. Th
 .. _syntax-ref.get_desc:
 .. _syntax-ref.test:
 .. _syntax-ref.cast:
+.. _syntax-ref.cast_desc_eq:
 .. _syntax-instr-ref:
 
 Reference Instructions
@@ -255,10 +259,12 @@ The instruction ${:REF.GET_DESC} gets the :ref:`descriptor <syntax-desctype>` of
 The instructions ${:REF.TEST} and ${:REF.CAST} test the :ref:`dynamic type <type-inst>` of a reference operand.
 The former merely returns the result of the test,
 while the latter performs a downcast and :ref:`traps <trap>` if the operand's type does not match.
+The instruction ${:REF.CAST_DESC_EQ} performs a similar downcast but checks the operand's descriptor against a given descriptor value instead of checking its dynamic type.
 
 .. note::
    The ${:BR_ON_NULL} and ${:BR_ON_NON_NULL} instructions provide versions of ${:REF.AS_NON_NULL} that branch depending on the success or failure of a null test instead of trapping.
-   Similarly, the ${:BR_ON_CAST} and ${:BR_ON_CAST_FAIL} instructions provides versions of ${:REF.CAST} that branch depending on the success of the downcast instead of trapping.
+   Similarly, the ${:BR_ON_CAST} and ${:BR_ON_CAST_FAIL} instructions provides versions of ${:REF.CAST} that branch depending on the success of the downcast instead of trapping,
+   and ${:BR_ON_CAST_DESC_EQ} and ${:BR_ON_CAST_DESC_EQ_FAIL} provide branching versions of ${:REF.CAST_DESC_EQ}.
 
    An additional instruction operating on function references is the :ref:`control instruction <syntax-instr-control>` ${:CALL_REF}.
 

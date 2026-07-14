@@ -493,6 +493,8 @@
 .. |BRONNONNULL| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{br\_on\_non\_null}}
 .. |BRONCAST| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{br\_on\_cast}}
 .. |BRONCASTFAIL| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{br\_on\_cast\_fail}}
+.. |BRONCASTDESCEQ| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{br\_on\_cast\_desc\_eq}}
+.. |BRONCASTDESCEQFAIL| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{br\_on\_cast\_desc\_eq\_fail}}
 
 .. |RETURN| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{return}}
 .. |CALL| mathdef:: \xref{syntax/instructions}{syntax-instr-control}{\K{call}}
@@ -552,6 +554,7 @@
 .. |REFGETDESC| mathdef:: \xref{syntax/instructions}{syntax-instr-ref}{\K{ref.get\_desc}}
 .. |REFTEST| mathdef:: \xref{syntax/instructions}{syntax-instr-ref}{\K{ref{.}test}}
 .. |REFCAST| mathdef:: \xref{syntax/instructions}{syntax-instr-ref}{\K{ref{.}cast}}
+.. |REFCASTDESCEQ| mathdef:: \xref{syntax/instructions}{syntax-instr-ref}{\K{ref{.}cast\_desc\_eq}}
 
 .. |STRUCTNEW| mathdef:: \xref{syntax/instructions}{syntax-instr-struct}{\K{struct{.}new}}
 .. |STRUCTNEWDEFAULT| mathdef:: \xref{syntax/instructions}{syntax-instr-struct}{\K{struct{.}new\_default}}

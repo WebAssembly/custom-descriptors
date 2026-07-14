@@ -234,6 +234,8 @@ syntax instr/br hint(desc "branch instruction") = ...
   | BR_ON_NON_NULL labelidx
   | BR_ON_CAST labelidx reftype reftype
   | BR_ON_CAST_FAIL labelidx reftype reftype
+  | BR_ON_CAST_DESC_EQ labelidx reftype reftype
+  | BR_ON_CAST_DESC_EQ_FAIL labelidx reftype reftype
   | ...
 
 syntax instr/call hint(desc "function instruction") = ...
@@ -309,6 +311,7 @@ syntax instr/ref hint(desc "reference instruction") = ...
   | REF.GET_DESC typeidx
   | REF.TEST reftype
   | REF.CAST reftype
+  | REF.CAST_DESC_EQ reftype
   | ...
 
 syntax instr/func hint(desc "function reference instruction") = ...
@@ -448,6 +451,10 @@ def $free_instr(BR_ON_CAST labelidx reftype_1 reftype_2) =
   $free_labelidx(labelidx) ++ $free_reftype(reftype_1) ++ $free_reftype(reftype_2)
 def $free_instr(BR_ON_CAST_FAIL labelidx reftype_1 reftype_2) =
   $free_labelidx(labelidx) ++ $free_reftype(reftype_1) ++ $free_reftype(reftype_2)
+def $free_instr(BR_ON_CAST_DESC_EQ labelidx reftype_1 reftype_2) =
+  $free_labelidx(labelidx) ++ $free_reftype(reftype_1) ++ $free_reftype(reftype_2)
+def $free_instr(BR_ON_CAST_DESC_EQ_FAIL labelidx reftype_1 reftype_2) =
+  $free_labelidx(labelidx) ++ $free_reftype(reftype_1) ++ $free_reftype(reftype_2)
 
 def $free_instr(CALL funcidx) = $free_funcidx(funcidx)
 def $free_instr(CALL_REF typeuse) = $free_typeuse(typeuse)
@@ -501,6 +508,7 @@ def $free_instr(REF.AS_NON_NULL) = {}
 def $free_instr(REF.EQ) = {}
 def $free_instr(REF.TEST reftype) = $free_reftype(reftype)
 def $free_instr(REF.CAST reftype) = $free_reftype(reftype)
+def $free_instr(REF.CAST_DESC_EQ reftype) = $free_reftype(reftype)
 def $free_instr(REF.FUNC funcidx) = $free_funcidx(funcidx)
 def $free_instr(REF.I31) = {}
 

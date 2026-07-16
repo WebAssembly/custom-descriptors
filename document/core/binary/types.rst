@@ -117,11 +117,15 @@ Composite Types
 $${grammar: Bmut Bcomptype Bfieldtype Bstoragetype Bpacktype}
 
 
-.. index:: recursive type, sub type, composite type
+.. index:: recursive type, sub type, desctype, composite type
    pair: binary format; recursive type
    pair: binary format; sub type
+   pair: binary format; desctype
 .. _binary-rectype:
 .. _binary-subtype:
+.. _binary-desctype:
+.. _binary-describestype:
+.. _binary-descriptortype:
 
 Recursive Types
 ~~~~~~~~~~~~~~~
@@ -129,7 +133,7 @@ Recursive Types
 :ref:`Recursive types <syntax-rectype>` are encoded by the byte ${:0x4E} followed by a :ref:`list <binary-list>` of :ref:`sub types <syntax-subtype>`.
 Additional shorthands are recognized for unary recursions and sub types without super types.
 
-$${grammar: Brectype Bsubtype}
+$${grammar: Brectype Bsubtype Bdesctype Bdescribestype Bdescriptortype}
 
 
 .. index:: limits

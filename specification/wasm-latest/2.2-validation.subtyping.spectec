@@ -21,7 +21,7 @@ rule Heaptype_sub/refl:
   C |- heaptype <: heaptype
 
 rule Heaptype_sub/exact-l:
-  C |- _HT exact typeuse <: heaptype
+  C |- _HT EXACT typeuse <: heaptype
   -- Heaptype_sub: C |- _HT typeuse <: heaptype
 
 rule Heaptype_sub/trans:

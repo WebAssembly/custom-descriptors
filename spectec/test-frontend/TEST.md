@@ -1455,7 +1455,7 @@ def $free_heaptype(heaptype : heaptype) : free
   ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:554.1-554.65
   def $free_heaptype{absheaptype : absheaptype}((absheaptype : absheaptype <: heaptype)) = $free_absheaptype(absheaptype)
   ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:555.1-555.64
-  def $free_heaptype{`exact?` : exact?, typeuse : typeuse}(_HT_heaptype(exact?{exact <- `exact?`}, typeuse)) = $free_typeuse(typeuse)
+  def $free_heaptype{typeuse : typeuse}(_HT_heaptype(EXACT_exact?{}, typeuse)) = $free_typeuse(typeuse)
 
 ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:504.1-504.34
 def $free_reftype(reftype : reftype) : free
@@ -2797,11 +2797,11 @@ def $before(typeuse : typeuse, typeidx : typeidx, nat : nat) : bool
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
 def $unrollht(context : context, heaptype : heaptype) : subtype
   ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
-  def $unrollht{C : context, `exact?` : exact?, deftype : deftype}(C, _HT_heaptype(exact?{exact <- `exact?`}, (deftype : deftype <: typeuse))) = $unrolldt(deftype)
+  def $unrollht{C : context, deftype : deftype}(C, _HT_heaptype(EXACT_exact?{}, (deftype : deftype <: typeuse))) = $unrolldt(deftype)
   ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
-  def $unrollht{C : context, `exact?` : exact?, typeidx : typeidx}(C, _HT_heaptype(exact?{exact <- `exact?`}, _IDX_typeuse(typeidx))) = $unrolldt(C.TYPES_context[typeidx!`%`_typeidx.0])
+  def $unrollht{C : context, typeidx : typeidx}(C, _HT_heaptype(EXACT_exact?{}, _IDX_typeuse(typeidx))) = $unrolldt(C.TYPES_context[typeidx!`%`_typeidx.0])
   ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
-  def $unrollht{C : context, `exact?` : exact?, i : n}(C, _HT_heaptype(exact?{exact <- `exact?`}, REC_typeuse(i))) = C.RECS_context[i]
+  def $unrollht{C : context, i : n}(C, _HT_heaptype(EXACT_exact?{}, REC_typeuse(i))) = C.RECS_context[i]
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
 rec {
@@ -2813,8 +2813,8 @@ relation Heaptype_ok: `%|-%:OK`(context, heaptype)
     `%|-%:OK`(C, (absheaptype : absheaptype <: heaptype))
 
   ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:23.1-25.35
-  rule typeuse{C : context, `exact?` : exact?, typeuse : typeuse}:
-    `%|-%:OK`(C, _HT_heaptype(exact?{exact <- `exact?`}, typeuse))
+  rule typeuse{C : context, typeuse : typeuse}:
+    `%|-%:OK`(C, _HT_heaptype(EXACT_exact?{}, typeuse))
     -- Typeuse_ok: `%|-%:OK`(C, typeuse)
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:10.1-10.91
@@ -3022,8 +3022,8 @@ relation Heaptype_sub: `%|-%<:%`(context, heaptype, heaptype)
     `%|-%<:%`(C, heaptype, heaptype)
 
   ;; ../../../../specification/wasm-latest/2.2-validation.subtyping.spectec:23.1-25.48
-  rule `exact-l`{C : context, exact : exact, typeuse : typeuse, heaptype : heaptype}:
-    `%|-%<:%`(C, _HT_heaptype(?(exact), typeuse), heaptype)
+  rule `exact-l`{C : context, typeuse : typeuse, heaptype : heaptype}:
+    `%|-%<:%`(C, _HT_heaptype(?(EXACT_exact), typeuse), heaptype)
     -- Heaptype_sub: `%|-%<:%`(C, _HT_heaptype(?(), typeuse), heaptype)
 
   ;; ../../../../specification/wasm-latest/2.2-validation.subtyping.spectec:27.1-31.48
@@ -3196,7 +3196,7 @@ relation Expand_use: `%~~_%%`(typeuse, context, comptype)
     -- Expand: `%~~%`(C.TYPES_context[typeidx!`%`_typeidx.0], comptype)
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
-relation ExpandDesc: `%~~%`(deftype, desctype)
+relation Expand_desc: `%~~%`(deftype, desctype)
   ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
   rule _{deftype : deftype, desctype : desctype}:
     `%~~%`(deftype, desctype)
@@ -3644,23 +3644,23 @@ relation Instr_ok: `%|-%:%`(context, instr, instrtype)
   ;; ../../../../specification/wasm-latest/2.3-validation.instructions.spectec:254.1-256.68
   rule struct.new{C : context, x : idx, `zt*` : storagetype*, `describestype?` : describestype?, `mut?*` : mut?*}:
     `%|-%:%`(C, STRUCT.NEW_instr(x), `%->_%%`_instrtype(`%`_resulttype($unpack(zt)*{zt <- `zt*`}), [], `%`_resulttype([REF_valtype(?(), _HT_heaptype(?(), _IDX_typeuse(x)))])))
-    -- ExpandDesc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
+    -- Expand_desc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
 
   ;; ../../../../specification/wasm-latest/2.3-validation.instructions.spectec:258.1-261.48
   rule struct.new_default{C : context, x : idx, `describestype?` : describestype?, `mut?*` : mut?*, `zt*` : storagetype*}:
     `%|-%:%`(C, STRUCT.NEW_DEFAULT_instr(x), `%->_%%`_instrtype(`%`_resulttype([]), [], `%`_resulttype([REF_valtype(?(), _HT_heaptype(?(), _IDX_typeuse(x)))])))
-    -- ExpandDesc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
+    -- Expand_desc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
     -- (Defaultable: `|-%DEFAULTABLE`($unpack(zt)))*{zt <- `zt*`}
 
   ;; ../../../../specification/wasm-latest/2.3-validation.instructions.spectec:263.1-265.88
   rule struct.new_desc{C : context, x : idx, `zt*` : storagetype*, y : idx, `describestype?` : describestype?, `mut?*` : mut?*}:
     `%|-%:%`(C, STRUCT.NEW_DESC_instr(x), `%->_%%`_instrtype(`%`_resulttype($unpack(zt)*{zt <- `zt*`} ++ [REF_valtype(?(NULL_null), _HT_heaptype(?(EXACT_exact), _IDX_typeuse(y)))]), [], `%`_resulttype([REF_valtype(?(), _HT_heaptype(?(EXACT_exact), _IDX_typeuse(x)))])))
-    -- ExpandDesc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(DESCRIPTOR_descriptortype(_IDX_typeuse(y))), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
+    -- Expand_desc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(DESCRIPTOR_descriptortype(_IDX_typeuse(y))), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
 
   ;; ../../../../specification/wasm-latest/2.3-validation.instructions.spectec:267.1-270.48
   rule struct.new_default_desc{C : context, x : idx, y : idx, `describestype?` : describestype?, `mut?*` : mut?*, `zt*` : storagetype*}:
     `%|-%:%`(C, STRUCT.NEW_DEFAULT_DESC_instr(x), `%->_%%`_instrtype(`%`_resulttype([REF_valtype(?(NULL_null), _HT_heaptype(?(EXACT_exact), _IDX_typeuse(y)))]), [], `%`_resulttype([REF_valtype(?(), _HT_heaptype(?(EXACT_exact), _IDX_typeuse(x)))])))
-    -- ExpandDesc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(DESCRIPTOR_descriptortype(_IDX_typeuse(y))), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
+    -- Expand_desc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(DESCRIPTOR_descriptortype(_IDX_typeuse(y))), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
     -- (Defaultable: `|-%DEFAULTABLE`($unpack(zt)))*{zt <- `zt*`}
 
   ;; ../../../../specification/wasm-latest/2.3-validation.instructions.spectec:275.1-279.41

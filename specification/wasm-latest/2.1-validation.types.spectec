@@ -21,7 +21,7 @@ rule Heaptype_ok/abs:
   C |- absheaptype : OK
 
 rule Heaptype_ok/typeuse:
-  C |- _HT exact? typeuse : OK
+  C |- _HT EXACT? typeuse : OK
   -- Typeuse_ok: C |- typeuse : OK
 
 rule Reftype_ok:
@@ -73,10 +73,10 @@ rule Expand: deftype ~~ comptype   -- if $expanddt(deftype) = comptype
 rule Expand_use/deftype: deftype ~~_C comptype       -- Expand: deftype ~~ comptype
 rule Expand_use/typeidx: _IDX typeidx ~~_C comptype  -- Expand: C.TYPES[typeidx] ~~ comptype
 
-relation ExpandDesc: deftype ~~ desctype hint(macro "%expanddt_to_desctype") hint(tabular)
+relation Expand_desc: deftype ~~ desctype hint(macro "%expanddt_to_desctype") hint(tabular)
   hint(prose "The :ref:`expansion <aux-expand-deftype-to-desctype>` of %1 is %2") ;; TODO(3, ?): avoid hardcoding reST
 
-rule ExpandDesc: deftype ~~ desctype  -- if $expanddt_to_desctype(deftype) = desctype
+rule Expand_desc: deftype ~~ desctype  -- if $expanddt_to_desctype(deftype) = desctype
 
 
 ;; Type definitions
@@ -168,9 +168,9 @@ def $before(_IDX typeidx, x, i) = typeidx < x
 def $before(REC j, x, i) = j < i
 
 def $unrollht(context, heaptype) : subtype  hint(show $unroll_(%,%))
-def $unrollht(C, _HT exact? deftype) = $unrolldt(deftype)
-def $unrollht(C, _HT exact? _IDX typeidx) = $unrolldt(C.TYPES[typeidx])
-def $unrollht(C, _HT exact? REC i) = C.RECS[i]
+def $unrollht(C, _HT EXACT? deftype) = $unrolldt(deftype)
+def $unrollht(C, _HT EXACT? _IDX typeidx) = $unrolldt(C.TYPES[typeidx])
+def $unrollht(C, _HT EXACT? REC i) = C.RECS[i]
 
 rule Subtype_ok2:
   C |- SUB FINAL? typeuse* desctype : OK x i

@@ -552,7 +552,7 @@ def $free_typeuse(typevar) = $free_typevar(typevar)
 def $free_typeuse(deftype) = $free_deftype(deftype)
 
 def $free_heaptype(absheaptype) = $free_absheaptype(absheaptype)
-def $free_heaptype(_HT exact? typeuse) = $free_typeuse(typeuse)
+def $free_heaptype(_HT EXACT? typeuse) = $free_typeuse(typeuse)
 
 def $free_reftype(REF null? heaptype) = $free_heaptype(heaptype)
 

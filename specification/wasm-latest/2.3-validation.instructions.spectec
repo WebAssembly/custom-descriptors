@@ -120,7 +120,8 @@ rule Instr_ok/br_on_cast_fail:
 
 rule Instr_ok/call:
   C |- CALL x : t_1* -> t_2*
-  -- Expand: C.FUNCS[x] ~~ FUNC t_1* -> t_2*
+  -- if C.FUNCS[x] = _HT exact? dt
+  -- Expand: dt ~~ FUNC t_1* -> t_2*
 
 rule Instr_ok/call_ref:
   C |- CALL_REF (_IDX x) : t_1* (REF NULL (_HT _IDX x)) -> t_2*
@@ -140,7 +141,8 @@ rule Instr_ok/return:
 ;; TODO(3, rossberg): enable t_2* <: C.RETURN
 rule Instr_ok/return_call:
   C |- RETURN_CALL x : t_3* t_1* -> t_4*
-  -- Expand: C.FUNCS[x] ~~ FUNC t_1* -> t_2*
+  -- if C.FUNCS[x] = _HT exact? dt
+  -- Expand: dt ~~ FUNC t_1* -> t_2*
   -- if C.RETURN = (t'_2*)
   -- Resulttype_sub: C |- t_2* <: t'_2*
   -- Instrtype_ok: C |- t_3* -> t_4* : OK
@@ -210,8 +212,8 @@ rule Instr_ok/ref.null:
   -- Heaptype_ok: C |- ht : OK
 
 rule Instr_ok/ref.func:
-  C |- REF.FUNC x : eps -> (REF (_HT dt))
-  -- if C.FUNCS[x] = dt
+  C |- REF.FUNC x : eps -> (REF ht)
+  -- if C.FUNCS[x] = ht
   -- if x <- C.REFS
 
 rule Instr_ok/ref.i31:

@@ -21,11 +21,7 @@ rule Heaptype_ok/abs:
   C |- absheaptype : OK
 
 rule Heaptype_ok/typeuse:
-  C |- typeuse : OK
-  -- Typeuse_ok: C |- typeuse : OK
-
-rule Heaptype_ok/exact:
-  C |- EXACT typeuse : OK
+  C |- _HT EXACT? typeuse : OK
   -- Typeuse_ok: C |- typeuse : OK
 
 rule Reftype_ok:
@@ -167,15 +163,15 @@ def $before(_IDX typeidx, x, i) = typeidx < x
 def $before(REC j, x, i) = j < i
 
 def $unrollht(context, heaptype) : subtype  hint(show $unroll_(%,%))
-def $unrollht(C, deftype) = $unrolldt(deftype)
-def $unrollht(C, _IDX typeidx) = $unrolldt(C.TYPES[typeidx])
-def $unrollht(C, REC i) = C.RECS[i]
+def $unrollht(C, _HT EXACT? deftype) = $unrolldt(deftype)
+def $unrollht(C, _HT EXACT? _IDX typeidx) = $unrolldt(C.TYPES[typeidx])
+def $unrollht(C, _HT EXACT? REC i) = C.RECS[i]
 
 rule Subtype_ok2:
   C |- SUB FINAL? typeuse* desctype : OK x i
   -- if |typeuse*| <= 1
   -- (if $before(typeuse, x, i))*
-  -- (if $unrollht(C, typeuse) = SUB typeuse'* desctype')*
+  -- (if $unrollht(C, _HT typeuse) = SUB typeuse'* desctype')*
   ----
   -- Desctype_ok: C |- desctype : OK
   -- (Desctype_sub: C |- desctype <: desctype')*

@@ -321,6 +321,7 @@
 
 .. |limits| mathdef:: \xref{syntax/types}{syntax-limits}{\X{limits}}
 .. |null| mathdef:: \xref{syntax/types}{syntax-null}{\X{null}}
+.. |exact| mathdef:: \xref{syntax/types}{syntax-exact}{\X{exact}}
 .. |mut| mathdef:: \xref{syntax/types}{syntax-mut}{\X{mut}}
 .. |final| mathdef:: \xref{syntax/types}{syntax-final}{\X{final}}
 .. |init| mathdef:: \xref{valid/conventions}{syntax-init}{\X{init}}

@@ -3196,7 +3196,7 @@ relation Expand_use: `%~~_%%`(typeuse, context, comptype)
     -- Expand: `%~~%`(C.TYPES_context[typeidx!`%`_typeidx.0], comptype)
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
-relation ExpandDesc: `%~~%`(deftype, desctype)
+relation Expand_desc: `%~~%`(deftype, desctype)
   ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
   rule _{deftype : deftype, desctype : desctype}:
     `%~~%`(deftype, desctype)
@@ -3642,23 +3642,23 @@ relation Instr_ok: `%|-%:%`(context, instr, instrtype)
   ;; ../../../../specification/wasm-latest/2.3-validation.instructions.spectec:252.1-254.68
   rule struct.new{C : context, x : idx, `zt*` : storagetype*, `describestype?` : describestype?, `mut?*` : mut?*}:
     `%|-%:%`(C, STRUCT.NEW_instr(x), `%->_%%`_instrtype(`%`_resulttype($unpack(zt)*{zt <- `zt*`}), [], `%`_resulttype([REF_valtype(?(), _HT_heaptype(?(), _IDX_typeuse(x)))])))
-    -- ExpandDesc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
+    -- Expand_desc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
 
   ;; ../../../../specification/wasm-latest/2.3-validation.instructions.spectec:256.1-259.48
   rule struct.new_default{C : context, x : idx, `describestype?` : describestype?, `mut?*` : mut?*, `zt*` : storagetype*}:
     `%|-%:%`(C, STRUCT.NEW_DEFAULT_instr(x), `%->_%%`_instrtype(`%`_resulttype([]), [], `%`_resulttype([REF_valtype(?(), _HT_heaptype(?(), _IDX_typeuse(x)))])))
-    -- ExpandDesc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
+    -- Expand_desc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
     -- (Defaultable: `|-%DEFAULTABLE`($unpack(zt)))*{zt <- `zt*`}
 
   ;; ../../../../specification/wasm-latest/2.3-validation.instructions.spectec:261.1-263.88
   rule struct.new_desc{C : context, x : idx, `zt*` : storagetype*, y : idx, `describestype?` : describestype?, `mut?*` : mut?*}:
     `%|-%:%`(C, STRUCT.NEW_DESC_instr(x), `%->_%%`_instrtype(`%`_resulttype($unpack(zt)*{zt <- `zt*`} ++ [REF_valtype(?(NULL_null), _HT_heaptype(?(EXACT_exact), _IDX_typeuse(y)))]), [], `%`_resulttype([REF_valtype(?(), _HT_heaptype(?(EXACT_exact), _IDX_typeuse(x)))])))
-    -- ExpandDesc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(DESCRIPTOR_descriptortype(_IDX_typeuse(y))), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
+    -- Expand_desc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(DESCRIPTOR_descriptortype(_IDX_typeuse(y))), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
 
   ;; ../../../../specification/wasm-latest/2.3-validation.instructions.spectec:265.1-268.48
   rule struct.new_default_desc{C : context, x : idx, y : idx, `describestype?` : describestype?, `mut?*` : mut?*, `zt*` : storagetype*}:
     `%|-%:%`(C, STRUCT.NEW_DEFAULT_DESC_instr(x), `%->_%%`_instrtype(`%`_resulttype([REF_valtype(?(NULL_null), _HT_heaptype(?(EXACT_exact), _IDX_typeuse(y)))]), [], `%`_resulttype([REF_valtype(?(), _HT_heaptype(?(EXACT_exact), _IDX_typeuse(x)))])))
-    -- ExpandDesc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(DESCRIPTOR_descriptortype(_IDX_typeuse(y))), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
+    -- Expand_desc: `%~~%`(C.TYPES_context[x!`%`_idx.0], `%%%`_desctype(describestype?{describestype <- `describestype?`}, ?(DESCRIPTOR_descriptortype(_IDX_typeuse(y))), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`}))))
     -- (Defaultable: `|-%DEFAULTABLE`($unpack(zt)))*{zt <- `zt*`}
 
   ;; ../../../../specification/wasm-latest/2.3-validation.instructions.spectec:273.1-277.41

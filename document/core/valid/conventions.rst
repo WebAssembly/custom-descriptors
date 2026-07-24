@@ -170,9 +170,9 @@ $${rule: Expand {Expand_use/*}}
 $${relation-ignore: Expand Expand_use}
 $${definition-ignore: expanddt}
 
-We use the same notation to denote the expansion of a :ref:`defined type <syntax-deftype>` or :ref:`type use <syntax-typeuse>` to a :ref:`desctype <syntax-desctype>` as well.
+The same notation also denotes the expansion of a :ref:`defined type <syntax-deftype>` or :ref:`type use <syntax-typeuse>` to a :ref:`desctype <syntax-desctype>`.
 
-$${rule: ExpandDesc}
+$${rule: Expand_desc}
 
 
 .. index:: ! instruction type, value type, result type, instruction, local, local index

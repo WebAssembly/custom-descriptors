@@ -184,10 +184,10 @@ let check_desctype_sub (c : context) (dt : desctype) (dt' : desctype) x x' at =
   | (Some ut2, Some ut2') ->
     require (match_typeuse c.types ut2 ut2') at ("descriptor type " ^
         string_of_typeuse ut2 ^ " does not match " ^ string_of_typeuse ut2')
-  | (None, Some _) ->
+  | (Some _, None) | (None, Some _) ->
     error at ("sub type " ^ I32.to_string_u x ^ " does not match super type " ^
         I32.to_string_u x')
-  | (Some _, None) | (None, None) -> ()
+  | (None, None) -> ()
   );
   require (match_comptype c.types ct ct') at ("sub type " ^ I32.to_string_u x ^
       " does not match super type " ^ I32.to_string_u x')

@@ -854,6 +854,26 @@ $${rule-prose: Instr_ok/struct.new_default}
 $${rule: Instr_ok/struct.new_default}
 
 
+.. _valid-struct.new_desc:
+
+:math:`\STRUCTNEWDESC~x`
+........................
+
+$${rule-prose: Instr_ok/struct.new_desc}
+
+$${rule: Instr_ok/struct.new_desc}
+
+
+.. _valid-struct.new_default_desc:
+
+:math:`\STRUCTNEWDEFAULTDESC~x`
+...............................
+
+$${rule-prose: Instr_ok/struct.new_default_desc}
+
+$${rule: Instr_ok/struct.new_default_desc}
+
+
 .. _valid-struct.get:
 .. _valid-struct.get_u:
 .. _valid-struct.get_s:
@@ -1421,6 +1441,7 @@ $${rule:
   {Instr_const/const Instr_const/vconst Instr_const/binop}
   {Instr_const/ref.null Instr_const/ref.i31 Instr_const/ref.func}
   {Instr_const/struct.new Instr_const/struct.new_default}
+  {Instr_const/struct.new_desc Instr_const/struct.new_default_desc}
   {Instr_const/array.new Instr_const/array.new_default Instr_const/array.new_fixed}
   {Instr_const/any.convert_extern Instr_const/extern.convert_any}
   {Instr_const/global.get}

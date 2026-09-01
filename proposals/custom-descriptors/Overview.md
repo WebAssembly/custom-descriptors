@@ -128,8 +128,8 @@ Just like any other struct types,
 struct types with `describes` or `descriptor` clauses support width and depth subtyping.
 However, the following new subtyping rules are introduced:
 
- - A declared supertype of a type with a `(descriptor $x)` clause must either
-   not have a `descriptor` clause or have a `(descriptor $y)` clause,
+ - A declared supertype of a type with a `(descriptor $x)` clause
+   must have a `(descriptor $y)` clause,
    where `$y` is a declared supertype of `$x`.
 
  - A declared supertype of a type without a `descriptor` clause must also
@@ -148,16 +148,34 @@ However, the following new subtyping rules are introduced:
    > Note: this could be relaxed to allow unshared described types to have shared descriptor types
    > (but not vice versa) if there is demand for this in the future.
 
+These rules combined form the "complete square" rule:
+
+```
+A -> A.desc
+^    ^
+B -> B.desc
+```
+
+The vertical arrows denote supertypes and horizontal arrows denote descriptors.
+If any single type or edge is missing from this diagram,
+then the types are invalid.
+
 The first two rules,
 governing types with or without `descriptor` clauses,
 are necessary to ensure the soundness of the `ref.get_desc` instruction described below.
 The latter two rules,
 governing types with or without `describes` clauses,
-are necessary to ensure subtypes have layouts compatible with their supertypes.
+are necessary to ensure the soundness of the `ref.cast_desc_eq` family of instructions.
+
+In general, descriptor types can only be subtypes of other descriptor types
+(and non-descriptor types can only be subtypes of other non-descriptor types)
+to ensure subtypes and their supertypes have compatible layouts.
 Custom descriptor types (i.e. those with `describes` clauses)
 may have different layouts than other structs because their user-controlled fields
 might be laid out after the engine-managed RTT for the type they describe.
 (But this is just one possible implementation that we specifically want to allow.)
+Similarly, described types may have different layouts than non-described types
+if the engine has to add an internal field to refer to their descriptors.
 
 ```wasm
 (rec
@@ -172,7 +190,7 @@ might be laid out after the engine-managed RTT for the type they describe.
 (rec
   (type $super (sub (struct)))
 
-  ;; Ok
+  ;; Invalid: $super must have a descriptor that is a supertype of $sub.desc.
   (type $sub (sub $super (descriptor $sub.desc) (struct)))
   (type $sub.desc (describes $sub) (struct))
 )

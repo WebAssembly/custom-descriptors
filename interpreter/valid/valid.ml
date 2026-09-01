@@ -195,22 +195,26 @@ let check_desctype_sub (c : context) (dt : desctype) (dt' : desctype) x x' at =
 let check_descriptors (dts : deftype list) at =
   List.iter (fun dt ->
     let DefT ((RecT dts), x) = dt in
-    let SubT (_, _, DescT (ut1, ut2, _)) = Lib.List32.nth dts x in
+    let SubT (fin, _, DescT (ut1, ut2, _)) = Lib.List32.nth dts x in
     Option.iter (fun ut ->
       match ut with
       | Rec x' ->
-        let SubT (_, _, DescT (_, ut', _)) = Lib.List32.nth dts x' in
+        let SubT (fin', _, DescT (_, ut', _)) = Lib.List32.nth dts x' in
         require (ut' = Some (Rec x)) at
             "described type is not described by descriptor";
-        require (x' < x) at "forward use of described type"
+        require (x' < x) at "forward use of described type";
+        require (fin = fin') at
+            "descriptor and described types have mismatched finality"
       | _ -> error at "described type is outside rec group"
     ) ut1;
     Option.iter (fun ut ->
       match ut with
       | Rec x' ->
-        let SubT (_, _, DescT (ut', _, _)) = Lib.List32.nth dts x' in
+        let SubT (fin', _, DescT (ut', _, _)) = Lib.List32.nth dts x' in
         require (ut' = Some (Rec x)) at
             "type is not described by its descriptor";
+        require (fin = fin') at
+            "descriptor and described types have mismatched finality"
       | _ -> error at "descriptor type is outside rec group"
     ) ut2
   ) dts

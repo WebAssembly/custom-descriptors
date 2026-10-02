@@ -126,7 +126,7 @@ let any_ref (inst : moduleinst) x i at =
 let func_ref (inst : moduleinst) x i at =
   match any_ref inst x i at with
   | FuncRef f -> f
-  | NullRef _ -> Trap.error at ("uninitialized element " ^ Int64.to_string i)
+  | NullRef -> Trap.error at ("uninitialized element " ^ Int64.to_string i)
   | _ -> Crash.error at ("type mismatch for element " ^ Int64.to_string i)
 
 let blocktype (inst : moduleinst) bt at =
@@ -231,13 +231,13 @@ let rec step (c : config) : config =
         else
           vs', [Plain (Br (Lib.List32.nth xs i)) @@ e.at]
 
-      | BrOnNull x, Ref (NullRef _) :: vs' ->
+      | BrOnNull x, Ref NullRef :: vs' ->
         vs', [Plain (Br x) @@ e.at]
 
       | BrOnNull x, Ref r :: vs' ->
         Ref r :: vs', []
 
-      | BrOnNonNull x, Ref (NullRef _) :: vs' ->
+      | BrOnNonNull x, Ref NullRef :: vs' ->
         vs', []
 
       | BrOnNonNull x, Ref r :: vs' ->
@@ -257,13 +257,13 @@ let rec step (c : config) : config =
         else
           Ref r :: vs', [Plain (Br x) @@ e.at]
 
-      | BrOnCastDescEq (x, _rt1, _rt2), Ref (NullRef _) :: vs' ->
+      | BrOnCastDescEq (x, _rt1, _rt2), Ref NullRef :: vs' ->
         vs', [Trapping "null descriptor reference" @@ e.at]
 
-      | BrOnCastDescEq (x, _rt1, (Null, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+      | BrOnCastDescEq (x, _rt1, (Null, _)), Ref _desc :: Ref (NullRef as r) :: vs' ->
         Ref r :: vs', [Plain (Br x) @@ e.at]
 
-      | BrOnCastDescEq (x, _rt1, (NoNull, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+      | BrOnCastDescEq (x, _rt1, (NoNull, _)), Ref _desc :: Ref (NullRef as r) :: vs' ->
         Ref r :: vs', []
 
       | BrOnCastDescEq (x, _rt1, _rt2), Ref desc :: Ref r :: vs' ->
@@ -272,13 +272,13 @@ let rec step (c : config) : config =
         | _ -> Ref r :: vs', []
         )
 
-      | BrOnCastDescEqFail (x, _rt1, _rt2), Ref (NullRef _) :: vs' ->
+      | BrOnCastDescEqFail (x, _rt1, _rt2), Ref NullRef :: vs' ->
         vs', [Trapping "null descriptor reference" @@ e.at]
 
-      | BrOnCastDescEqFail (x, _rt1, (Null, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+      | BrOnCastDescEqFail (x, _rt1, (Null, _)), Ref _desc :: Ref (NullRef as r) :: vs' ->
         Ref r :: vs', []
 
-      | BrOnCastDescEqFail (x, _rt1, (NoNull, _)), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+      | BrOnCastDescEqFail (x, _rt1, (NoNull, _)), Ref _desc :: Ref (NullRef as r) :: vs' ->
         Ref r :: vs', [Plain (Br x) @@ e.at]
 
       | BrOnCastDescEqFail (x, _rt1, _rt2), Ref desc :: Ref r :: vs' ->
@@ -293,7 +293,7 @@ let rec step (c : config) : config =
       | Call x, vs ->
         vs, [Invoke (func c.frame.inst x) @@ e.at]
 
-      | CallRef _x, Ref (NullRef _) :: vs ->
+      | CallRef _x, Ref NullRef :: vs ->
         vs, [Trapping "null function reference" @@ e.at]
 
       | CallRef _x, Ref (FuncRef f) :: vs ->
@@ -315,7 +315,7 @@ let rec step (c : config) : config =
         | _ -> assert false
         )
 
-      | ReturnCallRef _x, Ref (NullRef _) :: vs ->
+      | ReturnCallRef _x, Ref NullRef :: vs ->
         vs, [Trapping "null function reference" @@ e.at]
 
       | ReturnCallRef x, vs ->
@@ -343,7 +343,7 @@ let rec step (c : config) : config =
         let args, vs' = split n vs e.at in
         vs', [Throwing (t, args) @@ e.at]
 
-      | ThrowRef, Ref (NullRef _) :: vs ->
+      | ThrowRef, Ref NullRef :: vs ->
         vs, [Trapping "null exception reference" @@ e.at]
 
       | ThrowRef, Ref (Exn.(ExnRef (Exn (t, args)))) :: vs ->
@@ -657,19 +657,19 @@ let rec step (c : config) : config =
         vs, []
 
       | RefNull t, vs' ->
-        Ref (NullRef (subst_heaptype (subst_of c.frame.inst) t)) :: vs', []
+        Ref NullRef :: vs', []
 
       | RefFunc x, vs' ->
         let f = func c.frame.inst x in
         Ref (FuncRef f) :: vs', []
 
-      | RefIsNull, Ref (NullRef _) :: vs' ->
+      | RefIsNull, Ref NullRef :: vs' ->
         value_of_bool true :: vs', []
 
       | RefIsNull, Ref _ :: vs' ->
         value_of_bool false :: vs', []
 
-      | RefAsNonNull, Ref (NullRef _) :: vs' ->
+      | RefAsNonNull, Ref NullRef :: vs' ->
         vs', [Trapping "null reference" @@ e.at]
 
       | RefAsNonNull, Ref r :: vs' ->
@@ -688,13 +688,13 @@ let rec step (c : config) : config =
             string_of_reftype rt ^ " but got " ^
             string_of_reftype (type_of_ref r)) @@ e.at]
 
-      | RefCastDescEq _rt, Ref (NullRef _) :: vs' ->
+      | RefCastDescEq _rt, Ref NullRef :: vs' ->
         vs', [Trapping "null descriptor reference" @@ e.at]
 
-      | RefCastDescEq (NoNull, _), Ref _desc :: Ref (NullRef _) :: vs' ->
+      | RefCastDescEq (NoNull, _), Ref _desc :: Ref NullRef :: vs' ->
         vs', [Trapping "descriptor cast failure" @@ e.at]
 
-      | RefCastDescEq (Null, _), Ref _desc :: Ref ((NullRef _) as r) :: vs' ->
+      | RefCastDescEq (Null, _), Ref _desc :: Ref (NullRef as r) :: vs' ->
         Ref r :: vs', []
 
       | RefCastDescEq rt, Ref desc :: Ref r :: vs' ->
@@ -703,7 +703,7 @@ let rec step (c : config) : config =
         | _ -> vs', [Trapping "descriptor cast failure" @@ e.at]
         )
 
-      | RefGetDesc _, Ref (NullRef _) :: vs' ->
+      | RefGetDesc _, Ref NullRef :: vs' ->
         vs', [Trapping "null reference" @@ e.at]
 
       | RefGetDesc rt, Ref r :: vs' ->
@@ -718,7 +718,7 @@ let rec step (c : config) : config =
       | RefI31, Num (I32 i) :: vs' ->
         Ref (I31.I31Ref (I31.of_i32 i)) :: vs', []
 
-      | I31Get ext, Ref (NullRef _) :: vs' ->
+      | I31Get ext, Ref NullRef :: vs' ->
         vs', [Trapping "null i31 reference" @@ e.at]
 
       | I31Get ext, Ref (I31.I31Ref i) :: vs' ->
@@ -743,7 +743,7 @@ let rec step (c : config) : config =
             with Invalid_argument _ -> Crash.error e.at "non-defaultable type"
         in
         (match desc with
-        | Some (NullRef _) ->
+        | Some NullRef ->
           vs''', [Trapping "null descriptor reference" @@ e.at]
         | _ ->
           let struct_ =
@@ -752,7 +752,7 @@ let rec step (c : config) : config =
           in Ref (Aggr.StructRef struct_) :: vs''', []
         )
 
-      | StructGet (x, i, exto), Ref (NullRef _) :: vs' ->
+      | StructGet (x, i, exto), Ref NullRef :: vs' ->
         vs', [Trapping "null structure reference" @@ e.at]
 
       | StructGet (x, i, exto), Ref Aggr.(StructRef (Struct (_, fs, _))) :: vs' ->
@@ -763,7 +763,7 @@ let rec step (c : config) : config =
         (try Aggr.read_field f exto :: vs', []
         with Failure _ -> Crash.error e.at "type mismatch reading field")
 
-      | StructSet (x, i), v :: Ref (NullRef _) :: vs' ->
+      | StructSet (x, i), v :: Ref NullRef :: vs' ->
         vs', [Trapping "null structure reference" @@ e.at]
 
       | StructSet (x, i), v :: Ref Aggr.(StructRef (Struct (_, fs, _))) :: vs' ->
@@ -830,7 +830,7 @@ let rec step (c : config) : config =
             with Failure _ -> Crash.error e.at "type mismatch packing value"
           in Ref (Aggr.ArrayRef array) :: vs', []
 
-      | ArrayGet (x, exto), Num (I32 i) :: Ref (NullRef _) :: vs' ->
+      | ArrayGet (x, exto), Num (I32 i) :: Ref NullRef :: vs' ->
         vs', [Trapping "null array reference" @@ e.at]
 
       | ArrayGet (x, exto), Num (I32 i) :: Ref (Aggr.ArrayRef a) :: vs'
@@ -841,7 +841,7 @@ let rec step (c : config) : config =
         (try Aggr.read_field (Lib.List32.nth fs i) exto :: vs', []
         with Failure _ -> Crash.error e.at "type mismatch reading array")
 
-      | ArraySet x, v :: Num (I32 i) :: Ref (NullRef _) :: vs' ->
+      | ArraySet x, v :: Num (I32 i) :: Ref NullRef :: vs' ->
         vs', [Trapping "null array reference" @@ e.at]
 
       | ArraySet x, v :: Num (I32 i) :: Ref (Aggr.ArrayRef a) :: vs'
@@ -852,18 +852,18 @@ let rec step (c : config) : config =
         (try Aggr.write_field (Lib.List32.nth fs i) v; vs', []
         with Failure _ -> Crash.error e.at "type mismatch writing array")
 
-      | ArrayLen, Ref (NullRef _) :: vs' ->
+      | ArrayLen, Ref NullRef :: vs' ->
         vs', [Trapping "null array reference" @@ e.at]
 
       | ArrayLen, Ref Aggr.(ArrayRef (Array (_, fs))) :: vs' ->
         Num (I32 (Lib.List32.length fs)) :: vs', []
 
       | ArrayCopy (x, y),
-        Num _ :: Num _ :: Ref (NullRef _) :: Num _ :: Ref _ :: vs' ->
+        Num _ :: Num _ :: Ref NullRef :: Num _ :: Ref _ :: vs' ->
         vs', [Trapping "null array reference" @@ e.at]
 
       | ArrayCopy (x, y),
-        Num _ :: Num _ :: Ref _ :: Num _ :: Ref (NullRef _) :: vs' ->
+        Num _ :: Num _ :: Ref _ :: Num _ :: Ref NullRef :: vs' ->
         vs', [Trapping "null array reference" @@ e.at]
 
       | ArrayCopy (x, y),
@@ -911,7 +911,7 @@ let rec step (c : config) : config =
             Plain (ArraySet x);
           ]
 
-      | ArrayFill x, Num (I32 n) :: v :: Num (I32 i) :: Ref (NullRef _) :: vs' ->
+      | ArrayFill x, Num (I32 n) :: v :: Num (I32 i) :: Ref NullRef :: vs' ->
         vs', [Trapping "null array reference" @@ e.at]
 
       | ArrayFill x, Num (I32 n) :: v :: Num (I32 i) :: Ref (Aggr.ArrayRef a) :: vs' ->
@@ -933,7 +933,7 @@ let rec step (c : config) : config =
           ]
 
       | ArrayInitData (x, y),
-        Num _ :: Num _ :: Num _ :: Ref (NullRef _) :: vs' ->
+        Num _ :: Num _ :: Num _ :: Ref NullRef :: vs' ->
         vs', [Trapping "null array reference" @@ e.at]
 
       | ArrayInitData (x, y),
@@ -964,7 +964,7 @@ let rec step (c : config) : config =
           ]
 
       | ArrayInitElem (x, y),
-        Num _ :: Num _ :: Num _ :: Ref (NullRef _) :: vs' ->
+        Num _ :: Num _ :: Num _ :: Ref NullRef :: vs' ->
         vs', [Trapping "null array reference" @@ e.at]
 
       | ArrayInitElem (x, y),
@@ -991,14 +991,14 @@ let rec step (c : config) : config =
             Plain (ArrayInitElem (x, y));
           ]
 
-      | ExternConvert Internalize, Ref (NullRef _) :: vs' ->
-        Ref (NullRef NoneHT) :: vs', []
+      | ExternConvert Internalize, Ref NullRef :: vs' ->
+        Ref NullRef :: vs', []
 
       | ExternConvert Internalize, Ref (Extern.ExternRef r) :: vs' ->
         Ref r :: vs', []
 
-      | ExternConvert Externalize, Ref (NullRef _) :: vs' ->
-        Ref (NullRef NoExternHT) :: vs', []
+      | ExternConvert Externalize, Ref NullRef :: vs' ->
+        Ref NullRef :: vs', []
 
       | ExternConvert Externalize, Ref r :: vs' ->
         Ref (Extern.ExternRef r) :: vs', []
@@ -1187,8 +1187,7 @@ let rec step (c : config) : config =
       | Func.AstFunc (_, inst', func) ->
         let Func (_x, ls, es) = func.it in
         let m = Lib.Promise.value inst' in
-        let s = subst_of m in
-        let ts = List.map (fun {it = Local t; _} -> subst_valtype s t) ls in
+        let ts = List.map (fun {it = Local t; _} -> t) ls in
         let lvs = List.(rev (map Option.some args) @ map default_value ts) in
         let frame' = {inst = m; locals = List.map ref lvs} in
         let instr' = [Label (n2, [], ([], List.map plain es)) @@ func.at] in

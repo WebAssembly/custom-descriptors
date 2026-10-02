@@ -438,7 +438,7 @@ def $subst_externtype((TAG jt), tv*, tu*) = TAG $subst_tagtype(jt, tv*, tu*)
 def $subst_externtype((GLOBAL gt), tv*, tu*) = GLOBAL $subst_globaltype(gt, tv*, tu*)
 def $subst_externtype((TABLE tt), tv*, tu*) = TABLE $subst_tabletype(tt, tv*, tu*)
 def $subst_externtype((MEM mt), tv*, tu*) = MEM $subst_memtype(mt, tv*, tu*)
-def $subst_externtype((FUNC dt), tv*, tu*) = FUNC $subst_deftype(dt, tv*, tu*)
+def $subst_externtype((FUNC tu'), tv*, tu*) = FUNC $subst_typeuse(tu', tv*, tu*)
 
 def $subst_moduletype(xt_1* -> xt_2*, tv*, tu*) = $subst_externtype(xt_1, tv*, tu*)* -> $subst_externtype(xt_2, tv*, tu*)*
 
@@ -476,8 +476,9 @@ def $rollrt(typeidx, rectype) : rectype  hint(show $roll_(%, %))   hint(macro "r
 def $unrollrt(rectype) : rectype         hint(show $unroll(%))     hint(macro "unrollrt")
 def $rolldt(typeidx, rectype) : deftype* hint(show $roll_(%)*#((%))) hint(macro "rolldt")
 def $unrolldt(deftype) : subtype         hint(show $unroll(%))     hint(macro "unrolldt")
-def $expanddt_to_desctype(deftype) : desctype  hint(show $expand_desc(%))
-def $expanddt(deftype) : comptype        hint(show $expand(%))     hint(macro "expanddt")
+
+;; TODO(tlively): Make this a relation to match Expand.
+def $expanddt_to_desctype(deftype) : desctype  hint(show $expand_desc(%)) 
 
 def $rollrt(x, rectype) = REC ($subst_subtype(subtype, ((_IDX $(x + i)))^(i<n), (REC i)^(i<n)))^n
   -- if rectype = REC subtype^n
@@ -487,13 +488,12 @@ def $unrollrt(rectype) = REC ($subst_subtype(subtype, (REC i)^(i<n), (_DEF recty
 def $rolldt(x, rectype) = (_DEF (REC subtype^n) i)^(i<n)  -- if $rollrt(x, rectype) = REC subtype^n
 def $unrolldt(_DEF rectype i) = subtype*[i]               -- if $unrollrt(rectype) = REC subtype*
 
-def $expanddt_to_desctype(deftype) = desctype                  -- if $unrolldt(deftype) = SUB final? typeuse* desctype
-def $expanddt(deftype) = ct                               -- if $expanddt_to_desctype(deftype) = dc1? dc2? ct
+def $expanddt_to_desctype(deftype) = desctype             -- if $unrolldt(deftype) = SUB final? typeuse* desctype
 
 
 ;; Free indices
 
-def $free_addrtype(numtype) : free
+def $free_addrtype(addrtype) : free
 def $free_numtype(numtype) : free
 def $free_packtype(packtype) : free
 def $free_lanetype(lanetype) : free

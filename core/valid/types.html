@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Types &#8212; WebAssembly 3.0 + Custom Descriptors (2026-02-02)</title>
+    <title>Types &#8212; WebAssembly 3.0 + Custom Descriptors (2026-10-03)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=4c24f7a8"></script>
+    <script src="../_static/documentation_options.js?v=c840aa4a"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}, "options": {"menuOptions": {"settings": {"enrich": false}}}}</script>
@@ -138,6 +138,21 @@ C \href{../valid/types.html#valid-typeuse}{\vdash} {\href{../syntax/modules.html
 \frac{
 }{
 C \href{../valid/types.html#valid-heaptype}{\vdash} {\href{../syntax/types.html#syntax-absheaptype}{\mathit{absheaptype}}} : \href{../valid/types.html#valid-heaptype}{\mathsf{ok}}
+}
+\qquad
+\end{array}\]</div>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}^?}~{\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}})\)</span> is <a class="reference internal" href="#valid-heaptype"><span class="std std-ref">valid</span></a> if:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-typeuse"><span class="std std-ref">type use</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}}\)</span> is <a class="reference internal" href="#valid-typeuse"><span class="std std-ref">valid</span></a>.</p></li>
+</ul>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[\begin{array}{&#64;{}c&#64;{}}\displaystyle
+\frac{
+C \href{../valid/types.html#valid-typeuse}{\vdash} {\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} : \href{../valid/types.html#valid-typeuse}{\mathsf{ok}}
+}{
+C \href{../valid/types.html#valid-heaptype}{\vdash} {\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}^?}~{\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} : \href{../valid/types.html#valid-heaptype}{\mathsf{ok}}
 }
 \qquad
 \end{array}\]</div>
@@ -383,11 +398,45 @@ C \href{../valid/types.html#valid-packtype}{\vdash} {\href{../syntax/types.html#
 \qquad
 \end{array}\]</div>
 </section>
+<section id="descriptor-types">
+<span id="valid-desctype"></span><span id="index-10"></span><h2>Descriptor Types<a class="headerlink" href="#descriptor-types" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-desctype"><span class="std std-ref">descriptor type</span></a> <span class="math notranslate nohighlight">\(({(\href{../syntax/types.html#syntax-desctype}{\mathsf{describes}}~{\mathit{tu}}_1)^?}~{(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~{\mathit{tu}}_2)^?}~{\mathit{ct}})\)</span> is <a class="reference internal" href="#valid-desctype"><span class="std std-ref">valid</span></a> if:</p>
+<blockquote>
+<div><ul>
+<li><p>If <span class="math notranslate nohighlight">\({\mathit{tu}}_1\)</span> is defined, then:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-typeuse"><span class="std std-ref">type use</span></a> <span class="math notranslate nohighlight">\({\mathit{tu}}_1\)</span> is <a class="reference internal" href="#valid-typeuse"><span class="std std-ref">valid</span></a>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>If <span class="math notranslate nohighlight">\({\mathit{tu}}_2\)</span> is defined, then:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-typeuse"><span class="std std-ref">type use</span></a> <span class="math notranslate nohighlight">\({\mathit{tu}}_2\)</span> is <a class="reference internal" href="#valid-typeuse"><span class="std std-ref">valid</span></a>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\({\mathit{ct}}\)</span> is <a class="reference internal" href="#valid-comptype"><span class="std std-ref">valid</span></a>.</p></li>
+</ul>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[\begin{array}{&#64;{}c&#64;{}}\displaystyle
+\frac{
+(C \href{../valid/types.html#valid-typeuse}{\vdash} {\mathit{tu}}_1 : \href{../valid/types.html#valid-typeuse}{\mathsf{ok}})^?
+ \qquad
+(C \href{../valid/types.html#valid-typeuse}{\vdash} {\mathit{tu}}_2 : \href{../valid/types.html#valid-typeuse}{\mathsf{ok}})^?
+ \qquad
+C \href{../valid/types.html#valid-comptype}{\vdash} {\mathit{ct}} : \href{../valid/types.html#valid-comptype}{\mathsf{ok}}
+}{
+C \href{../valid/types.html#valid-desctype}{\vdash} {(\href{../syntax/types.html#syntax-desctype}{\mathsf{describes}}~{\mathit{tu}}_1)^?}~{(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~{\mathit{tu}}_2)^?}~{\mathit{ct}} : \href{../valid/types.html#valid-desctype}{\mathsf{ok}}
+}
+\qquad
+\end{array}\]</div>
+</section>
 <section id="recursive-types">
-<span id="valid-subtype"></span><span id="valid-rectype"></span><span id="index-10"></span><h2>Recursive Types<a class="headerlink" href="#recursive-types" title="Link to this heading">¶</a></h2>
+<span id="valid-subtype"></span><span id="valid-rectype"></span><span id="index-11"></span><h2>Recursive Types<a class="headerlink" href="#recursive-types" title="Link to this heading">¶</a></h2>
 <p><a class="reference internal" href="../syntax/types.html#syntax-rectype"><span class="std std-ref">Recursive types</span></a> are validated with respect to the first <a class="reference internal" href="../syntax/modules.html#syntax-typeidx"><span class="std std-ref">type index</span></a> defined by the recursive group.</p>
-<section id="xref-syntax-types-syntax-rectype-mathsf-rec-xref-syntax-types-syntax-subtype-mathit-subtype-ast">
-<h3><span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}^\ast\)</span><a class="headerlink" href="#xref-syntax-types-syntax-rectype-mathsf-rec-xref-syntax-types-syntax-subtype-mathit-subtype-ast" title="Link to this heading">¶</a></h3>
 <p>The <a class="reference internal" href="../syntax/types.html#syntax-rectype"><span class="std std-ref">recursive type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-rectype}{\mathsf{rec}}~{{\href{../syntax/types.html#syntax-subtype}{\mathit{subtype}}}^\ast})\)</span> is <a class="reference internal" href="#valid-rectype"><span class="std std-ref">valid</span></a> for the type index <span class="math notranslate nohighlight">\(x\)</span> if:</p>
 <blockquote>
 <div><ul>
@@ -425,10 +474,7 @@ C \href{../valid/types.html#valid-rectype}{\vdash} \href{../syntax/types.html#sy
 }
 \qquad
 \end{array}\]</div>
-</section>
-<section id="xref-syntax-types-syntax-subtype-mathsf-sub-xref-syntax-types-syntax-subtype-mathsf-final-y-ast-xref-syntax-types-syntax-comptype-mathit-comptype">
-<h3><span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}^?~y^\ast~\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}\)</span><a class="headerlink" href="#xref-syntax-types-syntax-subtype-mathsf-sub-xref-syntax-types-syntax-subtype-mathsf-final-y-ast-xref-syntax-types-syntax-comptype-mathit-comptype" title="Link to this heading">¶</a></h3>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-subtype"><span class="std std-ref">sub type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}^?}~{x^\ast}~{\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}})\)</span> is <a class="reference internal" href="#valid-subtype"><span class="std std-ref">valid</span></a> for the type index <span class="math notranslate nohighlight">\(x_0\)</span> if:</p>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-subtype"><span class="std std-ref">sub type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}^?}~{x^\ast}~{\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}})\)</span> is <a class="reference internal" href="#valid-subtype"><span class="std std-ref">valid</span></a> for the type index <span class="math notranslate nohighlight">\(x_0\)</span> if:</p>
 <blockquote>
 <div><ul>
 <li><p>The length of <span class="math notranslate nohighlight">\({x^\ast}\)</span> is less than or equal to <span class="math notranslate nohighlight">\(1\)</span>.</p></li>
@@ -437,16 +483,16 @@ C \href{../valid/types.html#valid-rectype}{\vdash} \href{../syntax/types.html#sy
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="../syntax/modules.html#syntax-idx"><span class="std std-ref">index</span></a> <span class="math notranslate nohighlight">\(x\)</span> is less than <span class="math notranslate nohighlight">\(x_0\)</span>.</p></li>
 <li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-subtype"><span class="std std-ref">sub type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#aux-unroll-deftype}{\mathrm{unroll}}}(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x])\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{{x'}^\ast}~{\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}'})\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-subtype"><span class="std std-ref">sub type</span></a> <span class="math notranslate nohighlight">\({\href{../valid/conventions.html#aux-unroll-deftype}{\mathrm{unroll}}}(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x])\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{y^\ast}~{\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}'})\)</span>.</p></li>
 </ul>
 </div></blockquote>
 </li>
-<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}'}^\ast}\)</span> is the concatenation of all such <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}'}\)</span>.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}}\)</span> is <a class="reference internal" href="#valid-comptype"><span class="std std-ref">valid</span></a>.</p></li>
-<li><p>For all <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}'}\)</span> in <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}'}^\ast}\)</span>:</p>
+<li><p><span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}'}^\ast}\)</span> is the concatenation of all such <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}'}\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-desctype"><span class="std std-ref">descriptor type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}}\)</span> is <a class="reference internal" href="#valid-desctype"><span class="std std-ref">valid</span></a>.</p></li>
+<li><p>For all <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}'}\)</span> in <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}'}^\ast}\)</span>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}}\)</span> <a class="reference internal" href="matching.html#match-comptype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}'}\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-desctype"><span class="std std-ref">descriptor type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}}\)</span> <a class="reference internal" href="matching.html#match-desctype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-desctype"><span class="std std-ref">descriptor type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}'}\)</span>.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -460,14 +506,14 @@ C \href{../valid/types.html#valid-rectype}{\vdash} \href{../syntax/types.html#sy
  \qquad
 (x &lt; x_0)^\ast
  \qquad
-({\href{../valid/conventions.html#aux-unroll-deftype}{\mathrm{unroll}}}(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]) = \href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{{x'}^\ast}~{\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}'})^\ast
+({\href{../valid/conventions.html#aux-unroll-deftype}{\mathrm{unroll}}}(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]) = \href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{y^\ast}~{\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}'})^\ast
  \\
-C \href{../valid/types.html#valid-comptype}{\vdash} {\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}} : \href{../valid/types.html#valid-comptype}{\mathsf{ok}}
+C \href{../valid/types.html#valid-desctype}{\vdash} {\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}} : \href{../valid/types.html#valid-desctype}{\mathsf{ok}}
  \qquad
-(C \href{../valid/matching.html#match-comptype}{\vdash} {\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}} \href{../valid/matching.html#match-comptype}{\leq} {\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}'})^\ast
+(C \href{../valid/matching.html#match-desctype}{\vdash} {\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}} \href{../valid/matching.html#match-desctype}{\leq} {\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}'})^\ast
 \end{array}
 }{
-C \href{../valid/types.html#valid-subtype}{\vdash} \href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}^?}~{x^\ast}~{\href{../syntax/types.html#syntax-comptype}{\mathit{comptype}}} : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x_0)}
+C \href{../valid/types.html#valid-subtype}{\vdash} \href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}^?}~{x^\ast}~{\href{../syntax/types.html#syntax-desctype}{\mathit{desctype}}} : {\href{../valid/types.html#valid-subtype}{\mathsf{ok}}}{(x_0)}
 }
 \qquad
 \end{array}\end{split}\]</div>
@@ -478,9 +524,8 @@ preventing cyclic subtype hierarchies.</p>
 <p>Future versions of WebAssembly may allow more than one supertype.</p>
 </div>
 </section>
-</section>
 <section id="limits">
-<span id="valid-limits"></span><span id="index-11"></span><h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">¶</a></h2>
+<span id="valid-limits"></span><span id="index-12"></span><h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">¶</a></h2>
 <p><a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">Limits</span></a> must have meaningful bounds that are within a given range.</p>
 <p>The <a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">limits range</span></a> <span class="math notranslate nohighlight">\({}[ n \href{../syntax/types.html#syntax-limits}{\,{..}\,} {m^?} ]\)</span> is <a class="reference internal" href="#valid-limits"><span class="std std-ref">valid</span></a> within <span class="math notranslate nohighlight">\(k\)</span> if:</p>
 <blockquote>
@@ -509,12 +554,12 @@ C \href{../valid/types.html#valid-limits}{\vdash} {}[ n \href{../syntax/types.ht
 \end{array}\]</div>
 </section>
 <section id="tag-types">
-<span id="valid-tagtype"></span><span id="index-12"></span><h2>Tag Types<a class="headerlink" href="#tag-types" title="Link to this heading">¶</a></h2>
+<span id="valid-tagtype"></span><span id="index-13"></span><h2>Tag Types<a class="headerlink" href="#tag-types" title="Link to this heading">¶</a></h2>
 <p>The <a class="reference internal" href="../syntax/types.html#syntax-tagtype"><span class="std std-ref">tag type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}}\)</span> is <a class="reference internal" href="#valid-tagtype"><span class="std std-ref">valid</span></a> if:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-typeuse"><span class="std std-ref">type use</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}}\)</span> is <a class="reference internal" href="#valid-typeuse"><span class="std std-ref">valid</span></a>.</p></li>
-<li><p>The <a class="reference internal" href="conventions.html#aux-expand-typeuse"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(C\)</span> is <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast}~\href{../syntax/types.html#syntax-comptype}{\rightarrow}~{t_2^\ast})\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#aux-expand-typeuse"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(C\)</span> is <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast}~\href{../syntax/types.html#syntax-comptype}{\rightarrow})\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
@@ -522,7 +567,7 @@ C \href{../valid/types.html#valid-limits}{\vdash} {}[ n \href{../syntax/types.ht
 \frac{
 C \href{../valid/types.html#valid-typeuse}{\vdash} {\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} : \href{../valid/types.html#valid-typeuse}{\mathsf{ok}}
  \qquad
-{\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} \mathrel{\href{../valid/conventions.html#aux-expand-typeuse}{\approx}}_{C} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast} \href{../syntax/types.html#syntax-comptype}{\rightarrow} {t_2^\ast}
+{\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} \mathrel{\href{../valid/conventions.html#aux-expand-typeuse}{\approx}}_{C} \href{../syntax/types.html#syntax-comptype}{\mathsf{func}}~{t_1^\ast} \href{../syntax/types.html#syntax-comptype}{\rightarrow} {}[]
 }{
 C \href{../valid/types.html#valid-tagtype}{\vdash} {\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}}} : \href{../valid/types.html#valid-tagtype}{\mathsf{ok}}
 }
@@ -530,7 +575,7 @@ C \href{../valid/types.html#valid-tagtype}{\vdash} {\href{../syntax/types.html#s
 \end{array}\]</div>
 </section>
 <section id="global-types">
-<span id="valid-globaltype"></span><span id="index-13"></span><h2>Global Types<a class="headerlink" href="#global-types" title="Link to this heading">¶</a></h2>
+<span id="valid-globaltype"></span><span id="index-14"></span><h2>Global Types<a class="headerlink" href="#global-types" title="Link to this heading">¶</a></h2>
 <p>The <a class="reference internal" href="../syntax/types.html#syntax-globaltype"><span class="std std-ref">global type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~t)\)</span> is <a class="reference internal" href="#valid-globaltype"><span class="std std-ref">valid</span></a> if:</p>
 <blockquote>
 <div><ul class="simple">
@@ -548,17 +593,17 @@ C \href{../valid/types.html#valid-globaltype}{\vdash} {\href{../syntax/types.htm
 \end{array}\]</div>
 </section>
 <section id="memory-types">
-<span id="valid-memtype"></span><span id="index-14"></span><h2>Memory Types<a class="headerlink" href="#memory-types" title="Link to this heading">¶</a></h2>
+<span id="valid-memtype"></span><span id="index-15"></span><h2>Memory Types<a class="headerlink" href="#memory-types" title="Link to this heading">¶</a></h2>
 <p>The <a class="reference internal" href="../syntax/types.html#syntax-memtype"><span class="std std-ref">memory type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}})\)</span> is <a class="reference internal" href="#valid-memtype"><span class="std std-ref">valid</span></a> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">limits range</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}\)</span> is <a class="reference internal" href="#valid-limits"><span class="std std-ref">valid</span></a> within <span class="math notranslate nohighlight">\({2^{16}}\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">limits range</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}\)</span> is <a class="reference internal" href="#valid-limits"><span class="std std-ref">valid</span></a> within <span class="math notranslate nohighlight">\({2^{{|{\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}|} - 16}}\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C \href{../valid/types.html#valid-limits}{\vdash} {\href{../syntax/types.html#syntax-limits}{\mathit{limits}}} : {2^{16}}
+C \href{../valid/types.html#valid-limits}{\vdash} {\href{../syntax/types.html#syntax-limits}{\mathit{limits}}} : {2^{{|{\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}|} - 16}}
 }{
 C \href{../valid/types.html#valid-memtype}{\vdash} {\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}~\href{../syntax/types.html#syntax-memtype}{\mathsf{page}} : \href{../valid/types.html#valid-memtype}{\mathsf{ok}}
 }
@@ -566,18 +611,18 @@ C \href{../valid/types.html#valid-memtype}{\vdash} {\href{../syntax/types.html#s
 \end{array}\]</div>
 </section>
 <section id="table-types">
-<span id="valid-tabletype"></span><span id="index-15"></span><h2>Table Types<a class="headerlink" href="#table-types" title="Link to this heading">¶</a></h2>
+<span id="valid-tabletype"></span><span id="index-16"></span><h2>Table Types<a class="headerlink" href="#table-types" title="Link to this heading">¶</a></h2>
 <p>The <a class="reference internal" href="../syntax/types.html#syntax-tabletype"><span class="std std-ref">table type</span></a> <span class="math notranslate nohighlight">\(({\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}~{\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}~{\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}})\)</span> is <a class="reference internal" href="#valid-tabletype"><span class="std std-ref">valid</span></a> if:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">limits range</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}\)</span> is <a class="reference internal" href="#valid-limits"><span class="std std-ref">valid</span></a> within <span class="math notranslate nohighlight">\({2^{32}} - 1\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-limits"><span class="std std-ref">limits range</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-limits}{\mathit{limits}}}\)</span> is <a class="reference internal" href="#valid-limits"><span class="std std-ref">valid</span></a> within <span class="math notranslate nohighlight">\({2^{{|{\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}|}}} - 1\)</span>.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}}\)</span> is <a class="reference internal" href="#valid-reftype"><span class="std std-ref">valid</span></a>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C \href{../valid/types.html#valid-limits}{\vdash} {\href{../syntax/types.html#syntax-limits}{\mathit{limits}}} : {2^{32}} - 1
+C \href{../valid/types.html#valid-limits}{\vdash} {\href{../syntax/types.html#syntax-limits}{\mathit{limits}}} : {2^{{|{\href{../syntax/types.html#syntax-addrtype}{\mathit{addrtype}}}|}}} - 1
  \qquad
 C \href{../valid/types.html#valid-reftype}{\vdash} {\href{../syntax/types.html#syntax-reftype}{\mathit{reftype}}} : \href{../valid/types.html#valid-reftype}{\mathsf{ok}}
 }{
@@ -587,7 +632,7 @@ C \href{../valid/types.html#valid-tabletype}{\vdash} {\href{../syntax/types.html
 \end{array}\]</div>
 </section>
 <section id="external-types">
-<span id="valid-externtype"></span><span id="index-16"></span><h2>External Types<a class="headerlink" href="#external-types" title="Link to this heading">¶</a></h2>
+<span id="valid-externtype"></span><span id="index-17"></span><h2>External Types<a class="headerlink" href="#external-types" title="Link to this heading">¶</a></h2>
 <p>The <a class="reference internal" href="../syntax/types.html#syntax-externtype"><span class="std std-ref">external type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-externtype}{\mathsf{tag}}~{\href{../syntax/types.html#syntax-tagtype}{\mathit{tagtype}}})\)</span> is <a class="reference internal" href="#valid-externtype"><span class="std std-ref">valid</span></a> if:</p>
 <blockquote>
 <div><ul class="simple">

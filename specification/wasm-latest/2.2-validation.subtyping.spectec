@@ -66,25 +66,43 @@ rule Heaptype_sub/typeidx-r:
   C |- heaptype <: _HT _IDX typeidx
   -- Heaptype_sub: C |- heaptype <: _HT C.TYPES[typeidx]
 
-rule Heaptype_sub/rec:
+;; TODO(tlively): At least this struct rule should include the optional described
+;; and descriptor types.
+rule Heaptype_sub/rec-struct:
+  C |- _HT REC i <: STRUCT
+  -- if C.RECS[i] = SUB final? (STRUCT fieldtype*)
+
+rule Heaptype_sub/rec-array:
+  C |- _HT REC i <: ARRAY
+  -- if C.RECS[i] = SUB final? (ARRAY fieldtype)
+
+rule Heaptype_sub/rec-func:
+  C |- _HT REC i <: FUNC
+  -- if C.RECS[i] = SUB final? (FUNC t_1* -> t_2*)
+
+rule Heaptype_sub/rec-sub:
   C |- _HT REC i <: _HT typeuse*[j]
   -- if C.RECS[i] = SUB final? typeuse* desctype
 
 rule Heaptype_sub/none:
   C |- NONE <: heaptype
   -- Heaptype_sub: C |- heaptype <: ANY
+  -- if heaptype =/= BOT
 
 rule Heaptype_sub/nofunc:
   C |- NOFUNC <: heaptype
   -- Heaptype_sub: C |- heaptype <: FUNC
+  -- if heaptype =/= BOT
 
 rule Heaptype_sub/noexn:
   C |- NOEXN <: heaptype
   -- Heaptype_sub: C |- heaptype <: EXN
+  -- if heaptype =/= BOT
 
 rule Heaptype_sub/noextern:
   C |- NOEXTERN <: heaptype
   -- Heaptype_sub: C |- heaptype <: EXTERN
+  -- if heaptype =/= BOT
 
 rule Heaptype_sub/bot:
   C |- BOT <: heaptype
@@ -180,7 +198,7 @@ rule Comptype_sub/func:
   -- Resulttype_sub: C |- t_21* <: t_11*
   -- Resulttype_sub: C |- t_12* <: t_22*
 
-;; TODO: Check descriptor square rules
+;; TODO(tlively): Check descriptor square rules
 rule Desctype_sub:
   C |- (DESCRIBES tu_11) (DESCRIPTOR tu_12) ct_1 <: (DESCRIBES tu_21) (DESCRIPTOR tu_22) ct_2
   -- Heaptype_sub: C |- _HT tu_11 <: _HT tu_21

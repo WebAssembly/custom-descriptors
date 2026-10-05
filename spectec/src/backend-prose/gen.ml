@@ -34,7 +34,6 @@ let flatten_rec def =
   | Ast.RecD defs -> defs
   | _ -> [ def ]
 
-
 (* NOTE: Assume validation relation is `|-` *)
 let is_validation_relation def =
   match def.it with

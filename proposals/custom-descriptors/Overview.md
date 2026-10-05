@@ -124,6 +124,29 @@ This is the same strategy we use for ensuring supertype chains do not have cycle
 )
 ```
 
+Descriptor and described types must also have matching finality,
+i.e. both must be final or both must be open (non-final).
+If a described type were final and its descriptor open,
+the descriptor could never have any subtypes because those subtypes would have to describe
+subtypes of the described type, which cannot exist.
+Conversely, if a described type were open and its descriptor final,
+the described type could never have any subtypes because those subtypes would have to have
+descriptors that are subtypes of the descriptor, which cannot exist.
+
+```wasm
+(rec
+  ;; Invalid: $a is final, but $b is open.
+  (type $a (sub final (descriptor $b) (struct)))
+  (type $b (sub (describes $a) (struct)))
+)
+
+(rec
+  ;; Invalid: $x is open, but $y is final.
+  (type $x (sub (descriptor $y) (struct)))
+  (type $y (sub final (describes $x) (struct)))
+)
+```
+
 Just like any other struct types,
 struct types with `describes` or `descriptor` clauses support width and depth subtyping.
 However, the following new subtyping rules are introduced:
@@ -141,6 +164,9 @@ However, the following new subtyping rules are introduced:
 
  - A declared supertype of a type without a `describes` clause must also
    not have a `describes` clause.
+
+ - A described type and its descriptor type must have matching finality,
+   i.e. both must be final or both must be open (non-final).
 
  - With shared-everything-threads,
    a shared described type must have a shared descriptor type and vice versa,

@@ -100,6 +100,7 @@ $${grammar: Bresulttype}
    pair: binary format; field type
    pair: binary format; storage type
    pair: binary format; packed type
+.. _binary-mut:
 .. _binary-comptype:
 .. _binary-aggrtype:
 .. _binary-functype:
@@ -167,7 +168,6 @@ $${grammar: Btagtype}
 .. index:: global type, mutability, value type
    pair: binary format; global type
    pair: binary format; mutability
-.. _binary-mut:
 .. _binary-globaltype:
 
 Global Types

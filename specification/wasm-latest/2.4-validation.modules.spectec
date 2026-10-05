@@ -45,10 +45,12 @@ rule Table_ok:
 
 rule Local_ok/set:
   C |- LOCAL t : SET t
+  -- Valtype_ok: C |- t : OK
   -- Defaultable: |- t DEFAULTABLE
 
 rule Local_ok/unset:
   C |- LOCAL t : UNSET t
+  -- Valtype_ok: C |- t : OK
   -- Nondefaultable: |- t NONDEFAULTABLE
 
 rule Func_ok:
@@ -137,9 +139,10 @@ relation Types_ok: context |- type* : deftype*        hint(name "T-types")   hin
 relation Globals_ok: context |- global* : globaltype* hint(name "T-globals") hint(macro "%globals")
 
 ;; HACK for notation
-syntax nonfuncs = global* mem* table* elem*
+syntax nonfuncs = global* mem* table* elem* export*
 def $funcidx_nonfuncs(nonfuncs) : funcidx*  hint(show $funcidx(%)) hint(macro "freefuncidx")
-def $funcidx_nonfuncs(global* mem* table* elem*) = $funcidx_module(MODULE eps eps eps global* mem* table* eps eps elem* eps eps)
+def $funcidx_nonfuncs(global* mem* table* elem* export*) =
+  $funcidx_module(MODULE eps eps eps global* mem* table* eps eps elem* eps export*)
 
 rule Module_ok:
   |- MODULE type* import* tag* global* mem* table* func* data* elem* start? export* : $clos_moduletype(C, xt_I* -> xt_E*)
@@ -162,7 +165,7 @@ rule Module_ok:
   ----
   -- if C' = {TYPES dt'*, GLOBALS gt_I*, FUNCS ht_I* ht*, REFS x*}
   -- if ht* = (_HT EXACT dt)*
-  -- if x* = $funcidx_nonfuncs(global* mem* table* elem*)
+  -- if x* = $funcidx_nonfuncs(global* mem* table* elem* export*)
   ----
   -- if jt_I* = $tagsxt(xt_I*)
   -- if gt_I* = $globalsxt(xt_I*)

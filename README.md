@@ -10,6 +10,10 @@
 This repository contains the WebAssembly proposal for custom descriptors and JS interop for Wasm GC structs.
 See the [overview](proposals/custom-descriptors/Overview.md) for more information.
 
+The (WIP!) specs can be found at https://webassembly.github.io/custom-descriptors.
+
+A rendered diff against the upstream spec can be found [here](https://services.w3.org/htmldiff?doc1=https://webassembly.github.io/custom-descriptors/upstream/core/bikeshed/&doc2=https://webassembly.github.io/custom-descriptors/core/bikeshed/).
+
 Original `README` from upstream repository follows...
 
 # spec

@@ -169,9 +169,11 @@ $${rule: Expand {Expand_use/*}}
 
 $${relation-ignore: Expand Expand_use}
 
-The same notation also denotes the expansion of a :ref:`defined type <syntax-deftype>` or :ref:`type use <syntax-typeuse>` to a :ref:`desctype <syntax-desctype>`.
+The notation :math:`\sim` denotes the expansion of a :ref:`defined type <syntax-deftype>` to a :ref:`desctype <syntax-desctype>`.
 
 $${rule: Expand_desc}
+
+$${relation-ignore: Expand_desc}
 
 
 .. index:: ! instruction type, value type, result type, instruction, local, local index

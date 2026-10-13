@@ -346,7 +346,7 @@
 .. |expanddttodesctype| mathdef:: \xref{valid/conventions}{aux-expand-deftype-to-desctype}{\F{expand}}
 .. |approxexpanddt| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype}{\approx}}
 .. |approxexpandyy| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-typeuse}{\approx}}
-.. |approxexpanddttodesctype| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype-to-desctype}{\approx}}
+.. |simexpanddttodesctype| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype-to-desctype}{\sim}}
 .. |unrollht| mathdef:: \xref{appendix/properties}{aux-unroll-heaptype}{\F{unroll}}
 
 .. |unpack| mathdef:: \xref{syntax/types}{aux-unpack}{\F{unpack}}

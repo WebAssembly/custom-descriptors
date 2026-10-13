@@ -763,6 +763,10 @@ $\boxed{C \vdash {\mathit{parent}} \leq {\mathit{parent}}}$
 
 $\boxed{{\mathit{parent}} ; {\mathit{child}} \hookrightarrow {\mathit{parent}} ; {\mathit{child}}}$
 
+$\boxed{{\mathit{parent}} \sim {\mathit{child}}}$
+
+$\boxed{{\mathit{parent}} \sim_{C} {\mathit{child}}}$
+
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
@@ -789,11 +793,27 @@ $$
 \end{array}
 $$
 
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsim}]} \quad & \mathsf{aa} & \sim & \mathsf{bbb} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsimsub}]} \quad & \mathsf{aa} & {\sim}_{C} {} & \mathsf{bbb} \\
+\end{array}
+$$
+
 $\boxed{C \vdash {\mathit{parent}} : \mathsf{ok}}$
 
 $\boxed{C \vdash {\mathit{parent}} \leq {\mathit{parent}}}$
 
 $\boxed{{\mathit{parent}} ; {\mathit{child}} \hookrightarrow {\mathit{parent}} ; {\mathit{child}}}$
+
+$\boxed{{\mathit{parent}} \sim {\mathit{child}}}$
+
+$\boxed{{\mathit{parent}} \sim_{C} {\mathit{child}}}$
 
 $$
 \begin{array}{@{}c@{}}\displaystyle
@@ -821,11 +841,27 @@ $$
 \end{array}
 $$
 
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsim\_macro}]} \quad & \mathsf{aa} & \sim & \mathsf{bbb} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsimsub\_macro}]} \quad & \mathsf{aa} & {\sim}_{C} {} & \mathsf{bbb} \\
+\end{array}
+$$
+
 $\boxed{C \vdash {\mathit{parent}} : \mathsf{ok}}$
 
 $\boxed{C \vdash {\mathit{parent}} \leq {\mathit{parent}}}$
 
 $\boxed{{\mathit{parent}} ; {\mathit{child}} \hookrightarrow {\mathit{parent}} ; {\mathit{child}}}$
+
+$\boxed{{\mathit{parent}} \sim {\mathit{child}}}$
+
+$\boxed{{\mathit{parent}} \sim_{C} {\mathit{child}}}$
 
 $$
 \begin{array}{@{}c@{}}\displaystyle
@@ -850,6 +886,18 @@ $$
 $$
 \begin{array}[t]{@{}lrcl@{}l@{}}
 {[\textsc{\scriptsize Reval\_nomacro}]} \quad & {\mathit{parent}} ; {\mathit{child}} & \hookrightarrow & \mathsf{aa} ; \mathsf{bbb} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsim\_nomacro}]} \quad & \mathsf{aa} & \sim & \mathsf{bbb} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsimsub\_nomacro}]} \quad & \mathsf{aa} & {\sim}_{C} {} & \mathsf{bbb} \\
 \end{array}
 $$
 
@@ -1938,6 +1986,10 @@ $\boxed{{\C} \vdash {\parent} \leq {\parent}}$
 
 $\boxed{{\parent} ; {\child} \hookrightarrow {\parent} ; {\child}}$
 
+$\boxed{{\parent} \sim {\child}}$
+
+$\boxed{{\parent} \sim_{{\C}} {\child}}$
+
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
@@ -1964,11 +2016,27 @@ $$
 \end{array}
 $$
 
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsim}]} \quad & \AA & \sim & \BBB \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsimsub}]} \quad & \AA & {\sim}_{{\C}} {} & \BBB \\
+\end{array}
+$$
+
 $\boxed{{\C} \vdashok {\parent} : \OKok}$
 
 $\boxed{{\C} \vdashsub {\parent} \subsub {\parent}}$
 
 $\boxed{{\parent} ; {\child} \sqarroweval {\parent} ; {\child}}$
+
+$\boxed{{\parent} \simsim {\child}}$
+
+$\boxed{{\parent} \simsim_{{\C}} {\child}}$
 
 $$
 \begin{array}{@{}c@{}}\displaystyle
@@ -1996,11 +2064,27 @@ $$
 \end{array}
 $$
 
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsim\_macro}]} \quad & \AA & \simsim & \BBB \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsimsub\_macro}]} \quad & \AA & {\simsim}_{{\C}} {} & \BBB \\
+\end{array}
+$$
+
 $\boxed{{\C} \vdash {\parent} : \mathsf{ok}}$
 
 $\boxed{{\C} \vdash {\parent} \leq {\parent}}$
 
 $\boxed{{\parent} ; {\child} \hookrightarrow {\parent} ; {\child}}$
+
+$\boxed{{\parent} \sim {\child}}$
+
+$\boxed{{\parent} \sim_{{\C}} {\child}}$
 
 $$
 \begin{array}{@{}c@{}}\displaystyle
@@ -2025,6 +2109,18 @@ $$
 $$
 \begin{array}[t]{@{}lrcl@{}l@{}}
 {[\textsc{\scriptsize Reval\_nomacro}]} \quad & {\parent} ; {\child} & \hookrightarrow & \AA ; \BBB \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsim\_nomacro}]} \quad & \AA & \sim & \BBB \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsimsub\_nomacro}]} \quad & \AA & {\sim}_{{\C}} {} & \BBB \\
 \end{array}
 $$
 
@@ -4003,7 +4099,7 @@ $$
 & & | & {{\mathit{ishape}}_1{.}\mathsf{narrow}}{\mathsf{\_}}{{\mathit{ishape}}_2}{\mathsf{\_}}{{\mathit{sx}}} & \quad \mbox{if}~ {|{\mathrm{lanetype}}({\mathit{ishape}}_2)|} = 2 \cdot {|{\mathrm{lanetype}}({\mathit{ishape}}_1)|} \leq \mathsf{{\scriptstyle 32}} \\
 & & | & {\mathit{shape}}_1 {.} {{{\mathit{vcvtop}}}_{{\mathit{shape}}_2, {\mathit{shape}}_1}}{\mathsf{\_}}{{\mathit{shape}}_2} \\
 & & | & {\mathit{shape}}{.}\mathsf{splat} \\
-& & | & {{\mathit{shape}}{.}\mathsf{extract\_lane}}{\mathsf{\_}}{{{\mathit{sx}}^?}}~{\mathit{laneidx}} & \quad \mbox{if}~ {{\mathit{sx}}^?} = \epsilon \Leftrightarrow {\mathrm{lanetype}}({\mathit{shape}}) \in \mathsf{i{\scriptstyle 32}}~\mathsf{i{\scriptstyle 64}}~\mathsf{f{\scriptstyle 32}}~\mathsf{f{\scriptstyle 64}} \\
+& & | & {{\mathit{shape}}{.}\mathsf{extract\_lane}}{\mathsf{\_}}{{{\mathit{sx}}^?}}~{\mathit{laneidx}} & \quad \mbox{if}~ {{\mathit{sx}}^?} = \epsilon \Leftrightarrow {\mathrm{lanetype}}({\mathit{shape}}) = {\mathit{numtype}} \\
 & & | & {\mathit{shape}}{.}\mathsf{replace\_lane}~{\mathit{laneidx}} \\
 & & | & \dots \\
 \end{array}
@@ -8875,6 +8971,12 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
+{{\mathrm{ivrelaxed\_dot}}}_{N}({i_1^\ast}, {i_2^\ast}) & = & {{\mathrm{relaxed}}({\mathrm{R}}_{\mathit{idot}})}{{}[ {{\mathrm{ivdot}}}_{N}({i_1^\ast}, {i_2^\ast}), {{\mathrm{ivdot\_sat}}}_{N}({i_1^\ast}, {i_2^\ast}) ]} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
 {{\mathsf{extadd\_pairwise}}{\mathsf{\_}}{{\mathit{sx}}}}{{}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}(v_1)} & = & & \\
  \multicolumn{4}{@{}l@{}}{\quad
 \begin{array}[t]{@{}l@{}}
@@ -8901,7 +9003,7 @@ $$
 {{\mathsf{relaxed\_dot}}{\mathsf{\_}}{\mathsf{s}}}{{}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}(v_1, v_2)} & = & & \\
  \multicolumn{4}{@{}l@{}}{\quad
 \begin{array}[t]{@{}l@{}}
-{{\mathrm{ivextbinop}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({\mathrm{ivdot}}_{{\mathit{sat}}}, \mathsf{s}, {{\mathrm{relaxed}}({\mathrm{R}}_{\mathit{idot}})}{{}[ \mathsf{s}, \mathsf{u} ]}, 0, M_1, v_1, v_2) \\
+{{\mathrm{ivextbinop}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({\mathrm{ivrelaxed}}_{{\mathit{dot}}}, \mathsf{s}, {{\mathrm{relaxed}}({\mathrm{R}}_{\mathit{idot}})}{{}[ \mathsf{s}, \mathsf{u} ]}, 0, M_1, v_1, v_2) \\
 \end{array}
 } \\
 \end{array}
@@ -11467,7 +11569,7 @@ $$
 \end{array} \\
 {\mathrm{utf{\kern-0.1em\scriptstyle 8}}}({\mathit{ch}}) & = & b_1~b_2~b_3~b_4 & \quad
 \begin{array}[t]{@{}l@{}}
-\mbox{if}~ \mathrm{U{+}10000} \leq {\mathit{ch}} < \mathrm{U{+}11000} \\
+\mbox{if}~ \mathrm{U{+}10000} \leq {\mathit{ch}} < \mathrm{U{+}110000} \\
 {\land}~ {\mathit{ch}} = {2^{18}} \cdot (b_1 - \mathtt{0xF0}) + {2^{12}} \cdot {\mathrm{cont}}(b_2) + {2^{6}} \cdot {\mathrm{cont}}(b_3) + {\mathrm{cont}}(b_4) \\
 \end{array} \\
 \end{array}

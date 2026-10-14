@@ -4338,6 +4338,8 @@ $$
 {\mathrm{free}}_{\mathit{instr}}({\mathsf{i{\scriptstyle 31}{.}get}}{\mathsf{\_}}{{\mathit{sx}}}) & = & \{  \} \\
 {\mathrm{free}}_{\mathit{instr}}(\mathsf{struct{.}new}~{\mathit{typeidx}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
 {\mathrm{free}}_{\mathit{instr}}(\mathsf{struct{.}new\_default}~{\mathit{typeidx}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
+{\mathrm{free}}_{\mathit{instr}}(\mathsf{struct{.}new\_desc}~{\mathit{typeidx}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
+{\mathrm{free}}_{\mathit{instr}}(\mathsf{struct{.}new\_default\_desc}~{\mathit{typeidx}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
 {\mathrm{free}}_{\mathit{instr}}({\mathsf{struct{.}get}}{\mathsf{\_}}{{{\mathit{sx}}^?}}~{\mathit{typeidx}}~{\mathit{u{\kern-0.1em\scriptstyle 32}}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
 {\mathrm{free}}_{\mathit{instr}}(\mathsf{struct{.}set}~{\mathit{typeidx}}~{\mathit{u{\kern-0.1em\scriptstyle 32}}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
 {\mathrm{free}}_{\mathit{instr}}(\mathsf{array{.}new}~{\mathit{typeidx}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
@@ -6644,7 +6646,7 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
-C{.}\mathsf{types}{}[x] \sim {{\mathit{describestype}}^?}~(\mathsf{descriptor}~y)~(\mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast})
+C{.}\mathsf{types}{}[x] \sim {{\mathit{describestype}}^?}~(\mathsf{descriptor}~y)~\mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}
 }{
 C \vdash \mathsf{struct{.}new\_desc}~x : {{\mathrm{unpack}}({\mathit{zt}})^\ast}~(\mathsf{ref}~\mathsf{null}~(\mathsf{exact}~y)) \rightarrow (\mathsf{ref}~(\mathsf{exact}~x))
 } \, {[\textsc{\scriptsize T{-}instr{-}struct.new\_desc}]}
@@ -6655,7 +6657,7 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
-C{.}\mathsf{types}{}[x] \sim {{\mathit{describestype}}^?}~(\mathsf{descriptor}~y)~(\mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast})
+C{.}\mathsf{types}{}[x] \sim {{\mathit{describestype}}^?}~(\mathsf{descriptor}~y)~\mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}
  \qquad
 ({{\mathrm{default}}}_{{\mathrm{unpack}}({\mathit{zt}})} \neq \epsilon)^\ast
 }{

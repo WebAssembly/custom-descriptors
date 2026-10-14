@@ -1862,12 +1862,6 @@ def $unrolldt(deftype : deftype) : subtype
     -- if ($unrollrt(rectype) = REC_rectype(`%`_list(subtype*{subtype <- `subtype*`},)))
 
 ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec
-def $expanddt_to_desctype(deftype : deftype) : desctype
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec
-  def $expanddt_to_desctype{deftype : deftype, desctype : desctype, `final?` : final?, `typeuse*` : typeuse*}(deftype) = desctype
-    -- if ($unrolldt(deftype) = SUB_subtype(final?{final <- `final?`}, typeuse*{typeuse <- `typeuse*`}, desctype))
-
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec
 def $free_addrtype(addrtype : addrtype) : free
   ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec
   def $free_addrtype{addrtype : addrtype}(addrtype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
@@ -1916,90 +1910,90 @@ def $free_typevar(typevar : typevar) : free
 ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec
 rec {
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:503.1-503.36
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:498.1-498.36
 def $free_heaptype(heaptype : heaptype) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:554.1-554.65
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:549.1-549.65
   def $free_heaptype{absheaptype : absheaptype}((absheaptype : absheaptype <: heaptype)) = $free_absheaptype(absheaptype)
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:555.1-555.64
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:550.1-550.64
   def $free_heaptype{typeuse : typeuse}(_HT_heaptype(EXACT_exact?{}, typeuse)) = $free_typeuse(typeuse)
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:504.1-504.34
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:499.1-499.34
 def $free_reftype(reftype : reftype) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:557.1-557.65
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:552.1-552.65
   def $free_reftype{`null?` : null?, heaptype : heaptype}(REF_reftype(null?{null <- `null?`}, heaptype)) = $free_heaptype(heaptype)
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:506.1-506.34
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:501.1-501.34
 def $free_typeuse(typeuse : typeuse) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:551.1-551.52
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:546.1-546.52
   def $free_typeuse{typevar : typevar}((typevar : typevar <: typeuse)) = $free_typevar(typevar)
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:552.1-552.52
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:547.1-547.52
   def $free_typeuse{deftype : deftype}((deftype : deftype <: typeuse)) = $free_deftype(deftype)
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:507.1-507.34
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:502.1-502.34
 def $free_valtype(valtype : valtype) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:559.1-559.52
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:554.1-554.52
   def $free_valtype{numtype : numtype}((numtype : numtype <: valtype)) = $free_numtype(numtype)
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:560.1-560.52
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:555.1-555.52
   def $free_valtype{vectype : vectype}((vectype : vectype <: valtype)) = $free_vectype(vectype)
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:561.1-561.52
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:556.1-556.52
   def $free_valtype{reftype : reftype}((reftype : reftype <: valtype)) = $free_reftype(reftype)
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:562.1-562.28
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:557.1-557.28
   def $free_valtype(BOT_valtype) = {TYPES [], FUNCS [], GLOBALS [], TABLES [], MEMS [], ELEMS [], DATAS [], LOCALS [], LABELS [], TAGS []}
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:509.1-509.40
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:504.1-504.40
 def $free_resulttype(resulttype : resulttype) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:564.1-564.69
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:559.1-559.69
   def $free_resulttype{`valtype*` : valtype*}(`%`_resulttype(valtype*{valtype <- `valtype*`},)) = $free_list($free_valtype(valtype)*{valtype <- `valtype*`})
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:510.1-510.42
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:505.1-505.42
 def $free_storagetype(storagetype : storagetype) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:566.1-566.56
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:561.1-561.56
   def $free_storagetype{valtype : valtype}((valtype : valtype <: storagetype)) = $free_valtype(valtype)
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:567.1-567.59
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:562.1-562.59
   def $free_storagetype{packtype : packtype}((packtype : packtype <: storagetype)) = $free_packtype(packtype)
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:511.1-511.38
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:506.1-506.38
 def $free_fieldtype(fieldtype : fieldtype) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:569.1-569.71
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:564.1-564.71
   def $free_fieldtype{`mut?` : mut?, storagetype : storagetype}(`%%`_fieldtype(mut?{mut <- `mut?`}, storagetype)) = $free_storagetype(storagetype)
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:512.1-512.36
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:507.1-507.36
 def $free_comptype(comptype : comptype) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:571.1-571.80
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:566.1-566.80
   def $free_comptype{`fieldtype*` : fieldtype*}(STRUCT_comptype(`%`_list(fieldtype*{fieldtype <- `fieldtype*`},))) = $free_list($free_fieldtype(fieldtype)*{fieldtype <- `fieldtype*`})
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:572.1-572.65
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:567.1-567.65
   def $free_comptype{fieldtype : fieldtype}(ARRAY_comptype(fieldtype)) = $free_fieldtype(fieldtype)
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:573.1-573.121
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:568.1-568.121
   def $free_comptype{resulttype_1 : resulttype, resulttype_2 : resulttype}(`FUNC%->%`_comptype(resulttype_1, resulttype_2)) = $free_resulttype(resulttype_1) +++ $free_resulttype(resulttype_2)
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:513.1-513.46
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:508.1-508.46
 def $free_describestype(describestype : describestype) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:575.1-575.58
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:570.1-570.58
   def $free_describestype{tu : typeuse}(DESCRIBES_describestype(tu)) = $free_typeuse(tu)
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:514.1-514.48
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:509.1-509.48
 def $free_descriptortype(descriptortype : descriptortype) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:576.1-576.60
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:571.1-571.60
   def $free_descriptortype{tu : typeuse}(DESCRIPTOR_descriptortype(tu)) = $free_typeuse(tu)
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:515.1-515.36
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:510.1-510.36
 def $free_desctype(desctype : desctype) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:578.1-579.102
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:573.1-574.102
   def $free_desctype{`dc1?` : describestype?, `dc2?` : descriptortype?, ct : comptype}(`%%%`_desctype(dc1?{dc1 <- `dc1?`}, dc2?{dc2 <- `dc2?`}, ct)) = $free_opt($free_describestype(dc1)?{dc1 <- `dc1?`}) +++ $free_opt($free_descriptortype(dc2)?{dc2 <- `dc2?`}) +++ $free_comptype(ct)
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:516.1-516.34
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:511.1-511.34
 def $free_subtype(subtype : subtype) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:581.1-582.66
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:576.1-577.66
   def $free_subtype{`final?` : final?, `typeuse*` : typeuse*, desctype : desctype}(SUB_subtype(final?{final <- `final?`}, typeuse*{typeuse <- `typeuse*`}, desctype)) = $free_list($free_typeuse(typeuse)*{typeuse <- `typeuse*`}) +++ $free_desctype(desctype)
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:517.1-517.34
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:512.1-512.34
 def $free_rectype(rectype : rectype) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:584.1-584.70
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:579.1-579.70
   def $free_rectype{`subtype*` : subtype*}(REC_rectype(`%`_list(subtype*{subtype <- `subtype*`},))) = $free_list($free_subtype(subtype)*{subtype <- `subtype*`})
 
-;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:545.1-545.34
+;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:540.1-540.34
 def $free_deftype(deftype : deftype) : free
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:546.1-546.59
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:541.1-541.59
   def $free_deftype{rectype : rectype, n : n}(_DEF_deftype(rectype, n)) = $free_rectype(rectype)
 }
 
@@ -3684,9 +3678,9 @@ relation Expand_use: `%~~_%%`(typeuse, context, comptype)
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
 relation Expand_desc: `%~%`(deftype, desctype)
   ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
-  rule _{deftype : deftype, desctype : desctype}:
+  rule _{deftype : deftype, desctype : desctype, `final?` : final?, `typeuse*` : typeuse*}:
     `%~%`(deftype, desctype)
-    -- if ($expanddt_to_desctype(deftype) = desctype)
+    -- if ($unrolldt(deftype) = SUB_subtype(final?{final <- `final?`}, typeuse*{typeuse <- `typeuse*`}, desctype))
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
 syntax oktypeidx =

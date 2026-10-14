@@ -3538,8 +3538,6 @@ $$
 
 \vspace{1ex}
 
-\vspace{1ex}
-
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
 {{\mathrm{roll}}}_{x}({\mathit{rectype}}) & = & \mathsf{rec}~{({{\mathit{subtype}}}{{}[ {(x + i)^{i<n}} := {(\mathsf{rec} {.} i)^{i<n}} ]})^{n}} & \quad \mbox{if}~ {\mathit{rectype}} = \mathsf{rec}~{{\mathit{subtype}}^{n}} \\
@@ -3561,12 +3559,6 @@ $$
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
 {\mathrm{unroll}}({\mathit{rectype}} {.} i) & = & {{\mathit{subtype}}^\ast}{}[i] & \quad \mbox{if}~ {\mathrm{unroll}}({\mathit{rectype}}) = \mathsf{rec}~{{\mathit{subtype}}^\ast} \\
-\end{array}
-$$
-
-$$
-\begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{expand}}_{\mathit{desc}}({\mathit{deftype}}) & = & {\mathit{desctype}} & \quad \mbox{if}~ {\mathrm{unroll}}({\mathit{deftype}}) = \mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{desctype}} \\
 \end{array}
 $$
 
@@ -4927,7 +4919,7 @@ $\boxed{{\mathit{deftype}} \sim {\mathit{desctype}}}$
 
 $$
 \begin{array}[t]{@{}lrcl@{}l@{}}
-{[\textsc{\scriptsize Expand\_desc}]} \quad & {\mathit{deftype}} & \sim & {\mathit{desctype}} & \quad \mbox{if}~ {\mathrm{expand}}_{\mathit{desc}}({\mathit{deftype}}) = {\mathit{desctype}} \\
+{[\textsc{\scriptsize Expand\_desc}]} \quad & {\mathit{deftype}} & \sim & {\mathit{desctype}} & \quad \mbox{if}~ {\mathrm{unroll}}({\mathit{deftype}}) = \mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{desctype}} \\
 \end{array}
 $$
 

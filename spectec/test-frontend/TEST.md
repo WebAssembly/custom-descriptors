@@ -801,7 +801,7 @@ def $utf8(char*) : byte*
     -- if (ch!`%`_char.0 = ((((2 ^ 12) * (((b_1!`%`_byte.0 : nat <:> int) - (224 : nat <:> int)) : int <:> nat)) + ((2 ^ 6) * $cont(b_2))) + $cont(b_3)))
   ;; ../../../../specification/wasm-latest/5.1-binary.values.spectec:62.1-64.82
   def $utf8{ch : char, b_1 : byte, b_2 : byte, b_3 : byte, b_4 : byte}([ch]) = [b_1 b_2 b_3 b_4]
-    -- if ((65536 <= ch!`%`_char.0) /\ (ch!`%`_char.0 < 69632))
+    -- if ((65536 <= ch!`%`_char.0) /\ (ch!`%`_char.0 < 1114112))
     -- if (ch!`%`_char.0 = (((((2 ^ 18) * (((b_1!`%`_byte.0 : nat <:> int) - (240 : nat <:> int)) : int <:> nat)) + ((2 ^ 12) * $cont(b_2))) + ((2 ^ 6) * $cont(b_3))) + $cont(b_4)))
 }
 
@@ -2690,8 +2690,8 @@ syntax instr =
     -- if (($lsize($lanetype(ishape_2!`%`_ishape.0)) = (2 * $lsize($lanetype(ishape_1!`%`_ishape.0)))) /\ ((2 * $lsize($lanetype(ishape_1!`%`_ishape.0))) <= 32))
   | VCVTOP(shape_1 : shape, shape_2 : shape, vcvtop__(shape_2, shape_1))
   | VSPLAT(shape)
-  | VEXTRACT_LANE(shape : shape, `sx?` : sx?, laneidx : laneidx)
-    -- if ((sx?{sx <- `sx?`} = ?()) <=> ($lanetype(shape) <- [I32_lanetype I64_lanetype F32_lanetype F64_lanetype]))
+  | VEXTRACT_LANE(shape : shape, `sx?` : sx?, laneidx : laneidx) {numtype : numtype}
+    -- if ((sx?{sx <- `sx?`} = ?()) <=> ($lanetype(shape) = (numtype : numtype <: lanetype)))
   | VREPLACE_LANE(shape : shape, laneidx : laneidx)
   | `REF.I31_NUM`(u31)
   | `REF.NULL_ADDR`
@@ -4952,7 +4952,7 @@ def $R_idot : relaxed2
 def $R_iq15mulr : relaxed2
 
 ;; ../../../../specification/wasm-latest/3.0-numerics.relaxed.spectec
-def $R_trunc_u : relaxed4
+def $R_trunc_u : relaxed2
 
 ;; ../../../../specification/wasm-latest/3.0-numerics.relaxed.spectec
 def $R_trunc_s : relaxed2
@@ -5963,12 +5963,6 @@ def $ivdot_(N : N, iN(N)*, iN(N)*) : iN(N)*
     -- if ($concat_(syntax iN(N), [j_1 j_2]*{j_1 <- `j_1*`, j_2 <- `j_2*`}) = $imul_(N, i_1, i_2)*{i_1 <- `i_1*`, i_2 <- `i_2*`})
 
 ;; ../../../../specification/wasm-latest/3.2-numerics.vector.spectec
-def $ivdot_sat_(N : N, iN(N)*, iN(N)*) : iN(N)*
-  ;; ../../../../specification/wasm-latest/3.2-numerics.vector.spectec
-  def $ivdot_sat_{N : N, `i_1*` : iN(N)*, `i_2*` : iN(N)*, `j_1*` : iN(N)*, `j_2*` : iN(N)*}(N, i_1*{i_1 <- `i_1*`}, i_2*{i_2 <- `i_2*`}) = $iadd_sat_(N, S_sx, j_1, j_2)*{j_1 <- `j_1*`, j_2 <- `j_2*`}
-    -- if ($concat_(syntax iN(N), [j_1 j_2]*{j_1 <- `j_1*`, j_2 <- `j_2*`}) = $imul_(N, i_1, i_2)*{i_1 <- `i_1*`, i_2 <- `i_2*`})
-
-;; ../../../../specification/wasm-latest/3.2-numerics.vector.spectec
 def $ivextbinop__(shape_1 : shape, shape_2 : shape, def $f_(N : N, iN(N)*, iN(N)*) : iN(N)*, sx : sx, sx : sx, laneidx : laneidx, laneidx : laneidx, vec_ : vec_(V128_Vnn), vec_ : vec_(V128_Vnn)) : vec_(V128_Vnn)
   ;; ../../../../specification/wasm-latest/3.2-numerics.vector.spectec
   def $ivextbinop__{Jnn_1 : Jnn, M_1 : M, Jnn_2 : Jnn, M_2 : M, def $f_(N : N, iN(N)*, iN(N)*) : iN(N)*, sx_1 : sx, sx_2 : sx, i : laneidx, k : laneidx, v_1 : vec_(V128_Vnn), v_2 : vec_(V128_Vnn), `c*` : iN($lsizenn2((Jnn_2 : Jnn <: lanetype)))*, `c_1*` : lane_($lanetype(`%X%`_shape((Jnn_1 : Jnn <: lanetype), M_1)))*, `c_2*` : lane_($lanetype(`%X%`_shape((Jnn_1 : Jnn <: lanetype), M_1)))*, `c'_1*` : iN($lsizenn2((Jnn_2 : Jnn <: lanetype)))*, `c'_2*` : iN($lsizenn2((Jnn_2 : Jnn <: lanetype)))*}(`%X%`_shape((Jnn_1 : Jnn <: lanetype), M_1), `%X%`_shape((Jnn_2 : Jnn <: lanetype), M_2), def $f_, sx_1, sx_2, i, k, v_1, v_2) = $inv_lanes_(`%X%`_shape((Jnn_2 : Jnn <: lanetype), M_2), c*{c <- `c*`})
@@ -5984,13 +5978,24 @@ def $ivmul_(N : N, iN(N)*, iN(N)*) : iN(N)*
   def $ivmul_{N : N, `i_1*` : iN(N)*, `i_2*` : iN(N)*}(N, i_1*{i_1 <- `i_1*`}, i_2*{i_2 <- `i_2*`}) = $imul_(N, i_1, i_2)*{i_1 <- `i_1*`, i_2 <- `i_2*`}
 
 ;; ../../../../specification/wasm-latest/3.2-numerics.vector.spectec
+def $ivdot_sat_(N : N, iN(N)*, iN(N)*) : iN(N)*
+  ;; ../../../../specification/wasm-latest/3.2-numerics.vector.spectec
+  def $ivdot_sat_{N : N, `i_1*` : iN(N)*, `i_2*` : iN(N)*, `j_1*` : iN(N)*, `j_2*` : iN(N)*}(N, i_1*{i_1 <- `i_1*`}, i_2*{i_2 <- `i_2*`}) = $iadd_sat_(N, S_sx, j_1, j_2)*{j_1 <- `j_1*`, j_2 <- `j_2*`}
+    -- if ($concat_(syntax iN(N), [j_1 j_2]*{j_1 <- `j_1*`, j_2 <- `j_2*`}) = $imul_(N, i_1, i_2)*{i_1 <- `i_1*`, i_2 <- `i_2*`})
+
+;; ../../../../specification/wasm-latest/3.2-numerics.vector.spectec
+def $ivrelaxed_dot_(N : N, iN(N)*, iN(N)*) : iN(N)*
+  ;; ../../../../specification/wasm-latest/3.2-numerics.vector.spectec
+  def $ivrelaxed_dot_{N : N, `i_1*` : iN(N)*, `i_2*` : iN(N)*}(N, i_1*{i_1 <- `i_1*`}, i_2*{i_2 <- `i_2*`}) = $relaxed2($R_idot, syntax iN(N)*, $ivdot_(N, i_1*{i_1 <- `i_1*`}, i_2*{i_2 <- `i_2*`}), $ivdot_sat_(N, i_1*{i_1 <- `i_1*`}, i_2*{i_2 <- `i_2*`}))
+
+;; ../../../../specification/wasm-latest/3.2-numerics.vector.spectec
 def $vextbinop__(ishape_1 : ishape, ishape_2 : ishape, vextbinop__ : vextbinop__(ishape_1, ishape_2), vec_ : vec_(V128_Vnn), vec_ : vec_(V128_Vnn)) : vec_(V128_Vnn)
   ;; ../../../../specification/wasm-latest/3.2-numerics.vector.spectec
   def $vextbinop__{Jnn_1 : Jnn, M_1 : M, Jnn_2 : Jnn, M_2 : M, half : half, sx : sx, v_1 : vec_(V128_Vnn), v_2 : vec_(V128_Vnn)}(`%`_ishape(`%X%`_shape((Jnn_1 : Jnn <: lanetype), M_1),), `%`_ishape(`%X%`_shape((Jnn_2 : Jnn <: lanetype), M_2),), EXTMUL_vextbinop__(half, sx), v_1, v_2) = $ivextbinop__(`%X%`_shape((Jnn_1 : Jnn <: lanetype), M_1), `%X%`_shape((Jnn_2 : Jnn <: lanetype), M_2), def $ivmul_, sx, sx, `%`_laneidx($half(half, 0, M_2!`%`_M.0),), `%`_laneidx(M_2!`%`_M.0,), v_1, v_2)
   ;; ../../../../specification/wasm-latest/3.2-numerics.vector.spectec
   def $vextbinop__{Jnn_1 : Jnn, M_1 : M, Jnn_2 : Jnn, M_2 : M, v_1 : vec_(V128_Vnn), v_2 : vec_(V128_Vnn)}(`%`_ishape(`%X%`_shape((Jnn_1 : Jnn <: lanetype), M_1),), `%`_ishape(`%X%`_shape((Jnn_2 : Jnn <: lanetype), M_2),), DOTS_vextbinop__, v_1, v_2) = $ivextbinop__(`%X%`_shape((Jnn_1 : Jnn <: lanetype), M_1), `%X%`_shape((Jnn_2 : Jnn <: lanetype), M_2), def $ivdot_, S_sx, S_sx, `%`_laneidx(0,), `%`_laneidx(M_1!`%`_M.0,), v_1, v_2)
   ;; ../../../../specification/wasm-latest/3.2-numerics.vector.spectec
-  def $vextbinop__{Jnn_1 : Jnn, M_1 : M, Jnn_2 : Jnn, M_2 : M, v_1 : vec_(V128_Vnn), v_2 : vec_(V128_Vnn)}(`%`_ishape(`%X%`_shape((Jnn_1 : Jnn <: lanetype), M_1),), `%`_ishape(`%X%`_shape((Jnn_2 : Jnn <: lanetype), M_2),), RELAXED_DOTS_vextbinop__, v_1, v_2) = $ivextbinop__(`%X%`_shape((Jnn_1 : Jnn <: lanetype), M_1), `%X%`_shape((Jnn_2 : Jnn <: lanetype), M_2), def $ivdot_sat_, S_sx, $relaxed2($R_idot, syntax sx, S_sx, U_sx), `%`_laneidx(0,), `%`_laneidx(M_1!`%`_M.0,), v_1, v_2)
+  def $vextbinop__{Jnn_1 : Jnn, M_1 : M, Jnn_2 : Jnn, M_2 : M, v_1 : vec_(V128_Vnn), v_2 : vec_(V128_Vnn)}(`%`_ishape(`%X%`_shape((Jnn_1 : Jnn <: lanetype), M_1),), `%`_ishape(`%X%`_shape((Jnn_2 : Jnn <: lanetype), M_2),), RELAXED_DOTS_vextbinop__, v_1, v_2) = $ivextbinop__(`%X%`_shape((Jnn_1 : Jnn <: lanetype), M_1), `%X%`_shape((Jnn_2 : Jnn <: lanetype), M_2), def $ivrelaxed_dot_, S_sx, $relaxed2($R_idot, syntax sx, S_sx, U_sx), `%`_laneidx(0,), `%`_laneidx(M_1!`%`_M.0,), v_1, v_2)
 
 ;; ../../../../specification/wasm-latest/3.2-numerics.vector.spectec
 def $vextternop__(ishape_1 : ishape, ishape_2 : ishape, vextternop__ : vextternop__(ishape_1, ishape_2), vec_ : vec_(V128_Vnn), vec_ : vec_(V128_Vnn), vec_ : vec_(V128_Vnn)) : vec_(V128_Vnn)

@@ -325,6 +325,8 @@ syntax instr/i31 hint(desc "scalar reference instruction") = ...
 syntax instr/struct hint(desc "structure reference instruction") = ...
   | STRUCT.NEW typeidx
   | STRUCT.NEW_DEFAULT typeidx
+  | STRUCT.NEW_DESC typeidx
+  | STRUCT.NEW_DEFAULT_DESC typeidx
   | STRUCT.GET sx? typeidx fieldidx      hint(show STRUCT.GET#_#% % %)
   | STRUCT.SET typeidx fieldidx
   | ...
@@ -518,6 +520,8 @@ def $free_instr(I31.GET sx) = {}
 
 def $free_instr(STRUCT.NEW typeidx) = $free_typeidx(typeidx)
 def $free_instr(STRUCT.NEW_DEFAULT typeidx) = $free_typeidx(typeidx)
+def $free_instr(STRUCT.NEW_DESC typeidx) = $free_typeidx(typeidx)
+def $free_instr(STRUCT.NEW_DEFAULT_DESC typeidx) = $free_typeidx(typeidx)
 def $free_instr(STRUCT.GET sx? typeidx u32) = $free_typeidx(typeidx)
 def $free_instr(STRUCT.SET typeidx u32) = $free_typeidx(typeidx)
 

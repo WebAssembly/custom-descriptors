@@ -138,6 +138,7 @@ Conventions
 .. _aux-roll-deftype:
 .. _aux-unroll-deftype:
 .. _aux-expand-deftype:
+.. _aux-expand-deftype-to-desctype:
 .. _aux-expand-typeuse:
 
 Rolling and Unrolling
@@ -167,6 +168,12 @@ In addition, the following auxiliary relation denotes the *expansion* of a :ref:
 $${rule: Expand {Expand_use/*}}
 
 $${relation-ignore: Expand Expand_use}
+
+The following auxiliary relation denotes the expansion of a :ref:`defined type <syntax-deftype>` to a :ref:`descriptor type <syntax-desctype>`:
+
+$${rule: Expand_desc}
+
+$${relation-ignore: Expand_desc}
 
 
 .. index:: ! instruction type, value type, result type, instruction, local, local index

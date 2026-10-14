@@ -169,7 +169,7 @@ $${rule: Expand {Expand_use/*}}
 
 $${relation-ignore: Expand Expand_use}
 
-The notation :math:`\simexpanddttodesctype` denotes the expansion of a :ref:`defined type <syntax-deftype>` to a :ref:`descriptor type <syntax-desctype>`.
+The following auxiliary relation denotes the expansion of a :ref:`defined type <syntax-deftype>` to a :ref:`descriptor type <syntax-desctype>`:
 
 $${rule: Expand_desc}
 

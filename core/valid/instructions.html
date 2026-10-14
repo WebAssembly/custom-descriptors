@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Instructions &#8212; WebAssembly 3.0 + Custom Descriptors (2026-10-13)</title>
+    <title>Instructions &#8212; WebAssembly 3.0 + Custom Descriptors (2026-10-14)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=da869650"></script>
+    <script src="../_static/documentation_options.js?v=54dd679e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}, "options": {"menuOptions": {"settings": {"enrich": false}}}}</script>
@@ -1711,14 +1711,14 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <blockquote>
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> is <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast})\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype-to-desctype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> is <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-desctype}{\mathit{describestype}}}^?}~\epsilon~(\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}))\)</span>.</p></li>
 <li><p>The value type sequence <span class="math notranslate nohighlight">\({t^\ast}\)</span> is <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})^\ast}\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype-to-desctype}{\sim}} {{\href{../syntax/types.html#syntax-desctype}{\mathit{describestype}}}^?}~\epsilon~\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new}}~x : {{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})^\ast} \rightarrow (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~x)
 }
@@ -1731,7 +1731,7 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <blockquote>
 <div><ul>
 <li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> is <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast})\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype-to-desctype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> is <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-desctype}{\mathit{describestype}}}^?}~\epsilon~(\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}))\)</span>.</p></li>
 <li><p>For all <span class="math notranslate nohighlight">\({\mathit{zt}}\)</span> in <span class="math notranslate nohighlight">\({{\mathit{zt}}^\ast}\)</span>:</p>
 <blockquote>
 <div><ul class="simple">
@@ -1744,11 +1744,59 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype-to-desctype}{\sim}} {{\href{../syntax/types.html#syntax-desctype}{\mathit{describestype}}}^?}~\epsilon~\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
  \qquad
 ({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})} \neq \epsilon)^\ast
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_default}}~x : \epsilon \rightarrow (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~x)
+}
+\qquad
+\end{array}\]</div>
+</section>
+<section id="xref-syntax-instructions-syntax-instr-struct-mathsf-struct-new-desc-x">
+<span id="valid-struct-new-desc"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_desc}}~x\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-struct-mathsf-struct-new-desc-x" title="Link to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="../syntax/instructions.html#syntax-instr"><span class="std std-ref">instruction</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_desc}}~x)\)</span> is <a class="reference internal" href="#valid-instr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> <span class="math notranslate nohighlight">\({t^\ast}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~y))~\rightarrow~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~x))\)</span> if:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> exists.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype-to-desctype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> is <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-desctype}{\mathit{describestype}}}^?}~(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~y)~(\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}))\)</span>.</p></li>
+<li><p>The value type sequence <span class="math notranslate nohighlight">\({t^\ast}\)</span> is <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})^\ast}\)</span>.</p></li>
+</ul>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[\begin{array}{&#64;{}c&#64;{}}\displaystyle
+\frac{
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype-to-desctype}{\sim}} {{\href{../syntax/types.html#syntax-desctype}{\mathit{describestype}}}^?}~(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~y)~\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
+}{
+C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_desc}}~x : {{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})^\ast}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~y)) \rightarrow (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~x))
+}
+\qquad
+\end{array}\]</div>
+</section>
+<section id="xref-syntax-instructions-syntax-instr-struct-mathsf-struct-new-default-desc-x">
+<span id="valid-struct-new-default-desc"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_default\_desc}}~x\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-struct-mathsf-struct-new-default-desc-x" title="Link to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="../syntax/instructions.html#syntax-instr"><span class="std std-ref">instruction</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_default\_desc}}~x)\)</span> is <a class="reference internal" href="#valid-instr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~y))~\rightarrow~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~x))\)</span> if:</p>
+<blockquote>
+<div><ul>
+<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> exists.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype-to-desctype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> is <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-desctype}{\mathit{describestype}}}^?}~(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~y)~(\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}))\)</span>.</p></li>
+<li><p>For all <span class="math notranslate nohighlight">\({\mathit{zt}}\)</span> in <span class="math notranslate nohighlight">\({{\mathit{zt}}^\ast}\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>A <a class="reference internal" href="../exec/runtime.html#aux-default"><span class="std std-ref">default value</span></a> for <span class="math notranslate nohighlight">\({\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})\)</span> is defined.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[\begin{array}{&#64;{}c&#64;{}}\displaystyle
+\frac{
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype-to-desctype}{\sim}} {{\href{../syntax/types.html#syntax-desctype}{\mathit{describestype}}}^?}~(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~y)~\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
+ \qquad
+({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})} \neq \epsilon)^\ast
+}{
+C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_default\_desc}}~x : (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~y)) \rightarrow (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~x))
 }
 \qquad
 \end{array}\]</div>
@@ -2721,6 +2769,20 @@ C \href{../valid/instructions.html#valid-expr}{\vdash} {{\href{../syntax/instruc
 <li><p>Or:</p>
 <blockquote>
 <div><ul class="simple">
+<li><p>The <a class="reference internal" href="../syntax/instructions.html#syntax-instr"><span class="std std-ref">instruction</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_desc}}~x)\)</span>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Or:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The <a class="reference internal" href="../syntax/instructions.html#syntax-instr"><span class="std std-ref">instruction</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_default\_desc}}~x)\)</span>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Or:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>The <a class="reference internal" href="../syntax/instructions.html#syntax-instr"><span class="std std-ref">instruction</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/instructions.html#syntax-instr}{\mathit{instr}}}\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-array}{\mathsf{array{.}new}}~x)\)</span>.</p></li>
 </ul>
 </div></blockquote>
@@ -2825,6 +2887,16 @@ C \href{../valid/instructions.html#valid-constant}{\vdash} (\href{../syntax/inst
 \frac{
 }{
 C \href{../valid/instructions.html#valid-constant}{\vdash} (\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_default}}~x)~\href{../valid/instructions.html#valid-constant}{\mathsf{const}}
+}
+\\[3ex]\displaystyle
+\frac{
+}{
+C \href{../valid/instructions.html#valid-constant}{\vdash} (\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_desc}}~x)~\href{../valid/instructions.html#valid-constant}{\mathsf{const}}
+}
+\qquad
+\frac{
+}{
+C \href{../valid/instructions.html#valid-constant}{\vdash} (\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_default\_desc}}~x)~\href{../valid/instructions.html#valid-constant}{\mathsf{const}}
 }
 \\[3ex]\displaystyle
 \frac{

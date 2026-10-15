@@ -157,6 +157,8 @@ grammar Timport_(I)/abbrev-table : (import, idctxt) = ...
 grammar Timport_(I)/abbrev-func : (import, idctxt) = ...
   | "(" "func" Tid? "(" "import" Tname^2 ")" Ttypeuse_(I) ")" ==
     "(" "import" Tname^2 "(" "func" Tid? Ttypeuse_(I) ")" ")"
+  | "(" "func" Tid? "(" "import" Tname^2 ")" "(" "exact" Ttypeuse_(I) ")" ")" ==
+    "(" "import" Tname^2 "(" "func" Tid? "(" "exact" Ttypeuse_(I) ")" ")" ")"
 
 
 ;; Exports
@@ -190,6 +192,7 @@ grammar Texporttabledots_(I) hint(show $dots) =
 grammar Texportfuncdots_(I) hint(show $dots) =
   | Texportdots* Ttypeuse_(I) Tlocal_(I)* Texpr_(I)
   | Texportdots* Timportdots Ttypeuse_(I)
+  | Texportdots* Timportdots "(" "exact" Ttypeuse_(I) ")"
 
 
 ;; TODO(5, rossberg): These abbreviations are currently not formally reachable

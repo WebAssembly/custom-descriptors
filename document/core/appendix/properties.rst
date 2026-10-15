@@ -839,7 +839,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
          \CGLOBALS & \globaltype^\ast, \\
          \CMEMS & \memtype^\ast, \\
          \CTABLES & \tabletype^\ast, \\
-         \CFUNCS & {\deftype'}^\ast, \\
+         \CFUNCS & (\exact^?~\deftype')^\ast, \\
          \CELEMS & \reftype^\ast, \\
          \CDATAS & {\X{ok}}^\ast ~\}
          \end{array}

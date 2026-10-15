@@ -34,4 +34,3 @@ rule Context_ok:
   -- (Resulttype_ok: C_0 |- t*: OK)*
   -- (Resulttype_ok: C_0 |- t'* : OK)?
   -- (if x < |ht_F*|)*
-

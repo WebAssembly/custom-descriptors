@@ -343,7 +343,6 @@
 .. |rolldt| mathdef:: \xref{valid/conventions}{aux-roll-deftype}{\F{roll}}
 .. |unrolldt| mathdef:: \xref{valid/conventions}{aux-unroll-deftype}{\F{unroll}}
 .. |expanddt| mathdef:: \xref{valid/conventions}{aux-expand-deftype}{\F{expand}}
-.. |expanddttodesctype| mathdef:: \xref{valid/conventions}{aux-expand-deftype-to-desctype}{\F{expand}}
 .. |approxexpanddt| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype}{\approx}}
 .. |approxexpandyy| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-typeuse}{\approx}}
 .. |simexpanddesc| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype-to-desctype}{\sim}}

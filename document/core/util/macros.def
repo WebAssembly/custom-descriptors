@@ -346,7 +346,7 @@
 .. |expanddttodesctype| mathdef:: \xref{valid/conventions}{aux-expand-deftype-to-desctype}{\F{expand}}
 .. |approxexpanddt| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype}{\approx}}
 .. |approxexpandyy| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-typeuse}{\approx}}
-.. |approxexpanddttodesctype| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype-to-desctype}{\approx}}
+.. |simexpanddesc| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype-to-desctype}{\sim}}
 .. |unrollht| mathdef:: \xref{appendix/properties}{aux-unroll-heaptype}{\F{unroll}}
 
 .. |unpack| mathdef:: \xref{syntax/types}{aux-unpack}{\F{unpack}}
@@ -1715,7 +1715,7 @@
 .. |frelaxedmin| mathdef:: \xref{exec/numerics}{op-frelaxed_min}{\F{frelaxed\_min}}
 .. |frelaxedmax| mathdef:: \xref{exec/numerics}{op-frelaxed_max}{\F{frelaxed\_max}}
 .. |irelaxedq15mulrs| mathdef:: \xref{exec/numerics}{op-irelaxed_q15mulr_s}{\F{irelaxed\_q15mulr\_s}}
-.. |irelaxeddot| mathdef:: \xref{exec/numerics}{op-irelaxed_dot}{\F{irelaxed\_dot}}
+.. |ivrelaxeddot| mathdef:: \xref{exec/numerics}{op-ivrelaxed_dot}{\F{ivrelaxed\_dot}}
 
 
 .. Numerics, meta functions

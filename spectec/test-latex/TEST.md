@@ -763,6 +763,10 @@ $\boxed{C \vdash {\mathit{parent}} \leq {\mathit{parent}}}$
 
 $\boxed{{\mathit{parent}} ; {\mathit{child}} \hookrightarrow {\mathit{parent}} ; {\mathit{child}}}$
 
+$\boxed{{\mathit{parent}} \sim {\mathit{child}}}$
+
+$\boxed{{\mathit{parent}} \sim_{C} {\mathit{child}}}$
+
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
@@ -789,11 +793,27 @@ $$
 \end{array}
 $$
 
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsim}]} \quad & \mathsf{aa} & \sim & \mathsf{bbb} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsimsub}]} \quad & \mathsf{aa} & {\sim}_{C} {} & \mathsf{bbb} \\
+\end{array}
+$$
+
 $\boxed{C \vdash {\mathit{parent}} : \mathsf{ok}}$
 
 $\boxed{C \vdash {\mathit{parent}} \leq {\mathit{parent}}}$
 
 $\boxed{{\mathit{parent}} ; {\mathit{child}} \hookrightarrow {\mathit{parent}} ; {\mathit{child}}}$
+
+$\boxed{{\mathit{parent}} \sim {\mathit{child}}}$
+
+$\boxed{{\mathit{parent}} \sim_{C} {\mathit{child}}}$
 
 $$
 \begin{array}{@{}c@{}}\displaystyle
@@ -821,11 +841,27 @@ $$
 \end{array}
 $$
 
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsim\_macro}]} \quad & \mathsf{aa} & \sim & \mathsf{bbb} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsimsub\_macro}]} \quad & \mathsf{aa} & {\sim}_{C} {} & \mathsf{bbb} \\
+\end{array}
+$$
+
 $\boxed{C \vdash {\mathit{parent}} : \mathsf{ok}}$
 
 $\boxed{C \vdash {\mathit{parent}} \leq {\mathit{parent}}}$
 
 $\boxed{{\mathit{parent}} ; {\mathit{child}} \hookrightarrow {\mathit{parent}} ; {\mathit{child}}}$
+
+$\boxed{{\mathit{parent}} \sim {\mathit{child}}}$
+
+$\boxed{{\mathit{parent}} \sim_{C} {\mathit{child}}}$
 
 $$
 \begin{array}{@{}c@{}}\displaystyle
@@ -850,6 +886,18 @@ $$
 $$
 \begin{array}[t]{@{}lrcl@{}l@{}}
 {[\textsc{\scriptsize Reval\_nomacro}]} \quad & {\mathit{parent}} ; {\mathit{child}} & \hookrightarrow & \mathsf{aa} ; \mathsf{bbb} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsim\_nomacro}]} \quad & \mathsf{aa} & \sim & \mathsf{bbb} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsimsub\_nomacro}]} \quad & \mathsf{aa} & {\sim}_{C} {} & \mathsf{bbb} \\
 \end{array}
 $$
 
@@ -1938,6 +1986,10 @@ $\boxed{{\C} \vdash {\parent} \leq {\parent}}$
 
 $\boxed{{\parent} ; {\child} \hookrightarrow {\parent} ; {\child}}$
 
+$\boxed{{\parent} \sim {\child}}$
+
+$\boxed{{\parent} \sim_{{\C}} {\child}}$
+
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
@@ -1964,11 +2016,27 @@ $$
 \end{array}
 $$
 
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsim}]} \quad & \AA & \sim & \BBB \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsimsub}]} \quad & \AA & {\sim}_{{\C}} {} & \BBB \\
+\end{array}
+$$
+
 $\boxed{{\C} \vdashok {\parent} : \OKok}$
 
 $\boxed{{\C} \vdashsub {\parent} \subsub {\parent}}$
 
 $\boxed{{\parent} ; {\child} \sqarroweval {\parent} ; {\child}}$
+
+$\boxed{{\parent} \simsim {\child}}$
+
+$\boxed{{\parent} \simsim_{{\C}} {\child}}$
 
 $$
 \begin{array}{@{}c@{}}\displaystyle
@@ -1996,11 +2064,27 @@ $$
 \end{array}
 $$
 
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsim\_macro}]} \quad & \AA & \simsim & \BBB \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsimsub\_macro}]} \quad & \AA & {\simsim}_{{\C}} {} & \BBB \\
+\end{array}
+$$
+
 $\boxed{{\C} \vdash {\parent} : \mathsf{ok}}$
 
 $\boxed{{\C} \vdash {\parent} \leq {\parent}}$
 
 $\boxed{{\parent} ; {\child} \hookrightarrow {\parent} ; {\child}}$
+
+$\boxed{{\parent} \sim {\child}}$
+
+$\boxed{{\parent} \sim_{{\C}} {\child}}$
 
 $$
 \begin{array}{@{}c@{}}\displaystyle
@@ -2025,6 +2109,18 @@ $$
 $$
 \begin{array}[t]{@{}lrcl@{}l@{}}
 {[\textsc{\scriptsize Reval\_nomacro}]} \quad & {\parent} ; {\child} & \hookrightarrow & \AA ; \BBB \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsim\_nomacro}]} \quad & \AA & \sim & \BBB \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Rsimsub\_nomacro}]} \quad & \AA & {\sim}_{{\C}} {} & \BBB \\
 \end{array}
 $$
 
@@ -2756,6 +2852,7 @@ $$
 $$
 \begin{array}[t]{@{}lrrl@{}l@{}}
 & \mathsf{null} & ::= & \mathsf{null} \\
+& \mathsf{exact} & ::= & \mathsf{exact} \\
 \mbox{(address type)} & {\mathit{addrtype}} & ::= & \mathsf{i{\scriptstyle 32}} ~~|~~ \mathsf{i{\scriptstyle 64}} \\
 \mbox{(number type)} & {\mathit{numtype}} & ::= & \mathsf{i{\scriptstyle 32}} ~~|~~ \mathsf{i{\scriptstyle 64}} ~~|~~ \mathsf{f{\scriptstyle 32}} ~~|~~ \mathsf{f{\scriptstyle 64}} \\
 \mbox{(vector type)} & {\mathit{vectype}} & ::= & \mathsf{v{\scriptstyle 128}} \\
@@ -2773,7 +2870,7 @@ $$
 \mbox{(defined type)} & {\mathit{deftype}} & ::= & {\mathit{rectype}} {.} n \\
 & {\mathit{typeuse}} & ::= & {\mathit{deftype}} ~~|~~ {\mathit{typeidx}} ~~|~~ \mathsf{rec} {.} n \\
 \mbox{(type variable)} & {\mathit{typevar}} & ::= & {\mathit{typeidx}} ~~|~~ \mathsf{rec} {.} n \\
-\mbox{(heap type)} & {\mathit{heaptype}} & ::= & {\mathit{absheaptype}} ~~|~~ {\mathit{typeuse}} \\
+\mbox{(heap type)} & {\mathit{heaptype}} & ::= & {\mathit{absheaptype}} ~~|~~ {\mathsf{exact}^?}~{\mathit{typeuse}} \\
 \mbox{(reference type)} & {\mathit{reftype}} & ::= & \mathsf{ref}~{\mathsf{null}^?}~{\mathit{heaptype}} \\
 & {\mathit{valtype}} & ::= & {\mathit{numtype}} ~~|~~ {\mathit{vectype}} ~~|~~ {\mathit{reftype}} ~~|~~ \mathsf{bot} \\
 \end{array}
@@ -2902,7 +2999,10 @@ $$
 \mbox{(composite type)} & {\mathit{comptype}} & ::= & \mathsf{struct}~{\mathit{list}}({\mathit{fieldtype}}) \\
 & & | & \mathsf{array}~{\mathit{fieldtype}} \\
 & & | & \mathsf{func}~{\mathit{resulttype}} \rightarrow {\mathit{resulttype}} \\
-\mbox{(sub type)} & {\mathit{subtype}} & ::= & \mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{comptype}} \\
+\mbox{(describes type)} & {\mathit{describestype}} & ::= & \mathsf{describes}~{\mathit{typeuse}} \\
+\mbox{(descriptor type)} & {\mathit{descriptortype}} & ::= & \mathsf{descriptor}~{\mathit{typeuse}} \\
+\mbox{(descriptor type)} & {\mathit{desctype}} & ::= & {{\mathit{describestype}}^?}~{{\mathit{descriptortype}}^?}~{\mathit{comptype}} \\
+\mbox{(sub type)} & {\mathit{subtype}} & ::= & \mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{desctype}} \\
 \mbox{(recursive type)} & {\mathit{rectype}} & ::= & \mathsf{rec}~{\mathit{list}}({\mathit{subtype}}) \\
 \end{array}
 $$
@@ -3231,8 +3331,8 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{{\mathit{tv}'}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & {{\mathit{tv}'}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} \\
-{{\mathit{dt}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & {{\mathit{dt}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} \\
+{{\mathsf{exact}^?}~{\mathit{tv}'}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & {\mathsf{exact}^?}~{{\mathit{tv}'}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} \\
+{{\mathsf{exact}^?}~{\mathit{dt}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & {\mathsf{exact}^?}~{{\mathit{dt}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} \\
 {{\mathit{ht}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & {\mathit{ht}} & \quad \mbox{otherwise} \\
 \end{array}
 $$
@@ -3281,10 +3381,33 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{(\mathsf{sub}~{\mathsf{final}^?}~{{\mathit{tu}'}^\ast}~{\mathit{ct}})}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & & \\
+{\mathsf{describes}~{\mathit{tu}'}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & \mathsf{describes}~{{\mathit{tu}'}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathsf{descriptor}~{\mathit{tu}'}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & \mathsf{descriptor}~{{\mathit{tu}'}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{{{\mathit{dc{\kern-0.1em\scriptstyle 1}}}^?}~{{\mathit{dc{\kern-0.1em\scriptstyle 2}}}^?}~{\mathit{ct}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & & \\
  \multicolumn{4}{@{}l@{}}{\quad
 \begin{array}[t]{@{}l@{}}
-\mathsf{sub}~{\mathsf{final}^?}~{{{\mathit{tu}'}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]}^\ast}~{{\mathit{ct}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} \\
+{{{\mathit{dc{\kern-0.1em\scriptstyle 1}}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]}^?}~{{{\mathit{dc{\kern-0.1em\scriptstyle 2}}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]}^?}~{{\mathit{ct}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} \\
+\end{array}
+} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{(\mathsf{sub}~{\mathsf{final}^?}~{{\mathit{tu}'}^\ast}~{\mathit{desctype}})}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} & = & & \\
+ \multicolumn{4}{@{}l@{}}{\quad
+\begin{array}[t]{@{}l@{}}
+\mathsf{sub}~{\mathsf{final}^?}~{{{\mathit{tu}'}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]}^\ast}~{{\mathit{desctype}}}{{}[ {{\mathit{tv}}^\ast} := {{\mathit{tu}}^\ast} ]} \\
 \end{array}
 } \\
 \end{array}
@@ -3510,7 +3633,7 @@ $$
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
 {\mathrm{free}}_{\mathit{heaptype}}({\mathit{absheaptype}}) & = & {\mathrm{free}}_{\mathit{absheaptype}}({\mathit{absheaptype}}) \\
-{\mathrm{free}}_{\mathit{heaptype}}({\mathit{typeuse}}) & = & {\mathrm{free}}_{\mathit{typeuse}}({\mathit{typeuse}}) \\
+{\mathrm{free}}_{\mathit{heaptype}}({\mathsf{exact}^?}~{\mathit{typeuse}}) & = & {\mathrm{free}}_{\mathit{typeuse}}({\mathit{typeuse}}) \\
 \end{array}
 $$
 
@@ -3558,10 +3681,33 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{\mathrm{free}}_{\mathit{subtype}}(\mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{comptype}}) & = & & \\
+{\mathrm{free}}_{\mathit{describestype}}(\mathsf{describes}~{\mathit{tu}}) & = & {\mathrm{free}}_{\mathit{typeuse}}({\mathit{tu}}) \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathrm{free}}_{\mathit{descriptortype}}(\mathsf{descriptor}~{\mathit{tu}}) & = & {\mathrm{free}}_{\mathit{typeuse}}({\mathit{tu}}) \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathrm{free}}_{\mathit{desctype}}({{\mathit{dc{\kern-0.1em\scriptstyle 1}}}^?}~{{\mathit{dc{\kern-0.1em\scriptstyle 2}}}^?}~{\mathit{ct}}) & = & & \\
  \multicolumn{4}{@{}l@{}}{\quad
 \begin{array}[t]{@{}l@{}}
-{\mathrm{free}}_{\mathit{list}}({{\mathrm{free}}_{\mathit{typeuse}}({\mathit{typeuse}})^\ast}) \oplus {\mathrm{free}}_{\mathit{comptype}}({\mathit{comptype}}) \\
+{\mathrm{free}}_{\mathit{opt}}({{\mathrm{free}}_{\mathit{describestype}}({\mathit{dc{\kern-0.1em\scriptstyle 1}}})^?}) \oplus {\mathrm{free}}_{\mathit{opt}}({{\mathrm{free}}_{\mathit{descriptortype}}({\mathit{dc{\kern-0.1em\scriptstyle 2}}})^?}) \oplus {\mathrm{free}}_{\mathit{comptype}}({\mathit{ct}}) \\
+\end{array}
+} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathrm{free}}_{\mathit{subtype}}(\mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{desctype}}) & = & & \\
+ \multicolumn{4}{@{}l@{}}{\quad
+\begin{array}[t]{@{}l@{}}
+{\mathrm{free}}_{\mathit{list}}({{\mathrm{free}}_{\mathit{typeuse}}({\mathit{typeuse}})^\ast}) \oplus {\mathrm{free}}_{\mathit{desctype}}({\mathit{desctype}}) \\
 \end{array}
 } \\
 \end{array}
@@ -3961,6 +4107,8 @@ $$
 & & | & {\mathsf{i{\scriptstyle 31}{.}get}}{\mathsf{\_}}{{\mathit{sx}}} \\
 & & | & \mathsf{struct{.}new}~{\mathit{typeidx}} \\
 & & | & \mathsf{struct{.}new\_default}~{\mathit{typeidx}} \\
+& & | & \mathsf{struct{.}new\_desc}~{\mathit{typeidx}} \\
+& & | & \mathsf{struct{.}new\_default\_desc}~{\mathit{typeidx}} \\
 & & | & {\mathsf{struct{.}get}}{\mathsf{\_}}{{{\mathit{sx}}^?}}~{\mathit{typeidx}}~{\mathit{fieldidx}} \\
 & & | & \mathsf{struct{.}set}~{\mathit{typeidx}}~{\mathit{fieldidx}} \\
 & & | & \mathsf{array{.}new}~{\mathit{typeidx}} \\
@@ -4003,7 +4151,7 @@ $$
 & & | & {{\mathit{ishape}}_1{.}\mathsf{narrow}}{\mathsf{\_}}{{\mathit{ishape}}_2}{\mathsf{\_}}{{\mathit{sx}}} & \quad \mbox{if}~ {|{\mathrm{lanetype}}({\mathit{ishape}}_2)|} = 2 \cdot {|{\mathrm{lanetype}}({\mathit{ishape}}_1)|} \leq \mathsf{{\scriptstyle 32}} \\
 & & | & {\mathit{shape}}_1 {.} {{{\mathit{vcvtop}}}_{{\mathit{shape}}_2, {\mathit{shape}}_1}}{\mathsf{\_}}{{\mathit{shape}}_2} \\
 & & | & {\mathit{shape}}{.}\mathsf{splat} \\
-& & | & {{\mathit{shape}}{.}\mathsf{extract\_lane}}{\mathsf{\_}}{{{\mathit{sx}}^?}}~{\mathit{laneidx}} & \quad \mbox{if}~ {{\mathit{sx}}^?} = \epsilon \Leftrightarrow {\mathrm{lanetype}}({\mathit{shape}}) \in \mathsf{i{\scriptstyle 32}}~\mathsf{i{\scriptstyle 64}}~\mathsf{f{\scriptstyle 32}}~\mathsf{f{\scriptstyle 64}} \\
+& & | & {{\mathit{shape}}{.}\mathsf{extract\_lane}}{\mathsf{\_}}{{{\mathit{sx}}^?}}~{\mathit{laneidx}} & \quad \mbox{if}~ {{\mathit{sx}}^?} = \epsilon \Leftrightarrow {\mathrm{lanetype}}({\mathit{shape}}) = {\mathit{numtype}} \\
 & & | & {\mathit{shape}}{.}\mathsf{replace\_lane}~{\mathit{laneidx}} \\
 & & | & \dots \\
 \end{array}
@@ -4190,6 +4338,8 @@ $$
 {\mathrm{free}}_{\mathit{instr}}({\mathsf{i{\scriptstyle 31}{.}get}}{\mathsf{\_}}{{\mathit{sx}}}) & = & \{  \} \\
 {\mathrm{free}}_{\mathit{instr}}(\mathsf{struct{.}new}~{\mathit{typeidx}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
 {\mathrm{free}}_{\mathit{instr}}(\mathsf{struct{.}new\_default}~{\mathit{typeidx}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
+{\mathrm{free}}_{\mathit{instr}}(\mathsf{struct{.}new\_desc}~{\mathit{typeidx}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
+{\mathrm{free}}_{\mathit{instr}}(\mathsf{struct{.}new\_default\_desc}~{\mathit{typeidx}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
 {\mathrm{free}}_{\mathit{instr}}({\mathsf{struct{.}get}}{\mathsf{\_}}{{{\mathit{sx}}^?}}~{\mathit{typeidx}}~{\mathit{u{\kern-0.1em\scriptstyle 32}}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
 {\mathrm{free}}_{\mathit{instr}}(\mathsf{struct{.}set}~{\mathit{typeidx}}~{\mathit{u{\kern-0.1em\scriptstyle 32}}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
 {\mathrm{free}}_{\mathit{instr}}(\mathsf{array{.}new}~{\mathit{typeidx}}) & = & {\mathrm{free}}_{\mathit{typeidx}}({\mathit{typeidx}}) \\
@@ -4633,7 +4783,7 @@ $$
 \frac{
 C \vdash {\mathit{typeuse}} : \mathsf{ok}
 }{
-C \vdash {\mathit{typeuse}} : \mathsf{ok}
+C \vdash {\mathsf{exact}^?}~{\mathit{typeuse}} : \mathsf{ok}
 } \, {[\textsc{\scriptsize K{-}heap{-}typeuse}]}
 \qquad
 \end{array}
@@ -4767,6 +4917,14 @@ $$
 \end{array}
 $$
 
+$\boxed{{\mathit{deftype}} \sim {\mathit{desctype}}}$
+
+$$
+\begin{array}[t]{@{}lrcl@{}l@{}}
+{[\textsc{\scriptsize Expand\_desc}]} \quad & {\mathit{deftype}} & \sim & {\mathit{desctype}} & \quad \mbox{if}~ {\mathrm{unroll}}({\mathit{deftype}}) = \mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{desctype}} \\
+\end{array}
+$$
+
 \vspace{1ex}
 
 $$
@@ -4784,6 +4942,8 @@ $\boxed{{\mathit{context}} \vdash {\mathit{storagetype}} : \mathsf{ok}}$
 
 $\boxed{{\mathit{context}} \vdash {\mathit{comptype}} : \mathsf{ok}}$
 
+$\boxed{{\mathit{context}} \vdash {\mathit{desctype}} : \mathsf{ok}}$
+
 $\boxed{{\mathit{context}} \vdash {\mathit{subtype}} : {\mathsf{ok}}{({\mathit{typeidx}})}}$
 
 $\boxed{{\mathit{context}} \vdash {\mathit{rectype}} : {\mathsf{ok}}{({\mathit{typeidx}})}}$
@@ -4795,6 +4955,8 @@ $\boxed{{\mathit{context}} \vdash {\mathit{rectype}} : {\mathsf{ok}}{n}}$
 $\boxed{{\mathit{context}} \vdash {\mathit{deftype}} : \mathsf{ok}}$
 
 $\boxed{{\mathit{context}} \vdash {\mathit{comptype}} \leq {\mathit{comptype}}}$
+
+$\boxed{{\mathit{context}} \vdash {\mathit{desctype}} \leq {\mathit{desctype}}}$
 
 $\boxed{{\mathit{context}} \vdash {\mathit{deftype}} \leq {\mathit{deftype}}}$
 
@@ -4920,19 +5082,36 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
+(C \vdash {\mathit{tu}}_1 : \mathsf{ok})^?
+ \qquad
+(C \vdash {\mathit{tu}}_2 : \mathsf{ok})^?
+ \qquad
+C \vdash {\mathit{ct}} : \mathsf{ok}
+}{
+C \vdash {(\mathsf{describes}~{\mathit{tu}}_1)^?}~{(\mathsf{descriptor}~{\mathit{tu}}_2)^?}~{\mathit{ct}} : \mathsf{ok}
+} \, {[\textsc{\scriptsize K{-}desc}]}
+\qquad
+\end{array}
+$$
+
+\vspace{1ex}
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
 \begin{array}{@{}c@{}}
 {|{x^\ast}|} \leq 1
  \qquad
 (x < x_0)^\ast
  \qquad
-({\mathrm{unroll}}(C{.}\mathsf{types}{}[x]) = \mathsf{sub}~{y^\ast}~{\mathit{comptype}'})^\ast
+({\mathrm{unroll}}(C{.}\mathsf{types}{}[x]) = \mathsf{sub}~{y^\ast}~{\mathit{desctype}'})^\ast
  \\
-C \vdash {\mathit{comptype}} : \mathsf{ok}
+C \vdash {\mathit{desctype}} : \mathsf{ok}
  \qquad
-(C \vdash {\mathit{comptype}} \leq {\mathit{comptype}'})^\ast
+(C \vdash {\mathit{desctype}} \leq {\mathit{desctype}'})^\ast
 \end{array}
 }{
-C \vdash \mathsf{sub}~{\mathsf{final}^?}~{x^\ast}~{\mathit{comptype}} : {\mathsf{ok}}{(x_0)}
+C \vdash \mathsf{sub}~{\mathsf{final}^?}~{x^\ast}~{\mathit{desctype}} : {\mathsf{ok}}{(x_0)}
 } \, {[\textsc{\scriptsize K{-}sub}]}
 \qquad
 \end{array}
@@ -4947,9 +5126,9 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{{\mathrm{unrollht}}}_{C}({\mathit{deftype}}) & = & {\mathrm{unroll}}({\mathit{deftype}}) \\
-{{\mathrm{unrollht}}}_{C}({\mathit{typeidx}}) & = & {\mathrm{unroll}}(C{.}\mathsf{types}{}[{\mathit{typeidx}}]) \\
-{{\mathrm{unrollht}}}_{C}(\mathsf{rec} {.} i) & = & C{.}\mathsf{recs}{}[i] \\
+{{\mathrm{unrollht}}}_{C}({\mathsf{exact}^?}~{\mathit{deftype}}) & = & {\mathrm{unroll}}({\mathit{deftype}}) \\
+{{\mathrm{unrollht}}}_{C}({\mathsf{exact}^?}~{\mathit{typeidx}}) & = & {\mathrm{unroll}}(C{.}\mathsf{types}{}[{\mathit{typeidx}}]) \\
+{{\mathrm{unrollht}}}_{C}({\mathsf{exact}^?}~\mathsf{rec} {.} i) & = & C{.}\mathsf{recs}{}[i] \\
 \end{array}
 $$
 
@@ -4963,14 +5142,14 @@ $$
  \qquad
 ({\mathit{typeuse}} \prec i)^\ast
  \\
-({{\mathrm{unrollht}}}_{C}({\mathit{typeuse}}) = \mathsf{sub}~{{\mathit{typeuse}'}^\ast}~{\mathit{comptype}'})^\ast
+({{\mathrm{unrollht}}}_{C}({\mathit{typeuse}}) = \mathsf{sub}~{{\mathit{typeuse}'}^\ast}~{\mathit{desctype}'})^\ast
  \\
-C \vdash {\mathit{comptype}} : \mathsf{ok}
+C \vdash {\mathit{desctype}} : \mathsf{ok}
  \qquad
-(C \vdash {\mathit{comptype}} \leq {\mathit{comptype}'})^\ast
+(C \vdash {\mathit{desctype}} \leq {\mathit{desctype}'})^\ast
 \end{array}
 }{
-C \vdash \mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{comptype}} : {\mathsf{ok}}{(i)}
+C \vdash \mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{desctype}} : {\mathsf{ok}}{(i)}
 } \, {[\textsc{\scriptsize K{-}sub2}]}
 \qquad
 \end{array}
@@ -5226,6 +5405,17 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
+C \vdash {\mathit{typeuse}} \leq {\mathit{heaptype}}
+}{
+C \vdash \mathsf{exact}~{\mathit{typeuse}} \leq {\mathit{heaptype}}
+} \, {[\textsc{\scriptsize S{-}heap{-}exact{-}l}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
 C \vdash {\mathit{heaptype}'} : \mathsf{ok}
  \qquad
 C \vdash {\mathit{heaptype}}_1 \leq {\mathit{heaptype}'}
@@ -5349,7 +5539,7 @@ $$
 \frac{
 C{.}\mathsf{recs}{}[i] = \mathsf{sub}~{\mathsf{final}^?}~(\mathsf{struct}~{{\mathit{fieldtype}}^\ast})
 }{
-C \vdash \mathsf{rec} {.} i \leq \mathsf{struct}
+C \vdash \mathsf{rec}~i \leq \mathsf{struct}
 } \, {[\textsc{\scriptsize S{-}heap{-}rec{-}struct}]}
 \qquad
 \end{array}
@@ -5360,7 +5550,7 @@ $$
 \frac{
 C{.}\mathsf{recs}{}[i] = \mathsf{sub}~{\mathsf{final}^?}~(\mathsf{array}~{\mathit{fieldtype}})
 }{
-C \vdash \mathsf{rec} {.} i \leq \mathsf{array}
+C \vdash \mathsf{rec}~i \leq \mathsf{array}
 } \, {[\textsc{\scriptsize S{-}heap{-}rec{-}array}]}
 \qquad
 \end{array}
@@ -5371,7 +5561,7 @@ $$
 \frac{
 C{.}\mathsf{recs}{}[i] = \mathsf{sub}~{\mathsf{final}^?}~(\mathsf{func}~{t_1^\ast} \rightarrow {t_2^\ast})
 }{
-C \vdash \mathsf{rec} {.} i \leq \mathsf{func}
+C \vdash \mathsf{rec}~i \leq \mathsf{func}
 } \, {[\textsc{\scriptsize S{-}heap{-}rec{-}func}]}
 \qquad
 \end{array}
@@ -5380,9 +5570,9 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
-C{.}\mathsf{recs}{}[i] = \mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{ct}}
+C{.}\mathsf{recs}{}[i] = \mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{desctype}}
 }{
-C \vdash \mathsf{rec} {.} i \leq {{\mathit{typeuse}}^\ast}{}[j]
+C \vdash \mathsf{rec}~i \leq {{\mathit{typeuse}}^\ast}{}[j]
 } \, {[\textsc{\scriptsize S{-}heap{-}rec{-}sub}]}
 \qquad
 \end{array}
@@ -5660,6 +5850,21 @@ C \vdash \mathsf{func}~{t_{11}^\ast} \rightarrow {t_{12}^\ast} \leq \mathsf{func
 \end{array}
 $$
 
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+C \vdash {\mathit{tu}}_{11} \leq {\mathit{tu}}_{21}
+ \qquad
+C \vdash {\mathit{tu}}_{12} \leq {\mathit{tu}}_{22}
+ \qquad
+C \vdash {\mathit{ct}}_1 \leq {\mathit{ct}}_2
+}{
+C \vdash (\mathsf{describes}~{\mathit{tu}}_{11})~(\mathsf{descriptor}~{\mathit{tu}}_{12})~{\mathit{ct}}_1 \leq (\mathsf{describes}~{\mathit{tu}}_{21})~(\mathsf{descriptor}~{\mathit{tu}}_{22})~{\mathit{ct}}_2
+} \, {[\textsc{\scriptsize S{-}desc}]}
+\qquad
+\end{array}
+$$
+
 \vspace{1ex}
 
 $$
@@ -5676,7 +5881,7 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
-{\mathrm{unroll}}({\mathit{deftype}}_1) = \mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{ct}}
+{\mathrm{unroll}}({\mathit{deftype}}_1) = \mathsf{sub}~{\mathsf{final}^?}~{{\mathit{typeuse}}^\ast}~{\mathit{desctype}}
  \qquad
 C \vdash {{\mathit{typeuse}}^\ast}{}[i] \leq {\mathit{deftype}}_2
 }{
@@ -6055,15 +6260,21 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
+\begin{array}{@{}c@{}}
 C{.}\mathsf{labels}{}[l] = {t^\ast}~{\mathit{rt}}
  \qquad
 C \vdash {\mathit{rt}}_1 : \mathsf{ok}
  \qquad
 C \vdash {\mathit{rt}}_2 : \mathsf{ok}
  \qquad
-C \vdash {\mathit{rt}}_2 \leq {\mathit{rt}}_1
+C \vdash {\mathit{rt}}_3 : \mathsf{ok}
+ \\
+C \vdash {\mathit{rt}}_1 \leq {\mathit{rt}}_3
+ \qquad
+C \vdash {\mathit{rt}}_2 \leq {\mathit{rt}}_3
  \qquad
 C \vdash {\mathit{rt}}_2 \leq {\mathit{rt}}
+\end{array}
 }{
 C \vdash \mathsf{br\_on\_cast}~l~{\mathit{rt}}_1~{\mathit{rt}}_2 : {t^\ast}~{\mathit{rt}}_1 \rightarrow {t^\ast}~({\mathit{rt}}_1 \setminus {\mathit{rt}}_2)
 } \, {[\textsc{\scriptsize T{-}instr{-}br\_on\_cast}]}
@@ -6074,15 +6285,21 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
+\begin{array}{@{}c@{}}
 C{.}\mathsf{labels}{}[l] = {t^\ast}~{\mathit{rt}}
  \qquad
 C \vdash {\mathit{rt}}_1 : \mathsf{ok}
  \qquad
 C \vdash {\mathit{rt}}_2 : \mathsf{ok}
  \qquad
-C \vdash {\mathit{rt}}_2 \leq {\mathit{rt}}_1
+C \vdash {\mathit{rt}}_3 : \mathsf{ok}
+ \\
+C \vdash {\mathit{rt}}_1 \leq {\mathit{rt}}_3
+ \qquad
+C \vdash {\mathit{rt}}_2 \leq {\mathit{rt}}_3
  \qquad
 C \vdash {\mathit{rt}}_1 \setminus {\mathit{rt}}_2 \leq {\mathit{rt}}
+\end{array}
 }{
 C \vdash \mathsf{br\_on\_cast\_fail}~l~{\mathit{rt}}_1~{\mathit{rt}}_2 : {t^\ast}~{\mathit{rt}}_1 \rightarrow {t^\ast}~{\mathit{rt}}_2
 } \, {[\textsc{\scriptsize T{-}instr{-}br\_on\_cast\_fail}]}
@@ -6405,7 +6622,7 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
-C{.}\mathsf{types}{}[x] \approx \mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}
+C{.}\mathsf{types}{}[x] \sim {{\mathit{describestype}}^?}~\epsilon~\mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}
 }{
 C \vdash \mathsf{struct{.}new}~x : {{\mathrm{unpack}}({\mathit{zt}})^\ast} \rightarrow (\mathsf{ref}~x)
 } \, {[\textsc{\scriptsize T{-}instr{-}struct.new}]}
@@ -6416,12 +6633,36 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
-C{.}\mathsf{types}{}[x] \approx \mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}
+C{.}\mathsf{types}{}[x] \sim {{\mathit{describestype}}^?}~\epsilon~\mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}
  \qquad
 ({{\mathrm{default}}}_{{\mathrm{unpack}}({\mathit{zt}})} \neq \epsilon)^\ast
 }{
 C \vdash \mathsf{struct{.}new\_default}~x : \epsilon \rightarrow (\mathsf{ref}~x)
 } \, {[\textsc{\scriptsize T{-}instr{-}struct.new\_default}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+C{.}\mathsf{types}{}[x] \sim {{\mathit{describestype}}^?}~(\mathsf{descriptor}~y)~\mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}
+}{
+C \vdash \mathsf{struct{.}new\_desc}~x : {{\mathrm{unpack}}({\mathit{zt}})^\ast}~(\mathsf{ref}~\mathsf{null}~(\mathsf{exact}~y)) \rightarrow (\mathsf{ref}~(\mathsf{exact}~x))
+} \, {[\textsc{\scriptsize T{-}instr{-}struct.new\_desc}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+C{.}\mathsf{types}{}[x] \sim {{\mathit{describestype}}^?}~(\mathsf{descriptor}~y)~\mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}
+ \qquad
+({{\mathrm{default}}}_{{\mathrm{unpack}}({\mathit{zt}})} \neq \epsilon)^\ast
+}{
+C \vdash \mathsf{struct{.}new\_default\_desc}~x : (\mathsf{ref}~\mathsf{null}~(\mathsf{exact}~y)) \rightarrow (\mathsf{ref}~(\mathsf{exact}~x))
+} \, {[\textsc{\scriptsize T{-}instr{-}struct.new\_default\_desc}]}
 \qquad
 \end{array}
 $$
@@ -7470,6 +7711,26 @@ $$
 }{
 C \vdash (\mathsf{struct{.}new\_default}~x)~\mathsf{const}
 } \, {[\textsc{\scriptsize C{-}instr{-}struct.new\_default}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+}{
+C \vdash (\mathsf{struct{.}new\_desc}~x)~\mathsf{const}
+} \, {[\textsc{\scriptsize C{-}instr{-}struct.new\_desc}]}
+\qquad
+\end{array}
+$$
+
+$$
+\begin{array}{@{}c@{}}\displaystyle
+\frac{
+}{
+C \vdash (\mathsf{struct{.}new\_default\_desc}~x)~\mathsf{const}
+} \, {[\textsc{\scriptsize C{-}instr{-}struct.new\_default\_desc}]}
 \qquad
 \end{array}
 $$
@@ -8875,6 +9136,12 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
+{{\mathrm{ivrelaxed\_dot}}}_{N}({i_1^\ast}, {i_2^\ast}) & = & {{\mathrm{relaxed}}({\mathrm{R}}_{\mathit{idot}})}{{}[ {{\mathrm{ivdot}}}_{N}({i_1^\ast}, {i_2^\ast}), {{\mathrm{ivdot\_sat}}}_{N}({i_1^\ast}, {i_2^\ast}) ]} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
 {{\mathsf{extadd\_pairwise}}{\mathsf{\_}}{{\mathit{sx}}}}{{}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}(v_1)} & = & & \\
  \multicolumn{4}{@{}l@{}}{\quad
 \begin{array}[t]{@{}l@{}}
@@ -8901,7 +9168,7 @@ $$
 {{\mathsf{relaxed\_dot}}{\mathsf{\_}}{\mathsf{s}}}{{}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}(v_1, v_2)} & = & & \\
  \multicolumn{4}{@{}l@{}}{\quad
 \begin{array}[t]{@{}l@{}}
-{{\mathrm{ivextbinop}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({\mathrm{ivdot}}_{{\mathit{sat}}}, \mathsf{s}, {{\mathrm{relaxed}}({\mathrm{R}}_{\mathit{idot}})}{{}[ \mathsf{s}, \mathsf{u} ]}, 0, M_1, v_1, v_2) \\
+{{\mathrm{ivextbinop}}}_{{{{\mathsf{i}}{N}}_1}{\mathsf{x}}{M_1}, {{{\mathsf{i}}{N}}_2}{\mathsf{x}}{M_2}}({\mathrm{ivrelaxed}}_{{\mathit{dot}}}, \mathsf{s}, {{\mathrm{relaxed}}({\mathrm{R}}_{\mathit{idot}})}{{}[ \mathsf{s}, \mathsf{u} ]}, 0, M_1, v_1, v_2) \\
 \end{array}
 } \\
 \end{array}
@@ -11467,7 +11734,7 @@ $$
 \end{array} \\
 {\mathrm{utf{\kern-0.1em\scriptstyle 8}}}({\mathit{ch}}) & = & b_1~b_2~b_3~b_4 & \quad
 \begin{array}[t]{@{}l@{}}
-\mbox{if}~ \mathrm{U{+}10000} \leq {\mathit{ch}} < \mathrm{U{+}11000} \\
+\mbox{if}~ \mathrm{U{+}10000} \leq {\mathit{ch}} < \mathrm{U{+}110000} \\
 {\land}~ {\mathit{ch}} = {2^{18}} \cdot (b_1 - \mathtt{0xF0}) + {2^{12}} \cdot {\mathrm{cont}}(b_2) + {2^{6}} \cdot {\mathrm{cont}}(b_3) + {\mathrm{cont}}(b_4) \\
 \end{array} \\
 \end{array}

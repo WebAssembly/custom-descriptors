@@ -278,5 +278,5 @@ rule Externtype_sub/table:
   -- Tabletype_sub: C |- tabletype_1 <: tabletype_2
 
 rule Externtype_sub/func:
-  C |- FUNC heaptype_1 <: FUNC heaptype_2
-  -- Heaptype_sub: C |- heaptype_1 <: heaptype_2
+  C |- FUNC exact_1? deftype_1 <: FUNC exact_2? deftype_2
+  -- Heaptype_sub: C |- (_HT exact_1? deftype_1) <: (_HT exact_2? deftype_2)

@@ -413,12 +413,12 @@ let exporttype_of (m : module_) (ex : export) : exporttype =
         let Table (tt, _) = t.it in tt) m.it.tables in
       ExternTableT (Lib.List32.nth tts x.it)
     | FuncX x ->
-      let dts = funcs xts @ List.map (fun f ->
+      let uts = funcs xts @ List.map (fun f ->
         let Func (y, _, _) = f.it in
         (Exact, Def (Lib.List32.nth dts y.it))) m.it.funcs
       in
-      let (exact, dt) = Lib.List32.nth dts x.it in
-      ExternFuncT (exact, dt)
+      let (exact, ut) = Lib.List32.nth uts x.it in
+      ExternFuncT (exact, ut)
   in ExportT (name, subst_externtype (subst_of dts) xt)
 
 let moduletype_of (m : module_) : moduletype =

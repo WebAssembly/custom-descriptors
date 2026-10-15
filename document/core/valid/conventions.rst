@@ -225,7 +225,7 @@ Validity of an individual definition is specified relative to a *context*,
 which collects relevant information about the surrounding :ref:`module <syntax-module>` and the definitions in scope:
 
 * *Types*: the list of :ref:`types <syntax-type>` defined in the current module.
-* *Functions*: the list of :ref:`functions <syntax-func>` declared in the current module, represented by a concrete :ref:`heap type <syntax-heaptype>` that :ref:`expands <aux-expand-deftype>` to their :ref:`function type <syntax-functype>`.
+* *Functions*: the list of :ref:`functions <syntax-func>` declared in the current module, represented by a (possibly :ref:`exact <syntax-exact>`) :ref:`defined type <syntax-deftype>` that :ref:`expands <aux-expand-deftype>` to their :ref:`function type <syntax-functype>`.
 * *Tables*: the list of :ref:`tables <syntax-table>` declared in the current module, represented by their :ref:`table type <syntax-tabletype>`.
 * *Memories*: the list of :ref:`memories <syntax-mem>` declared in the current module, represented by their :ref:`memory type <syntax-memtype>`.
 * *Globals*: the list of :ref:`globals <syntax-global>` declared in the current module, represented by their :ref:`global type <syntax-globaltype>`.

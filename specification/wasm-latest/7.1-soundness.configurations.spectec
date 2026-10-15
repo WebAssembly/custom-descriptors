@@ -171,7 +171,7 @@ rule Moduleinst_ok:
              GLOBALS globaltype*,
              MEMS memtype*,
              TABLES tabletype*,
-             FUNCS ht_F*,
+             FUNCS edt_F*,
              DATAS datatype*,
              ELEMS elemtype*,
              REFS (i)^(i<k)
@@ -180,7 +180,8 @@ rule Moduleinst_ok:
   -- (Externaddr_ok: s |- TAG tagaddr : TAG tagtype)*
   ----
   -- (Externaddr_ok: s |- GLOBAL globaladdr : GLOBAL globaltype)*
-  -- (Externaddr_ok: s |- FUNC funcaddr : FUNC ht_F)*
+  -- (Externaddr_ok: s |- FUNC funcaddr : FUNC exact? dt_F)*
+  -- if edt_F* = (exact? dt_F)*
   ----
   -- (Externaddr_ok: s |- MEM memaddr : MEM memtype)*
   -- (Externaddr_ok: s |- TABLE tableaddr : TABLE tabletype)*

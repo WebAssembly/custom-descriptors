@@ -435,7 +435,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
 
 * Under :ref:`context <context>` :math:`C`:
 
-  * The :ref:`function <syntax-func>` :math:`\func` must be :ref:`valid <valid-func>` with some :ref:`defined type <syntax-deftype>` :math:`\deftype'`.
+  * The :ref:`function <syntax-func>` :math:`\func` must be :ref:`valid <valid-func>` with some :ref:`function type <syntax-exactdeftype>` :math:`\EXACT~\deftype'`.
 
   * The :ref:`defined type <syntax-deftype>` :math:`\deftype'` must :ref:`match <match-deftype>` :math:`\deftype`.
 
@@ -448,7 +448,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
      \qquad
      S \vdashmoduleinst \moduleinst : C
      \\
-     C \vdashfunc \func : \deftype'
+     C \vdashfunc \func : \EXACT~\deftype'
      \qquad
      C \vdashdeftypematch \deftype' \subdeftypematch \deftype
      \end{array}

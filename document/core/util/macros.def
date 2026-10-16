@@ -309,6 +309,7 @@
 .. |subtype| mathdef:: \xref{syntax/types}{syntax-subtype}{\X{subtype}}
 .. |rectype| mathdef:: \xref{syntax/types}{syntax-rectype}{\X{rectype}}
 .. |deftype| mathdef:: \xref{valid/conventions}{syntax-deftype}{\X{deftype}}
+.. |exactdeftype| mathdef:: \xref{valid/conventions}{syntax-exactdeftype}{\X{exactdeftype}}
 
 .. |globaltype| mathdef:: \xref{syntax/types}{syntax-globaltype}{\X{globaltype}}
 .. |tabletype| mathdef:: \xref{syntax/types}{syntax-tabletype}{\X{tabletype}}

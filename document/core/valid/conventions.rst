@@ -94,14 +94,16 @@ Convention
 .. index:: ! defined type, recursive type
    pair: abstract syntax; defined type
 .. _syntax-deftype:
+.. _syntax-exactdeftype:
 
 Defined Types
 ~~~~~~~~~~~~~
 
 *Defined types* denote the individual types defined in a :ref:`module <syntax-module>`.
 Each such type is represented as a projection from the :ref:`recursive type <syntax-rectype>` group it originates from, indexed by its position in that group.
+For the purpose of typing :ref:`functions <syntax-func>`, a defined type may be annotated with :ref:`exactness <syntax-exact>`.
 
-$${syntax: deftype}
+$${syntax: {deftype exactdeftype}}
 
 Defined types do not occur in the :ref:`binary <binary>` or :ref:`text <text>` format,
 but are formed by :ref:`rolling up <aux-roll-deftype>` the :ref:`recursive types <syntax-reftype>` defined in a module.

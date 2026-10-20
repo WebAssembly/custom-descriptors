@@ -283,7 +283,7 @@ The following conventions are adopted in stating these rules.
 
   .. note::
      For example, if ${:A} is a :ref:`function <syntax-func>`,
-     then ${:T} is a :ref:`defined function type <syntax-deftype>`;
+     then ${:T} is an :ref:`exact defined type <syntax-exactdeftype>`;
      for an ${:A} that is a :ref:`global <syntax-global>`,
      ${:T} is a :ref:`global type <syntax-globaltype>`;
      and so on.

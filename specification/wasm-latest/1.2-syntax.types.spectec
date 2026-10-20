@@ -34,7 +34,7 @@ syntax rectype hint(desc "recursive type")  ;; forward decl
 syntax deftype hint(desc "defined type") =
   | _DEF rectype n hint(show %.%)
 
-syntax exactdeftype hint(desc "function type") = exact? deftype
+syntax exactdeftype hint(desc "exact defined type") = exact? deftype
 
 syntax typeuse/syn hint(desc "type use") =
   | _IDX typeidx | ...

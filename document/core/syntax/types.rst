@@ -112,8 +112,8 @@ That is, both type hierarchies are inhabited by an isomorphic set of values, but
 $${syntax: {absheaptype/syn heaptype}}
 
 A heap type is either *abstract* or *concrete*.
-A concrete heap type consists of a :ref:`type use <syntax-typeuse>` that classifies an object of the respective :ref:`type <syntax-type>` defined in a module.
-A concrete heap type may be *exact*, in which case it classifies objects of precisely the respective :ref:`type <syntax-type>` and not any other type that may :ref:`match <match-heaptype>` it.
+A concrete heap type consists of an :ref:`exact type use <syntax-exacttypeuse>` that classifies an object of the respective :ref:`type <syntax-type>` defined in a module.
+When the type use is annotated with ${:EXACT}, it classifies objects of precisely the respective :ref:`type <syntax-type>` and not any other type that may :ref:`match <match-heaptype>` it.
 Abstract types are denoted by individual keywords.
 
 The type ${:FUNC} denotes the common supertype of all :ref:`function types <syntax-functype>`, regardless of their concrete definition.
@@ -475,7 +475,7 @@ External Types
 
 $${syntax: externtype}
 
-For functions, the :ref:`type use <syntax-typeuse>` has to refer to the definition of a :ref:`function type <syntax-functype>`.
+For functions, the :ref:`exact type use <syntax-exacttypeuse>` has to refer to the definition of a :ref:`function type <syntax-functype>`.
 
 .. note::
    Future versions of WebAssembly may have additional uses for tags, and may allow non-empty result types in the function types of tags.

@@ -41,11 +41,13 @@ syntax typeuse/syn hint(desc "type use") =
 syntax typeuse/sem =
   | ... | deftype | REC n hint(show REC.%)
 
+syntax exacttypeuse hint(desc "exact type use") = exact? typeuse
+
 syntax typevar hint(desc "type variable") =
   | _IDX typeidx | REC n hint(show REC.%)
 
 syntax heaptype hint(desc "heap type") =
-  | absheaptype | _HT exact? typeuse hint(show % %)
+  | absheaptype | _HT exacttypeuse hint(show %)
 
 syntax reftype hint(desc "reference type") =
   | REF null? heaptype
@@ -145,7 +147,7 @@ syntax datatype hint(desc "data type") = OK hint(macro "%data")
 syntax elemtype hint(desc "element type") = reftype
 
 syntax externtype hint(desc "external type") hint(macro "%" "XT%") =
-  | TAG tagtype | GLOBAL globaltype | MEM memtype | TABLE tabletype | FUNC exact? typeuse
+  | TAG tagtype | GLOBAL globaltype | MEM memtype | TABLE tabletype | FUNC exacttypeuse
 
 syntax moduletype hint(desc "module type") =
   externtype* -> externtype* hint(macro "toM")
@@ -339,7 +341,7 @@ def $tablesxt((TABLE tt) xt*) = tt $tablesxt(xt*)
 def $tablesxt(externtype xt*) = $tablesxt(xt*)  -- otherwise
 
 def $funcsxt(eps) = eps
-def $funcsxt((FUNC exact? dt) xt*) = (exact? dt) $funcsxt(xt*)
+def $funcsxt((FUNC edt) xt*) = edt $funcsxt(xt*)
 def $funcsxt(externtype xt*) = $funcsxt(xt*)  -- otherwise
 
 

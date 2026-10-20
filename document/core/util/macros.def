@@ -328,6 +328,7 @@
 .. |init| mathdef:: \xref{valid/conventions}{syntax-init}{\X{init}}
 
 .. |typeuse| mathdef:: \xref{syntax/types}{syntax-typeuse}{\X{typeuse}}
+.. |exacttypeuse| mathdef:: \xref{syntax/types}{syntax-exacttypeuse}{\X{exacttypeuse}}
 
 .. |instrtype| mathdef:: \xref{valid/conventions}{syntax-instrtype}{\X{instrtype}}
 .. |localtype| mathdef:: \xref{valid/conventions}{syntax-localtype}{\X{localtype}}

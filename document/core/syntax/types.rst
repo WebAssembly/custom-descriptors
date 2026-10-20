@@ -73,14 +73,16 @@ $${definition-ignore: vsize}
 .. index:: ! type use, type index
    pair: abstract syntax; type use
 .. _syntax-typeuse:
+.. _syntax-exacttypeuse:
 
 Type Uses
 ~~~~~~~~~
 
 A *type use* is the use site of a :ref:`type index <syntax-typeidx>` referencing a :ref:`composite type <syntax-comptype>` :ref:`defined <syntax-type>` in a :ref:`module <syntax-module>`.
 It classifies objects of the respective type.
+In some contexts, a type use may be annotated with :ref:`exactness <syntax-exact>`.
 
-$${syntax: {typeuse/syn}}
+$${syntax: {typeuse/syn exacttypeuse}}
 
 The syntax of type uses is :ref:`extended <syntax-typeuse-ext>` with additional forms for the purpose of specifying :ref:`validation <valid>` and :ref:`execution <exec>`.
 

@@ -212,8 +212,8 @@ rule Instr_ok/ref.null:
   -- Heaptype_ok: C |- ht : OK
 
 rule Instr_ok/ref.func:
-  C |- REF.FUNC x : eps -> (REF (_HT exact? dt))
-  -- if C.FUNCS[x] = exact? dt
+  C |- REF.FUNC x : eps -> (REF (_HT edt))
+  -- if C.FUNCS[x] = edt
   -- if x <- C.REFS
 
 rule Instr_ok/ref.i31:

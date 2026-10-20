@@ -180,8 +180,7 @@ rule Moduleinst_ok:
   -- (Externaddr_ok: s |- TAG tagaddr : TAG tagtype)*
   ----
   -- (Externaddr_ok: s |- GLOBAL globaladdr : GLOBAL globaltype)*
-  -- (Externaddr_ok: s |- FUNC funcaddr : FUNC exact? dt_F)*
-  -- if exactdeftype* = (exact? dt_F)*
+  -- (Externaddr_ok: s |- FUNC funcaddr : FUNC exactdeftype)*
   ----
   -- (Externaddr_ok: s |- MEM memaddr : MEM memtype)*
   -- (Externaddr_ok: s |- TABLE tableaddr : TABLE tabletype)*

@@ -128,8 +128,8 @@ rule Externidx_ok/table:
   -- if C.TABLES[x] = tt
 
 rule Externidx_ok/func:
-  C |- FUNC x : FUNC exact? dt
-  -- if C.FUNCS[x] = exact? dt
+  C |- FUNC x : FUNC edt
+  -- if C.FUNCS[x] = edt
 
 
 ;; Modules

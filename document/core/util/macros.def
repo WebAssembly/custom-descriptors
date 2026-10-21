@@ -1201,6 +1201,7 @@
 .. |vdashtagtype| mathdef:: \xref{valid/types}{valid-tagtype}{\vdash}
 .. |vdashexterntype| mathdef:: \xref{valid/types}{valid-externtype}{\vdash}
 .. |vdashdeftype| mathdef:: \xref{appendix/properties}{valid-deftype}{\vdash}
+.. |vdashexactdeftype| mathdef:: \xref{appendix/properties}{valid-exactdeftype}{\vdash}
 .. |vdashtypeuse| mathdef:: \xref{valid/types}{valid-typeuse}{\vdash}
 
 .. |vdashinstrtype| mathdef:: \xref{valid/types}{valid-instrtype}{\vdash}
@@ -1221,6 +1222,7 @@
 .. |OKrectype| mathdef:: \xref{valid/types}{valid-rectype}{\K{ok}}
 .. |OKrectypeext| mathdef:: \xref{valid/types}{valid-rectype}{\K{ok}}
 .. |OKdeftype| mathdef:: \xref{appendix/properties}{valid-deftype}{\K{ok}}
+.. |OKexactdeftype| mathdef:: \xref{appendix/properties}{valid-exactdeftype}{\K{ok}}
 .. |OKtypeuse| mathdef:: \xref{valid/types}{valid-typeuse}{\K{ok}}
 .. |OKtabletype| mathdef:: \xref{valid/types}{valid-tabletype}{\K{ok}}
 .. |OKmemtype| mathdef:: \xref{valid/types}{valid-memtype}{\K{ok}}

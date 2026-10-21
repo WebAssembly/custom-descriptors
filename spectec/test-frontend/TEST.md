@@ -3340,17 +3340,17 @@ relation Valtype_ok: `%|-%:OK`(context, valtype)
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:12.1-12.94
 relation Typeuse_ok: `%|-%:OK`(context, typeuse)
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:114.1-116.30
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:115.1-117.30
   rule typeidx{C : context, typeidx : typeidx, dt : deftype}:
     `%|-%:OK`(C, _IDX_typeuse(typeidx))
     -- if (C.TYPES_context[typeidx!`%`_typeidx.0] = dt)
 
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:118.1-120.23
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:119.1-121.23
   rule rec{C : context, i : n, st : subtype}:
     `%|-%:OK`(C, REC_typeuse(i))
     -- if (C.RECS_context[i] = st)
 
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:122.1-124.35
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:123.1-125.35
   rule deftype{C : context, deftype : deftype}:
     `%|-%:OK`(C, (deftype : deftype <: typeuse))
     -- Deftype_ok: `%|-%:OK`(C, deftype)
@@ -3364,36 +3364,36 @@ relation Resulttype_ok: `%|-%:OK`(context, resulttype)
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:98.1-98.104
 relation Fieldtype_ok: `%|-%:OK`(context, fieldtype)
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:138.1-140.43
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:139.1-141.43
   rule _{C : context, storagetype : storagetype}:
     `%|-%:OK`(C, `%%`_fieldtype(MUT_mut?{}, storagetype))
     -- Storagetype_ok: `%|-%:OK`(C, storagetype)
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:99.1-99.106
 relation Storagetype_ok: `%|-%:OK`(context, storagetype)
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:130.1-132.35
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:131.1-133.35
   rule val{C : context, valtype : valtype}:
     `%|-%:OK`(C, (valtype : valtype <: storagetype))
     -- Valtype_ok: `%|-%:OK`(C, valtype)
 
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:134.1-136.37
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:135.1-137.37
   rule pack{C : context, packtype : packtype}:
     `%|-%:OK`(C, (packtype : packtype <: storagetype))
     -- Packtype_ok: `%|-%:OK`(C, packtype)
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:100.1-100.103
 relation Comptype_ok: `%|-%:OK`(context, comptype)
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:143.1-145.42
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:144.1-146.42
   rule struct{C : context, `fieldtype*` : fieldtype*}:
     `%|-%:OK`(C, STRUCT_comptype(`%`_list(fieldtype*{fieldtype <- `fieldtype*`},)))
     -- (Fieldtype_ok: `%|-%:OK`(C, fieldtype))*{fieldtype <- `fieldtype*`}
 
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:147.1-149.39
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:148.1-150.39
   rule array{C : context, fieldtype : fieldtype}:
     `%|-%:OK`(C, ARRAY_comptype(fieldtype))
     -- Fieldtype_ok: `%|-%:OK`(C, fieldtype)
 
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:151.1-154.35
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:152.1-155.35
   rule func{C : context, `t_1*` : valtype*, `t_2*` : valtype*}:
     `%|-%:OK`(C, `FUNC%->%`_comptype(`%`_resulttype(t_1*{t_1 <- `t_1*`},), `%`_resulttype(t_2*{t_2 <- `t_2*`},)))
     -- Resulttype_ok: `%|-%:OK`(C, `%`_resulttype(t_1*{t_1 <- `t_1*`},))
@@ -3401,7 +3401,7 @@ relation Comptype_ok: `%|-%:OK`(context, comptype)
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:101.1-101.103
 relation Desctype_ok: `%|-%:OK`(context, desctype)
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:157.1-161.31
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:158.1-162.31
   rule _{C : context, `tu_1?` : typeuse?, `tu_2?` : typeuse?, ct : comptype}:
     `%|-%:OK`(C, `%%%`_desctype(DESCRIBES_describestype(tu_1)?{tu_1 <- `tu_1?`}, DESCRIPTOR_descriptortype(tu_2)?{tu_2 <- `tu_2?`}, ct))
     -- (Typeuse_ok: `%|-%:OK`(C, tu_1))?{tu_1 <- `tu_1?`}
@@ -3410,7 +3410,7 @@ relation Desctype_ok: `%|-%:OK`(context, desctype)
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:104.1-104.126
 relation Subtype_ok2: `%|-%:%`(context, subtype, oktypenat)
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:183.1-192.49
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:184.1-193.49
   rule _{C : context, `typeuse*` : typeuse*, desctype : desctype, i : nat, `desctype'*` : desctype*, `typeuse'**` : typeuse**}:
     `%|-%:%`(C, SUB_subtype(FINAL_final?{}, typeuse*{typeuse <- `typeuse*`}, desctype), OK_oktypenat(i))
     -- if (|typeuse*{typeuse <- `typeuse*`}| <= 1)
@@ -3422,11 +3422,11 @@ relation Subtype_ok2: `%|-%:%`(context, subtype, oktypenat)
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:105.1-105.126
 relation Rectype_ok2: `%|-%:%`(context, rectype, oktypenat)
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:204.1-205.23
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:205.1-206.23
   rule empty{C : context, i : nat}:
     `%|-%:%`(C, REC_rectype(`%`_list([],)), OK_oktypenat(i))
 
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:207.1-210.49
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:208.1-211.49
   rule cons{C : context, subtype_1 : subtype, `subtype*` : subtype*, i : nat}:
     `%|-%:%`(C, REC_rectype(`%`_list([subtype_1] ++ subtype*{subtype <- `subtype*`},)), OK_oktypenat(i))
     -- Subtype_ok2: `%|-%:%`(C, subtype_1, OK_oktypenat(i))
@@ -3434,14 +3434,14 @@ relation Rectype_ok2: `%|-%:%`(context, rectype, oktypenat)
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:106.1-106.102
 relation Deftype_ok: `%|-%:OK`(context, deftype)
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:213.1-217.14
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:214.1-218.14
   rule _{C : context, rectype : rectype, i : n, n : n, `subtype*` : subtype*}:
     `%|-%:OK`(C, _DEF_deftype(rectype, i))
     -- Rectype_ok2: `%|-%:%`({TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [], LABELS [], RETURN ?(), REFS [], RECS subtype^n{subtype <- `subtype*`}} +++ C, rectype, OK_oktypenat(0))
     -- if (rectype = REC_rectype(`%`_list(subtype^n{subtype <- `subtype*`},)))
     -- if (i < n)
 
-;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:109.1-109.108
+;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:110.1-110.108
 relation Comptype_sub: `%|-%<:%`(context, comptype, comptype)
   ;; ../../../../specification/wasm-latest/2.2-validation.subtyping.spectec:188.1-190.41
   rule struct{C : context, `ft_1*` : fieldtype*, `ft'_1*` : fieldtype*, `ft_2*` : fieldtype*}:
@@ -3459,7 +3459,7 @@ relation Comptype_sub: `%|-%<:%`(context, comptype, comptype)
     -- Resulttype_sub: `%|-%<:%`(C, `%`_resulttype(t_21*{t_21 <- `t_21*`},), `%`_resulttype(t_11*{t_11 <- `t_11*`},))
     -- Resulttype_sub: `%|-%<:%`(C, `%`_resulttype(t_12*{t_12 <- `t_12*`},), `%`_resulttype(t_22*{t_22 <- `t_22*`},))
 
-;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:110.1-110.108
+;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:111.1-111.108
 relation Desctype_sub: `%|-%<:%`(context, desctype, desctype)
   ;; ../../../../specification/wasm-latest/2.2-validation.subtyping.spectec:202.1-206.37
   rule _{C : context, tu_11 : typeuse, tu_12 : typeuse, ct_1 : comptype, tu_21 : typeuse, tu_22 : typeuse, ct_2 : comptype}:
@@ -3468,7 +3468,7 @@ relation Desctype_sub: `%|-%<:%`(context, desctype, desctype)
     -- Heaptype_sub: `%|-%<:%`(C, _HT_heaptype(`%%`_exacttypeuse(?(), tu_12)), _HT_heaptype(`%%`_exacttypeuse(?(), tu_22)))
     -- Comptype_sub: `%|-%<:%`(C, ct_1, ct_2)
 
-;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:111.1-111.107
+;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:112.1-112.107
 relation Deftype_sub: `%|-%<:%`(context, deftype, deftype)
   ;; ../../../../specification/wasm-latest/2.2-validation.subtyping.spectec:209.1-211.66
   rule refl{C : context, deftype_1 : deftype, deftype_2 : deftype}:
@@ -3714,16 +3714,23 @@ rec {
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:103.1-103.126
 relation Rectype_ok: `%|-%:%`(context, rectype, oktypeidx)
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:195.1-196.23
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:196.1-197.23
   rule empty{C : context, x : idx}:
     `%|-%:%`(C, REC_rectype(`%`_list([],)), OK_oktypeidx(x))
 
-  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:198.1-201.48
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:199.1-202.48
   rule cons{C : context, subtype_1 : subtype, `subtype*` : subtype*, x : idx}:
     `%|-%:%`(C, REC_rectype(`%`_list([subtype_1] ++ subtype*{subtype <- `subtype*`},)), OK_oktypeidx(x))
     -- Subtype_ok: `%|-%:%`(C, subtype_1, OK_oktypeidx(x))
     -- Rectype_ok: `%|-%:%`(C, REC_rectype(`%`_list(subtype*{subtype <- `subtype*`},)), OK_oktypeidx(`%`_typeidx((x!`%`_idx.0 + 1),)))
 }
+
+;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
+relation Exactdeftype_ok: `%|-%:OK`(context, exactdeftype)
+  ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
+  rule _{C : context, `exact?` : exact?, deftype : deftype}:
+    `%|-%:OK`(C, `%%`_exactdeftype(exact?{exact <- `exact?`}, deftype))
+    -- Deftype_ok: `%|-%:OK`(C, deftype)
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec
 relation Limits_ok: `%|-%:%`(context, limits, nat)
@@ -8302,8 +8309,8 @@ relation Context_ok: `|-%:OK`(context,)
     -- (Globaltype_ok: `%|-%:OK`(C_0, gt))*{gt <- `gt*`}
     -- (Memtype_ok: `%|-%:OK`(C_0, mt))*{mt <- `mt*`}
     -- (Tabletype_ok: `%|-%:OK`(C_0, tt))*{tt <- `tt*`}
+    -- (Exactdeftype_ok: `%|-%:OK`(C_0, edt))*{edt <- `edt*`}
     -- if (edt*{edt <- `edt*`} = `%%`_exactdeftype(exact?{exact <- `exact?`}, dt_F)*{dt_F <- `dt_F*`, `exact?` <- `exact?*`})
-    -- (Deftype_ok: `%|-%:OK`(C_0, dt_F))*{dt_F <- `dt_F*`}
     -- (Expand: `%~~%`(dt_F, `FUNC%->%`_comptype(`%`_resulttype([t_1],), `%`_resulttype([t_2],))))*{dt_F <- `dt_F*`, t_1 <- `t_1*`, t_2 <- `t_2*`}
     -- (Reftype_ok: `%|-%:OK`(C_0, et))*{et <- `et*`}
     -- (Localtype_ok: `%|-%:OK`(C_0, lct))*{lct <- `lct*`}

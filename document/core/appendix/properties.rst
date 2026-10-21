@@ -97,6 +97,14 @@ $${rule-prose: Deftype_ok}
 $${rule: Deftype_ok}
 
 
+.. index:: exact defined type, defined type
+.. _valid-exactdeftype:
+
+$${rule-prose: Exactdeftype_ok}
+
+$${rule: Exactdeftype_ok}
+
+
 .. index:: heap type, recursive type, recursive type index
 .. _match-heaptype-ext:
 
@@ -824,9 +832,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
        \\\
        (S; C \vdashglobaltype \globaltype \OKglobaltype)^\ast
        \qquad
-       \exactdeftype^\ast = (\exact^?~\deftype')^\ast
-       \qquad
-       (S; C \vdashdeftype \deftype' \OKdeftype)^\ast
+       (S; C \vdashexactdeftype \exactdeftype \OKexactdeftype)^\ast
        \\
        (S; C \vdashmemtype \memtype \OKmemtype)^\ast
        \qquad

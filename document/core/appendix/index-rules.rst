@@ -27,6 +27,7 @@ Construct                                        Judgement
 :ref:`Sub type <valid-subtype>`                  :math:`C \vdashsubtype \subtype : \OKsubtype`
 :ref:`Recursive type <valid-rectype>`            :math:`C \vdashrectype \rectype : \OKrectype`
 :ref:`Defined type <valid-deftype>`              :math:`C \vdashdeftype \deftype : \OKdeftype`
+:ref:`Exact defined type <valid-exactdeftype>`   :math:`C \vdashexactdeftype \exactdeftype : \OKexactdeftype`
 :ref:`Block type <valid-blocktype>`              :math:`C \vdashblocktype \blocktype : \instrtype`
 :ref:`Tag type <valid-tagtype>`                  :math:`C \vdashtagtype \tagtype : \OKtagtype`
 :ref:`Global type <valid-globaltype>`            :math:`C \vdashglobaltype \globaltype : \OKglobaltype`

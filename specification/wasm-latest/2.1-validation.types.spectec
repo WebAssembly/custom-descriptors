@@ -104,6 +104,7 @@ relation Rectype_ok: context |- rectype : oktypeidx     hint(name "K-rect")    h
 relation Subtype_ok2: context |- subtype : oktypenat    hint(name "K-sub2")    hint(macro "%subtypeext")  hint(prosepp "for")
 relation Rectype_ok2: context |- rectype : oktypenat    hint(name "K-rec2")    hint(macro "%rectypeext")  hint(prosepp "for")
 relation Deftype_ok: context |- deftype : OK            hint(name "K-def")     hint(macro "%deftype")
+relation Exactdeftype_ok: context |- exactdeftype : OK  hint(name "K-exactdef") hint(macro "%exactdeftype")
 
 ;; Forward declarations for validation.subtyping
 relation Comptype_sub: context |- comptype <: comptype  hint(name "S-comp")    hint(macro "%comptypematch")
@@ -215,6 +216,10 @@ rule Deftype_ok:
   -- Rectype_ok2: C, RECS subtype^n |- rectype : OK(0)
   -- if rectype = REC subtype^n
   -- if i < n
+
+rule Exactdeftype_ok:
+  C |- exact? deftype : OK
+  -- Deftype_ok: C |- deftype : OK
 
 
 ;; External types

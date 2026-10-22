@@ -11,7 +11,7 @@ rule Context_ok:
       GLOBALS gt*,
       MEMS mt*,
       TABLES tt*,
-      FUNCS dt_F*,
+      FUNCS edt*,
       DATAS ok*,
       ELEMS et*,
       LOCALS lct*,
@@ -26,10 +26,11 @@ rule Context_ok:
   -- (Globaltype_ok: C_0 |- gt : OK)*
   -- (Memtype_ok: C_0 |- mt : OK)*
   -- (Tabletype_ok: C_0 |- tt : OK)*
+  -- if edt* = (exact? dt_F)*
   -- (Deftype_ok: C_0 |- dt_F : OK)*
   -- (Expand: dt_F ~~ FUNC t_1 -> t_2)*
   -- (Reftype_ok: C_0 |- et : OK)*
   -- (Localtype_ok: C_0 |- lct : OK)*
   -- (Resulttype_ok: C_0 |- t*: OK)*
   -- (Resulttype_ok: C_0 |- t'* : OK)?
-  -- (if x < |dt_F*|)*
+  -- (if x < |edt*|)*

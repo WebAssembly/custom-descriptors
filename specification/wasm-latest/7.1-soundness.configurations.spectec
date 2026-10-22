@@ -117,7 +117,7 @@ rule Funcinst_ok:
   -- Deftype_ok: {} |- dt : OK
   -- Moduleinst_ok: s |- moduleinst : C
   ----
-  -- Func_ok: C |- func : dt'
+  -- Func_ok: C |- func : EXACT dt'
   -- Deftype_sub: C |- dt' <: dt
 
 rule Datainst_ok:
@@ -171,7 +171,7 @@ rule Moduleinst_ok:
              GLOBALS globaltype*,
              MEMS memtype*,
              TABLES tabletype*,
-             FUNCS deftype_F*,
+             FUNCS exactdeftype*,
              DATAS datatype*,
              ELEMS elemtype*,
              REFS (i)^(i<k)
@@ -180,7 +180,7 @@ rule Moduleinst_ok:
   -- (Externaddr_ok: s |- TAG tagaddr : TAG tagtype)*
   ----
   -- (Externaddr_ok: s |- GLOBAL globaladdr : GLOBAL globaltype)*
-  -- (Externaddr_ok: s |- FUNC funcaddr : FUNC deftype_F)*
+  -- (Externaddr_ok: s |- FUNC funcaddr : FUNC exactdeftype)*
   ----
   -- (Externaddr_ok: s |- MEM memaddr : MEM memtype)*
   -- (Externaddr_ok: s |- TABLE tableaddr : TABLE tabletype)*

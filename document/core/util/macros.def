@@ -309,6 +309,7 @@
 .. |subtype| mathdef:: \xref{syntax/types}{syntax-subtype}{\X{subtype}}
 .. |rectype| mathdef:: \xref{syntax/types}{syntax-rectype}{\X{rectype}}
 .. |deftype| mathdef:: \xref{valid/conventions}{syntax-deftype}{\X{deftype}}
+.. |exactdeftype| mathdef:: \xref{valid/conventions}{syntax-exactdeftype}{\X{exactdeftype}}
 
 .. |globaltype| mathdef:: \xref{syntax/types}{syntax-globaltype}{\X{globaltype}}
 .. |tabletype| mathdef:: \xref{syntax/types}{syntax-tabletype}{\X{tabletype}}
@@ -327,6 +328,7 @@
 .. |init| mathdef:: \xref{valid/conventions}{syntax-init}{\X{init}}
 
 .. |typeuse| mathdef:: \xref{syntax/types}{syntax-typeuse}{\X{typeuse}}
+.. |exacttypeuse| mathdef:: \xref{syntax/types}{syntax-exacttypeuse}{\X{exacttypeuse}}
 
 .. |instrtype| mathdef:: \xref{valid/conventions}{syntax-instrtype}{\X{instrtype}}
 .. |localtype| mathdef:: \xref{valid/conventions}{syntax-localtype}{\X{localtype}}

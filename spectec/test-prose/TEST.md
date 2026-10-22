@@ -649,7 +649,7 @@ The expression :math:`{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with 
 
       * The global type :math:`C{.}\mathsf{globals}{}[x]` exists.
 
-      * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`(\epsilon~t)`.
+      * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`t`.
 
 
 
@@ -664,7 +664,7 @@ The expression :math:`{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with 
 
    * The global type :math:`C{.}\mathsf{globals}{}[x]` exists.
 
-   * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`(\epsilon~t)`.
+   * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`t`.
 
 
 
@@ -5581,7 +5581,7 @@ The expression :math:`{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with 
 
       * The global type :math:`C{.}\mathsf{globals}{}[x]` exists.
 
-      * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`(\epsilon~t)`.
+      * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`t`.
 
 
 
@@ -5611,7 +5611,7 @@ The expression :math:`{{\mathit{instr}}^\ast}` is :ref:`valid <valid-val>` with 
 
    * The global type :math:`C{.}\mathsf{globals}{}[x]` exists.
 
-   * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`(\epsilon~t)`.
+   * The global type :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`t`.
 
 
 
@@ -14713,7 +14713,7 @@ The field type :math:`({{\mathsf{mut}}_1^?}~{\mathit{zt}}_1)` :ref:`matches <mat
 
 
 
-The field type :math:`(\epsilon~{\mathit{zt}}_1)` :ref:`matches <match>` the field type :math:`(\epsilon~{\mathit{zt}}_2)` if:
+The field type :math:`{\mathit{zt}}_1` :ref:`matches <match>` the field type :math:`{\mathit{zt}}_2` if:
 
 
    * The storage type :math:`{\mathit{zt}}_1` :ref:`matches <match>` the storage type :math:`{\mathit{zt}}_2`.
@@ -15029,7 +15029,7 @@ The global type :math:`({{\mathsf{mut}}_1^?}~{\mathit{valtype}}_1)` :ref:`matche
 
 
 
-The global type :math:`(\epsilon~{\mathit{valtype}}_1)` :ref:`matches <match>` the global type :math:`(\epsilon~{\mathit{valtype}}_2)` if:
+The global type :math:`{\mathit{valtype}}_1` :ref:`matches <match>` the global type :math:`{\mathit{valtype}}_2` if:
 
 
    * The value type :math:`{\mathit{valtype}}_1` :ref:`matches <match>` the value type :math:`{\mathit{valtype}}_2`.
@@ -16699,7 +16699,7 @@ The value type :math:`t` is not defaultable if:
 
       * The global :math:`C{.}\mathsf{globals}{}[x]` exists.
 
-      * The global :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`(\epsilon~t)`.
+      * The global :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`t`.
    * Or:
 
       * The instruction :math:`{\mathit{instr}}` is of the form :math:`({\mathsf{i}}{N} {.} {\mathit{binop}})`.
@@ -16776,7 +16776,7 @@ The value type :math:`t` is not defaultable if:
 
    * The global :math:`C{.}\mathsf{globals}{}[x]` exists.
 
-   * The global :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`(\epsilon~t)`.
+   * The global :math:`C{.}\mathsf{globals}{}[x]` is of the form :math:`t`.
 
 
 
@@ -26748,7 +26748,7 @@ The instruction sequence :math:`(\mathsf{block}~{\mathit{blocktype}}~{{\mathit{i
 
 #. If :math:`{\mathit{result}}` is some :math:`( \mathsf{ref{.}exn\_addr}~{\mathit{exnaddr}} )~\mathsf{throw\_ref}`, then:
 
-   a. Let :math:`(a)` be the destructuring of :math:`{\mathit{result}}`.
+   a. Let :math:`a` be the destructuring of :math:`{\mathit{result}}`.
 
    #. Return :math:`(\mathsf{ref{.}exn}~a)~\mathsf{throw\_ref}`.
 

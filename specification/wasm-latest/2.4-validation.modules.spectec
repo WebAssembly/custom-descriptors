@@ -9,7 +9,7 @@ relation Tag_ok: context |- tag : tagtype            hint(name "T-tag")      hin
 relation Global_ok: context |- global : globaltype   hint(name "T-global")   hint(macro "%global")
 relation Mem_ok: context |- mem : memtype            hint(name "T-mem")      hint(macro "%mem")
 relation Table_ok: context |- table : tabletype      hint(name "T-table")    hint(macro "%table")
-relation Func_ok: context |- func : deftype          hint(name "T-func")     hint(macro "%func")
+relation Func_ok: context |- func : exactdeftype     hint(name "T-func")     hint(macro "%func")
 relation Data_ok: context |- data : datatype         hint(name "T-data")     hint(macro "%data")  hint(prosepp "")
 relation Elem_ok: context |- elem : elemtype         hint(name "T-elem")     hint(macro "%elem")
 relation Datamode_ok: context |- datamode : datatype hint(name "T-datamode") hint(macro "%datamode") hint(prosepp "")
@@ -54,7 +54,7 @@ rule Local_ok/unset:
   -- Nondefaultable: |- t NONDEFAULTABLE
 
 rule Func_ok:
-  C |- FUNC x local* expr : C.TYPES[x]
+  C |- FUNC x local* expr : EXACT C.TYPES[x]
   -- Expand: C.TYPES[x] ~~ FUNC t_1* -> t_2*
   -- (Local_ok: C |- local : lct)*
   ----
@@ -92,7 +92,8 @@ rule Elemmode_ok/active:
 
 rule Start_ok:
   C |- START x : OK
-  -- Expand: C.FUNCS[x] ~~ FUNC eps -> eps
+  -- if C.FUNCS[x] = exact? dt
+  -- Expand: dt ~~ FUNC eps -> eps
 
 
 ;; Im/exports
@@ -127,8 +128,8 @@ rule Externidx_ok/table:
   -- if C.TABLES[x] = tt
 
 rule Externidx_ok/func:
-  C |- FUNC x : FUNC dt
-  -- if C.FUNCS[x] = dt
+  C |- FUNC x : FUNC edt
+  -- if C.FUNCS[x] = edt
 
 
 ;; Modules
@@ -145,14 +146,14 @@ def $funcidx_nonfuncs(global* mem* table* elem* export*) =
 
 rule Module_ok:
   |- MODULE type* import* tag* global* mem* table* func* data* elem* start? export* : $clos_moduletype(C, xt_I* -> xt_E*)
-  -- Types_ok: {} |- type* : dt'*
-  -- (Import_ok: {TYPES dt'*} |- import : xt_I)*
+  -- Types_ok: {} |- type* : dt*
+  -- (Import_ok: {TYPES dt*} |- import : xt_I)*
   ----
   -- (Tag_ok: C' |- tag : jt)*
   -- Globals_ok: C' |- global* : gt*
   -- (Mem_ok: C' |- mem : mt)*
   -- (Table_ok: C' |- table : tt)*
-  -- (Func_ok: C |- func : dt)*
+  -- (Func_ok: C |- func : edt)*
   ----
   -- (Data_ok: C |- data : ok)*
   -- (Elem_ok: C |- elem : rt)*
@@ -162,14 +163,14 @@ rule Module_ok:
   ----
   -- if C = C' ++ {TAGS jt_I* jt*, GLOBALS gt*, MEMS mt_I* mt*, TABLES tt_I* tt*, DATAS ok*, ELEMS rt*}
   ----
-  -- if C' = {TYPES dt'*, GLOBALS gt_I*, FUNCS dt_I* dt*, REFS x*}
+  -- if C' = {TYPES dt*, GLOBALS gt_I*, FUNCS edt_I* edt*, REFS x*}
   -- if x* = $funcidx_nonfuncs(global* mem* table* elem* export*)
   ----
   -- if jt_I* = $tagsxt(xt_I*)
   -- if gt_I* = $globalsxt(xt_I*)
   -- if mt_I* = $memsxt(xt_I*)
   -- if tt_I* = $tablesxt(xt_I*)
-  -- if dt_I* = $funcsxt(xt_I*)
+  -- if edt_I* = $funcsxt(xt_I*)
 
 
 rule Types_ok/empty:

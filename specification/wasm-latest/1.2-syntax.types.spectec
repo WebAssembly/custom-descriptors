@@ -34,16 +34,20 @@ syntax rectype hint(desc "recursive type")  ;; forward decl
 syntax deftype hint(desc "defined type") =
   | _DEF rectype n hint(show %.%)
 
+syntax exactdeftype hint(desc "exact defined type") = exact? deftype
+
 syntax typeuse/syn hint(desc "type use") =
   | _IDX typeidx | ...
 syntax typeuse/sem =
   | ... | deftype | REC n hint(show REC.%)
 
+syntax exacttypeuse hint(desc "exact type use") = exact? typeuse
+
 syntax typevar hint(desc "type variable") =
   | _IDX typeidx | REC n hint(show REC.%)
 
 syntax heaptype hint(desc "heap type") =
-  | absheaptype | _HT exact? typeuse hint(show % %)
+  | absheaptype | _HT exacttypeuse hint(show %)
 
 syntax reftype hint(desc "reference type") =
   | REF null? heaptype
@@ -143,7 +147,7 @@ syntax datatype hint(desc "data type") = OK hint(macro "%data")
 syntax elemtype hint(desc "element type") = reftype
 
 syntax externtype hint(desc "external type") hint(macro "%" "XT%") =
-  | TAG tagtype | GLOBAL globaltype | MEM memtype | TABLE tabletype | FUNC typeuse
+  | TAG tagtype | GLOBAL globaltype | MEM memtype | TABLE tabletype | FUNC exacttypeuse
 
 syntax moduletype hint(desc "module type") =
   externtype* -> externtype* hint(macro "toM")
@@ -158,6 +162,7 @@ var at : addrtype
 ;; var bt : blocktype  ;; defined below
 var ct : comptype
 var dt : deftype
+var edt : exactdeftype
 var et : elemtype
 var ft : fieldtype
 var gt : globaltype
@@ -317,7 +322,7 @@ def $tagsxt(externtype*) : tagtype*        hint(show $tags(%))    hint(macro "ta
 def $globalsxt(externtype*) : globaltype*  hint(show $globals(%)) hint(macro "globalsxt")
 def $memsxt(externtype*) : memtype*        hint(show $mems(%))    hint(macro "memsxt")
 def $tablesxt(externtype*) : tabletype*    hint(show $tables(%))  hint(macro "tablesxt")
-def $funcsxt(externtype*) : deftype*       hint(show $funcs(%))   hint(macro "funcsxt")
+def $funcsxt(externtype*) : exactdeftype*  hint(show $funcs(%))   hint(macro "funcsxt")
 
 def $tagsxt(eps) = eps
 def $tagsxt((TAG jt) xt*) = jt $tagsxt(xt*)
@@ -336,7 +341,7 @@ def $tablesxt((TABLE tt) xt*) = tt $tablesxt(xt*)
 def $tablesxt(externtype xt*) = $tablesxt(xt*)  -- otherwise
 
 def $funcsxt(eps) = eps
-def $funcsxt((FUNC dt) xt*) = dt $funcsxt(xt*)
+def $funcsxt((FUNC edt) xt*) = edt $funcsxt(xt*)
 def $funcsxt(externtype xt*) = $funcsxt(xt*)  -- otherwise
 
 
@@ -438,7 +443,7 @@ def $subst_externtype((TAG jt), tv*, tu*) = TAG $subst_tagtype(jt, tv*, tu*)
 def $subst_externtype((GLOBAL gt), tv*, tu*) = GLOBAL $subst_globaltype(gt, tv*, tu*)
 def $subst_externtype((TABLE tt), tv*, tu*) = TABLE $subst_tabletype(tt, tv*, tu*)
 def $subst_externtype((MEM mt), tv*, tu*) = MEM $subst_memtype(mt, tv*, tu*)
-def $subst_externtype((FUNC tu'), tv*, tu*) = FUNC $subst_typeuse(tu', tv*, tu*)
+def $subst_externtype((FUNC exact? tu'), tv*, tu*) = FUNC exact? $subst_typeuse(tu', tv*, tu*)
 
 def $subst_moduletype(xt_1* -> xt_2*, tv*, tu*) = $subst_externtype(xt_1, tv*, tu*)* -> $subst_externtype(xt_2, tv*, tu*)*
 
@@ -595,7 +600,7 @@ def $free_externtype(TAG tagtype) = $free_tagtype(tagtype)
 def $free_externtype(GLOBAL globaltype) = $free_globaltype(globaltype)
 def $free_externtype(MEM memtype) = $free_memtype(memtype)
 def $free_externtype(TABLE tabletype) = $free_tabletype(tabletype)
-def $free_externtype(FUNC typeuse) = $free_typeuse(typeuse)
+def $free_externtype(FUNC exact? typeuse) = $free_typeuse(typeuse)
 
 def $free_moduletype(externtype_1* -> externtype_2*) =
   $free_list($free_externtype(externtype_1)*) ++

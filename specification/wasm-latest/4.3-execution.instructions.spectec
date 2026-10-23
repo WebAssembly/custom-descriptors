@@ -218,10 +218,10 @@ rule Step_read/return_call_ref-frame-addr:
 
 
 rule Step_pure/call_indirect:
-  (CALL_INDIRECT x yy)  ~>  (TABLE.GET x) (REF.CAST (REF NULL (_HT yy))) (CALL_REF yy)
+  (CALL_INDIRECT x yy)  ~>  (TABLE.GET x) (REF.CAST (REF NULL (_EXACT yy))) (CALL_REF yy)
 
 rule Step_pure/return_call_indirect:
-  (RETURN_CALL_INDIRECT x yy)  ~>  (TABLE.GET x) (REF.CAST (REF NULL (_HT yy))) (RETURN_CALL_REF yy)
+  (RETURN_CALL_INDIRECT x yy)  ~>  (TABLE.GET x) (REF.CAST (REF NULL (_EXACT yy))) (RETURN_CALL_REF yy)
 
 
 rule Step_pure/frame-vals:

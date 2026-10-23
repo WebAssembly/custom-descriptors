@@ -34,20 +34,22 @@ syntax rectype hint(desc "recursive type")  ;; forward decl
 syntax deftype hint(desc "defined type") =
   | _DEF rectype n hint(show %.%)
 
-syntax exactdeftype hint(desc "exact defined type") = exact? deftype
+syntax exactdeftype hint(desc "exact defined type") =
+  | _EXACT exact? deftype hint(show % %)
 
 syntax typeuse/syn hint(desc "type use") =
   | _IDX typeidx | ...
 syntax typeuse/sem =
   | ... | deftype | REC n hint(show REC.%)
 
-syntax exacttypeuse hint(desc "exact type use") = exact? typeuse
+syntax exacttypeuse hint(desc "exact type use") =
+  | _EXACT exact? typeuse hint(show % %)
 
 syntax typevar hint(desc "type variable") =
   | _IDX typeidx | REC n hint(show REC.%)
 
 syntax heaptype hint(desc "heap type") =
-  | absheaptype | _HT exacttypeuse hint(show %)
+  | absheaptype | exacttypeuse
 
 syntax reftype hint(desc "reference type") =
   | REF null? heaptype
@@ -389,8 +391,8 @@ def $subst_addrtype(at, tv*, tu*) = at
 def $subst_numtype(nt, tv*, tu*) = nt
 def $subst_vectype(vt, tv*, tu*) = vt
 
-def $subst_heaptype(_HT exact? tv', tv*, tu*) = _HT exact? $subst_typevar(tv', tv*, tu*)
-def $subst_heaptype(_HT exact? dt, tv*, tu*) = _HT exact? $subst_deftype(dt, tv*, tu*)
+def $subst_heaptype(_EXACT exact? tv', tv*, tu*) = _EXACT exact? $subst_typevar(tv', tv*, tu*)
+def $subst_heaptype(_EXACT exact? dt, tv*, tu*) = _EXACT exact? $subst_deftype(dt, tv*, tu*)
 def $subst_heaptype(ht, tv*, tu*) = ht  -- otherwise
 
 def $subst_reftype((REF null? ht), tv*, tu*) = REF null? $subst_heaptype(ht, tv*, tu*)
@@ -443,7 +445,7 @@ def $subst_externtype((TAG jt), tv*, tu*) = TAG $subst_tagtype(jt, tv*, tu*)
 def $subst_externtype((GLOBAL gt), tv*, tu*) = GLOBAL $subst_globaltype(gt, tv*, tu*)
 def $subst_externtype((TABLE tt), tv*, tu*) = TABLE $subst_tabletype(tt, tv*, tu*)
 def $subst_externtype((MEM mt), tv*, tu*) = MEM $subst_memtype(mt, tv*, tu*)
-def $subst_externtype((FUNC exact? tu'), tv*, tu*) = FUNC exact? $subst_typeuse(tu', tv*, tu*)
+def $subst_externtype((FUNC _EXACT exact? tu'), tv*, tu*) = FUNC _EXACT exact? $subst_typeuse(tu', tv*, tu*)
 
 def $subst_moduletype(xt_1* -> xt_2*, tv*, tu*) = $subst_externtype(xt_1, tv*, tu*)* -> $subst_externtype(xt_2, tv*, tu*)*
 
@@ -552,7 +554,7 @@ def $free_typeuse(typevar) = $free_typevar(typevar)
 def $free_typeuse(deftype) = $free_deftype(deftype)
 
 def $free_heaptype(absheaptype) = $free_absheaptype(absheaptype)
-def $free_heaptype(_HT EXACT? typeuse) = $free_typeuse(typeuse)
+def $free_heaptype(_EXACT EXACT? typeuse) = $free_typeuse(typeuse)
 
 def $free_reftype(REF null? heaptype) = $free_heaptype(heaptype)
 
@@ -600,7 +602,7 @@ def $free_externtype(TAG tagtype) = $free_tagtype(tagtype)
 def $free_externtype(GLOBAL globaltype) = $free_globaltype(globaltype)
 def $free_externtype(MEM memtype) = $free_memtype(memtype)
 def $free_externtype(TABLE tabletype) = $free_tabletype(tabletype)
-def $free_externtype(FUNC exact? typeuse) = $free_typeuse(typeuse)
+def $free_externtype(FUNC _EXACT exact? typeuse) = $free_typeuse(typeuse)
 
 def $free_moduletype(externtype_1* -> externtype_2*) =
   $free_list($free_externtype(externtype_1)*) ++

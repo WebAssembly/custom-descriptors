@@ -26,7 +26,7 @@ rule Context_ok:
   -- (Globaltype_ok: C_0 |- gt : OK)*
   -- (Memtype_ok: C_0 |- mt : OK)*
   -- (Tabletype_ok: C_0 |- tt : OK)*
-  -- if edt* = (exact? dt_F)*
+  -- if edt* = (_EXACT exact? dt_F)*
   -- (Deftype_ok: C_0 |- dt_F : OK)*
   -- (Expand: dt_F ~~ FUNC t_1 -> t_2)*
   -- (Reftype_ok: C_0 |- et : OK)*

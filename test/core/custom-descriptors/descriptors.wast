@@ -32,6 +32,7 @@
   )
 )
 
+
 ;; Describes clause must precede descriptor clause.
 (assert_malformed
   (module quote
@@ -219,6 +220,44 @@
   "descriptor type must be a struct"
 )
 
+;; Descriptor and described types must have matching finality.
+(assert_invalid
+  (module
+    (rec
+      (type $a (sub final (descriptor $b) (struct)))
+      (type $b (sub (describes $a) (struct)))
+    )
+  )
+  "descriptor and described types have mismatched finality"
+)
+(assert_invalid
+  (module
+    (rec
+      (type $x (sub (descriptor $y) (struct)))
+      (type $y (sub final (describes $x) (struct)))
+    )
+  )
+  "descriptor and described types have mismatched finality"
+)
+(assert_invalid
+  (module
+    (rec
+      (type $a (descriptor $b) (struct))
+      (type $b (sub (describes $a) (struct)))
+    )
+  )
+  "descriptor and described types have mismatched finality"
+)
+(assert_invalid
+  (module
+    (rec
+      (type $x (sub (descriptor $y) (struct)))
+      (type $y (describes $x) (struct))
+    )
+  )
+  "descriptor and described types have mismatched finality"
+)
+
 ;; Subtyping
 
 (module
@@ -250,23 +289,44 @@
   )
 )
 
-;; If a subtype has a descriptor, its supertype does not need to have a
-;; descriptor.
 (module
   (rec
-    (type $A (sub (struct)))
-    (type $B (sub $A (descriptor $B.desc) (struct)))
-    (type $B.desc (sub (describes $B) (struct)))
+    (type $A1 (sub (descriptor $A1.desc) (struct)))
+    (type $A1.desc (sub (describes $A1) (struct)))
+  )
+  (rec
+    (type $A2 (sub (descriptor $A2.desc) (struct)))
+    (type $A2.desc (sub (describes $A2) (struct)))
+  )
+  (rec
+    (type $B (sub $A1 (descriptor $B.desc) (struct)))
+    (type $B.desc (sub $A2.desc (describes $B) (struct)))
   )
 )
-(module
-  (rec
-    (type $A (sub (struct)))
+
+;; If a subtype has a descriptor, its supertype have a descriptor that is the
+;; supertype of the subtype's descriptor
+(assert_invalid
+  (module
+    (rec
+      (type $A (sub (struct)))
+      (type $B (sub $A (descriptor $B.desc) (struct)))
+      (type $B.desc (sub (describes $B) (struct)))
+    )
   )
-  (rec
-    (type $B (sub $A (descriptor $B.desc) (struct)))
-    (type $B.desc (sub (describes $B) (struct)))
+  "sub type 1 does not match super type 0"
+)
+(assert_invalid
+  (module
+    (rec
+      (type $A (sub (struct)))
+    )
+    (rec
+      (type $B (sub $A (descriptor $B.desc) (struct)))
+      (type $B.desc (sub (describes $B) (struct)))
+    )
   )
+  "sub type 1 does not match super type 0"
 )
 
 ;; If a supertype has a descriptor, its subtype must also have a descriptor.
@@ -409,7 +469,7 @@
       (type $B.desc (sub $A.desc (describes $B) (struct)))
     )
   )
-  "sub type 3 does not match super type 1"
+  "sub type 2 does not match super type 0"
 )
 (assert_invalid
   (module
@@ -422,7 +482,7 @@
       (type $B.desc (sub $A.desc (describes $B) (struct)))
     )
   )
-  "sub type 3 does not match super type 1"
+  "sub type 2 does not match super type 0"
 )
 (assert_invalid
   (module
@@ -437,7 +497,7 @@
       (type $B.desc (sub $A.desc (describes $B) (struct)))
     )
   )
-  "sub type 3 does not match super type 1"
+  "sub type 2 does not match super type 0"
 )
 
 ;; The subtype of a descriptor must describe a subtype of the descriptor's
@@ -515,7 +575,7 @@
     (rec
       (type $A (sub (struct (field i32))))
       (type $B (sub $A (descriptor $B.desc) (struct (field i64))))
-      (type $B.desc (describes $B) (struct))
+      (type $B.desc (sub (describes $B) (struct)))
     )
   )
   "sub type 1 does not match super type 0"
@@ -527,7 +587,7 @@
     )
     (rec
       (type $B (sub $A (descriptor $B.desc) (struct (field i64))))
-      (type $B.desc (describes $B) (struct))
+      (type $B.desc (sub (describes $B) (struct)))
     )
   )
   "sub type 1 does not match super type 0"

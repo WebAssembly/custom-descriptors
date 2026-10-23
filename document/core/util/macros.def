@@ -309,6 +309,7 @@
 .. |subtype| mathdef:: \xref{syntax/types}{syntax-subtype}{\X{subtype}}
 .. |rectype| mathdef:: \xref{syntax/types}{syntax-rectype}{\X{rectype}}
 .. |deftype| mathdef:: \xref{valid/conventions}{syntax-deftype}{\X{deftype}}
+.. |exactdeftype| mathdef:: \xref{valid/conventions}{syntax-exactdeftype}{\X{exactdeftype}}
 
 .. |globaltype| mathdef:: \xref{syntax/types}{syntax-globaltype}{\X{globaltype}}
 .. |tabletype| mathdef:: \xref{syntax/types}{syntax-tabletype}{\X{tabletype}}
@@ -327,6 +328,7 @@
 .. |init| mathdef:: \xref{valid/conventions}{syntax-init}{\X{init}}
 
 .. |typeuse| mathdef:: \xref{syntax/types}{syntax-typeuse}{\X{typeuse}}
+.. |exacttypeuse| mathdef:: \xref{syntax/types}{syntax-exacttypeuse}{\X{exacttypeuse}}
 
 .. |instrtype| mathdef:: \xref{valid/conventions}{syntax-instrtype}{\X{instrtype}}
 .. |localtype| mathdef:: \xref{valid/conventions}{syntax-localtype}{\X{localtype}}
@@ -343,10 +345,9 @@
 .. |rolldt| mathdef:: \xref{valid/conventions}{aux-roll-deftype}{\F{roll}}
 .. |unrolldt| mathdef:: \xref{valid/conventions}{aux-unroll-deftype}{\F{unroll}}
 .. |expanddt| mathdef:: \xref{valid/conventions}{aux-expand-deftype}{\F{expand}}
-.. |expanddttodesctype| mathdef:: \xref{valid/conventions}{aux-expand-deftype-to-desctype}{\F{expand}}
 .. |approxexpanddt| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype}{\approx}}
 .. |approxexpandyy| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-typeuse}{\approx}}
-.. |approxexpanddttodesctype| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype-to-desctype}{\approx}}
+.. |simexpanddesc| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype-to-desctype}{\sim}}
 .. |unrollht| mathdef:: \xref{appendix/properties}{aux-unroll-heaptype}{\F{unroll}}
 
 .. |unpack| mathdef:: \xref{syntax/types}{aux-unpack}{\F{unpack}}
@@ -428,7 +429,7 @@
 
 .. |module| mathdef:: \xref{syntax/modules}{syntax-module}{\X{module}}
 .. |decl| mathdef:: \xref{text/modules}{syntax-decl}{\X{decl}}
-.. |type| mathdef:: \xref{syntax/types}{syntax-rectype}{\X{type}}
+.. |type| mathdef:: \xref{syntax/modules}{syntax-type}{\X{type}}
 .. |func| mathdef:: \xref{syntax/modules}{syntax-func}{\X{func}}
 .. |local| mathdef:: \xref{syntax/modules}{syntax-local}{\X{local}}
 .. |table| mathdef:: \xref{syntax/modules}{syntax-table}{\X{table}}
@@ -1093,6 +1094,7 @@
 .. |Tlocals| mathdef:: \xref{text/modules}{text-local}{\T{locals}}
 .. |Tdata| mathdef:: \xref{text/modules}{text-data}{\T{data}}
 .. |Tdatastring| mathdef:: \xref{text/modules}{text-datastring}{\T{datastring}}
+.. |Toffsetexpr| mathdef:: \xref{text/modules}{text-offsetexpr}{\T{offsetexpr}}
 .. |Tmemuse| mathdef:: \xref{text/modules}{text-memuse}{\T{memuse}}
 .. |Tstart| mathdef:: \xref{text/modules}{text-start}{\T{start}}
 
@@ -1196,6 +1198,7 @@
 .. |vdashtabletype| mathdef:: \xref{valid/types}{valid-tabletype}{\vdash}
 .. |vdashmemtype| mathdef:: \xref{valid/types}{valid-memtype}{\vdash}
 .. |vdashglobaltype| mathdef:: \xref{valid/types}{valid-globaltype}{\vdash}
+.. |vdashlocaltype| mathdef:: \xref{appendix/properties}{valid-localtype}{\vdash}
 .. |vdashtagtype| mathdef:: \xref{valid/types}{valid-tagtype}{\vdash}
 .. |vdashexterntype| mathdef:: \xref{valid/types}{valid-externtype}{\vdash}
 .. |vdashdeftype| mathdef:: \xref{appendix/properties}{valid-deftype}{\vdash}
@@ -1223,6 +1226,7 @@
 .. |OKtabletype| mathdef:: \xref{valid/types}{valid-tabletype}{\K{ok}}
 .. |OKmemtype| mathdef:: \xref{valid/types}{valid-memtype}{\K{ok}}
 .. |OKglobaltype| mathdef:: \xref{valid/types}{valid-globaltype}{\K{ok}}
+.. |OKlocaltype| mathdef:: \xref{appendix/properties}{valid-localtype}{\K{ok}}
 .. |OKtagtype| mathdef:: \xref{valid/types}{valid-tagtype}{\K{ok}}
 .. |OKexterntype| mathdef:: \xref{valid/types}{valid-externtype}{\K{ok}}
 .. |OKlimits| mathdef:: \xref{valid/types}{valid-limits}{\K{ok}}
@@ -1275,15 +1279,15 @@
 .. |vdashinstrs| mathdef:: \xref{valid/instructions}{valid-instrs}{\vdash}
 .. |vdashcatch| mathdef:: \xref{valid/instructions}{valid-catch}{\vdash}
 .. |vdashexpr| mathdef:: \xref{valid/instructions}{valid-expr}{\vdash}
-.. |vdashinstrconst| mathdef:: \xref{valid/instructions}{valid-const}{\vdash}
-.. |vdashexprconst| mathdef:: \xref{valid/instructions}{valid-const}{\vdash}
-.. |vdashexprokconst| mathdef:: \xref{valid/instructions}{valid-const}{\vdash}
+.. |vdashinstrconst| mathdef:: \xref{valid/instructions}{valid-constant}{\vdash}
+.. |vdashexprconst| mathdef:: \xref{valid/instructions}{valid-constant}{\vdash}
+.. |vdashexprokconst| mathdef:: \xref{valid/instructions}{valid-constant}{\vdash}
 
 .. |OKcatch| mathdef:: \xref{valid/instructions}{valid-catch}{\K{ok}}
 
-.. |CONSTinstrconst| mathdef:: \xref{valid/instructions}{valid-const}{\K{const}}
-.. |CONSTexprconst| mathdef:: \xref{valid/instructions}{valid-const}{\K{const}}
-.. |CONSTexprokconst| mathdef:: \xref{valid/instructions}{valid-const}{\K{const}}
+.. |CONSTinstrconst| mathdef:: \xref{valid/instructions}{valid-constant}{\K{const}}
+.. |CONSTexprconst| mathdef:: \xref{valid/instructions}{valid-constant}{\K{const}}
+.. |CONSTexprokconst| mathdef:: \xref{valid/instructions}{valid-constant}{\K{const}}
 
 .. |vdashexternidx| mathdef:: \xref{valid/modules}{valid-externidx}{\vdash}
 
@@ -1317,6 +1321,8 @@
 .. |shdim| mathdef:: \xref{syntax/instructions}{aux-dim}{\F{dim}}
 .. |zeroop| mathdef:: \xref{syntax/instructions}{aux-zeroop}{\F{zeroop}}
 .. |halfop| mathdef:: \xref{syntax/instructions}{aux-halfop}{\F{halfop}}
+
+.. |OKcontext| mathdef:: \xref{appendix/properties}{valid-context}{\K{ok}}
 
 
 .. Execution
@@ -1547,6 +1553,7 @@
 .. Administrative Instructions, terminals
 
 .. |REFI31NUM| mathdef:: \xref{exec/runtime}{syntax-ref}{\K{ref{.}i\scriptstyle31}}
+.. |REFNULLADDR| mathdef:: \xref{exec/runtime}{syntax-ref}{\K{ref{.}null}}
 .. |REFFUNCADDR| mathdef:: \xref{exec/runtime}{syntax-ref}{\K{ref{.}func}}
 .. |REFSTRUCTADDR| mathdef:: \xref{exec/runtime}{syntax-ref}{\K{ref{.}struct}}
 .. |REFARRAYADDR| mathdef:: \xref{exec/runtime}{syntax-ref}{\K{ref{.}array}}
@@ -1561,7 +1568,6 @@
 .. |num| mathdef:: \xref{exec/runtime}{syntax-num}{\X{num}}
 .. |vec| mathdef:: \xref{exec/runtime}{syntax-vec}{\X{vec}}
 .. |reff| mathdef:: \xref{exec/runtime}{syntax-ref}{\X{ref}}
-.. |addrref| mathdef:: \xref{exec/runtime}{syntax-addrref}{\X{addrref}}
 .. |val| mathdef:: \xref{exec/runtime}{syntax-val}{\X{val}}
 .. |result| mathdef:: \xref{exec/runtime}{syntax-result}{\X{result}}
 
@@ -1711,7 +1717,7 @@
 .. |frelaxedmin| mathdef:: \xref{exec/numerics}{op-frelaxed_min}{\F{frelaxed\_min}}
 .. |frelaxedmax| mathdef:: \xref{exec/numerics}{op-frelaxed_max}{\F{frelaxed\_max}}
 .. |irelaxedq15mulrs| mathdef:: \xref{exec/numerics}{op-irelaxed_q15mulr_s}{\F{irelaxed\_q15mulr\_s}}
-.. |irelaxeddot| mathdef:: \xref{exec/numerics}{op-irelaxed_dot}{\F{irelaxed\_dot}}
+.. |ivrelaxeddot| mathdef:: \xref{exec/numerics}{op-ivrelaxed_dot}{\F{ivrelaxed\_dot}}
 
 
 .. Numerics, meta functions

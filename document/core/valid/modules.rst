@@ -102,7 +102,7 @@ $${rule: Table_ok}
 Functions
 ~~~~~~~~~
 
-Functions ${:func} are classified by :ref:`defined types <syntax-deftype>` that :ref:`expand <aux-expand-deftype>` to :ref:`function types <syntax-functype>` of the form ${comptype: FUNC t_1* -> t_2*}.
+Functions ${:func} are classified by :ref:`exact defined types <syntax-exactdeftype>` that :ref:`expand <aux-expand-deftype>` to :ref:`function types <syntax-functype>` of the form ${comptype: FUNC t_1* -> t_2*}.
 
 $${rule-prose: Func_ok}
 
@@ -289,4 +289,4 @@ $${rule: Module_ok}
    However, this recursion is just a specification device.
    All types needed to construct ${:C} can easily be determined from a simple pre-pass over the module that does not perform any actual validation.
 
-   Globals, however, are not recursive but evaluated sequentially, such that each :ref:`constant expressions <valid-const>` only has access to imported or previously defined globals.
+   Globals, however, are not recursive but evaluated sequentially, such that each :ref:`constant expressions <valid-constant>` only has access to imported or previously defined globals.

@@ -54,7 +54,7 @@ rule Local_ok/unset:
   -- Nondefaultable: |- t NONDEFAULTABLE
 
 rule Func_ok:
-  C |- FUNC x local* expr : EXACT C.TYPES[x]
+  C |- FUNC x local* expr : _EXACT EXACT C.TYPES[x]
   -- Expand: C.TYPES[x] ~~ FUNC t_1* -> t_2*
   -- (Local_ok: C |- local : lct)*
   ----
@@ -92,7 +92,7 @@ rule Elemmode_ok/active:
 
 rule Start_ok:
   C |- START x : OK
-  -- if C.FUNCS[x] = exact? dt
+  -- if C.FUNCS[x] = _EXACT exact? dt
   -- Expand: dt ~~ FUNC eps -> eps
 
 

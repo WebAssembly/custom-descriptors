@@ -21,7 +21,7 @@ rule Heaptype_ok/abs:
   C |- absheaptype : OK
 
 rule Heaptype_ok/typeuse:
-  C |- _HT EXACT? typeuse : OK
+  C |- _EXACT EXACT? typeuse : OK
   -- Typeuse_ok: C |- typeuse : OK
 
 rule Heaptype_ok/bot:
@@ -176,9 +176,9 @@ def $before(typeuse, i) = true  -- otherwise
 
 ;; TODO(tlively): Take a typeuse instead of a heaptype here so that EXACT? is not rendered in the appendix.
 def $unrollht_(context, heaptype) : subtype
-def $unrollht_(C, _HT EXACT? deftype) = $unrolldt(deftype)
-def $unrollht_(C, _HT EXACT? _IDX typeidx) = $unrolldt(C.TYPES[typeidx])
-def $unrollht_(C, _HT EXACT? (REC i)) = C.RECS[i]
+def $unrollht_(C, _EXACT EXACT? deftype) = $unrolldt(deftype)
+def $unrollht_(C, _EXACT EXACT? _IDX typeidx) = $unrolldt(C.TYPES[typeidx])
+def $unrollht_(C, _EXACT EXACT? (REC i)) = C.RECS[i]
 
 rule Subtype_ok2:
   C |- SUB FINAL? typeuse* desctype : OK(i)
@@ -186,7 +186,7 @@ rule Subtype_ok2:
   -- (Typeuse_ok: C |- typeuse : OK)*
   -- (if $before(typeuse, i))*
   ----
-  -- (if $unrollht_(C, _HT typeuse) = SUB typeuse'* desctype')*
+  -- (if $unrollht_(C, _EXACT typeuse) = SUB typeuse'* desctype')*
   ----
   -- Desctype_ok: C |- desctype : OK
   -- (Desctype_sub: C |- desctype <: desctype')*
@@ -268,6 +268,6 @@ rule Externtype_ok/table:
   -- Tabletype_ok: C |- tabletype : OK
 
 rule Externtype_ok/func:
-  C |- FUNC exact? typeuse : OK
+  C |- FUNC _EXACT exact? typeuse : OK
   -- Typeuse_ok: C |- typeuse : OK
   -- Expand_use: typeuse ~~_C $($(FUNC t_1* -> t_2*))

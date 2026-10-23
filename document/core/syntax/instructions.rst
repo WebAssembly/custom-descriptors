@@ -263,7 +263,7 @@ The instruction ${:REF.CAST_DESC_EQ} performs a similar downcast but checks the 
 
 .. note::
    The ${:BR_ON_NULL} and ${:BR_ON_NON_NULL} instructions provide versions of ${:REF.AS_NON_NULL} that branch depending on the success or failure of a null test instead of trapping.
-   Similarly, the ${:BR_ON_CAST} and ${:BR_ON_CAST_FAIL} instructions provides versions of ${:REF.CAST} that branch depending on the success of the downcast instead of trapping,
+   Similarly, the ${:BR_ON_CAST} and ${:BR_ON_CAST_FAIL} instructions provide versions of ${:REF.CAST} that branch depending on the success of the downcast instead of trapping,
    and ${:BR_ON_CAST_DESC_EQ} and ${:BR_ON_CAST_DESC_EQ_FAIL} provide branching versions of ${:REF.CAST_DESC_EQ}.
 
    An additional instruction operating on function references is the :ref:`control instruction <syntax-instr-control>` ${:CALL_REF}.

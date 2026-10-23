@@ -1652,6 +1652,25 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 \qquad
 \end{array}\]</div>
 </section>
+<section id="xref-syntax-instructions-syntax-instr-ref-mathsf-ref-get-desc-x">
+<span id="valid-ref-get-desc"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}get\_desc}}~x\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-ref-mathsf-ref-get-desc-x" title="Link to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="../syntax/instructions.html#syntax-instr"><span class="std std-ref">instruction</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}get\_desc}}~x)\)</span> is <a class="reference internal" href="#valid-instr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~({\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}^?}~x))~\rightarrow~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~({\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}^?}~y))\)</span> if:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> exists.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype-to-desctype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> is <span class="math notranslate nohighlight">\(({{\href{../syntax/types.html#syntax-desctype}{\mathit{describestype}}}^?}~(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~y)~{\mathit{ct}})\)</span>.</p></li>
+</ul>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[\begin{array}{&#64;{}c&#64;{}}\displaystyle
+\frac{
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype-to-desctype}{\sim}} {{\href{../syntax/types.html#syntax-desctype}{\mathit{describestype}}}^?}~(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~y)~{\mathit{ct}}
+}{
+C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}get\_desc}}~x : (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~({\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}^?}~x)) \rightarrow (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~({\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}^?}~y))
+}
+\qquad
+\end{array}\]</div>
+</section>
 <section id="xref-syntax-instructions-syntax-instr-ref-mathsf-ref-test-mathit-rt">
 <span id="valid-ref-test"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}test}}~\mathit{rt}\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-ref-mathsf-ref-test-mathit-rt" title="Link to this heading">¶</a></h3>
 <p>The <a class="reference internal" href="../syntax/instructions.html#syntax-instr"><span class="std std-ref">instruction</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}test}}~{\mathit{rt}})\)</span> is <a class="reference internal" href="#valid-instr"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="conventions.html#syntax-instrtype"><span class="std std-ref">instruction type</span></a> <span class="math notranslate nohighlight">\({\mathit{rt}'}~\rightarrow~\href{../syntax/types.html#syntax-numtype}{\mathsf{i\scriptstyle32}}\)</span> if:</p>

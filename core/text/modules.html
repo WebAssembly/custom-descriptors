@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Modules &#8212; WebAssembly 3.0 + Custom Descriptors (2026-10-14)</title>
+    <title>Modules &#8212; WebAssembly 3.0 + Custom Descriptors (2026-10-23)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=54dd679e"></script>
+    <script src="../_static/documentation_options.js?v=edccd27e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}, "options": {"menuOptions": {"settings": {"enrich": false}}}}</script>
@@ -388,6 +388,12 @@ Consequently, a table declaration can contain any number of exports, possibly fo
 &amp;&amp;&amp; \multicolumn{4}{&#64;{}l&#64;{}}{\quad
 \begin{array}[t]{&#64;{}l&#64;{}}
 \mbox{‘\texttt{{(}}’}~~\mbox{‘\texttt{import}’}~~{{\href{../text/values.html#text-name}{\mathtt{name}}}^{2}}~~\mbox{‘\texttt{{(}}’}~~\mbox{‘\texttt{func}’}~~{{\href{../text/values.html#text-id}{\mathtt{id}}}^?}~~{{\href{../text/types.html#text-typeuse}{\mathtt{typeuse}}}}_{{\href{../text/conventions.html#text-context}{I}}}~~\mbox{‘\texttt{{)}}’}~~\mbox{‘\texttt{{)}}’} \\
+\end{array}
+} \\
+&amp; &amp; | &amp; \mbox{‘\texttt{{(}}’}~~\mbox{‘\texttt{func}’}~~{{\href{../text/values.html#text-id}{\mathtt{id}}}^?}~~\mbox{‘\texttt{{(}}’}~~\mbox{‘\texttt{import}’}~~{{\href{../text/values.html#text-name}{\mathtt{name}}}^{2}}~~\mbox{‘\texttt{{)}}’}~~\mbox{‘\texttt{{(}}’}~~\mbox{‘\texttt{exact}’}~~{{\href{../text/types.html#text-typeuse}{\mathtt{typeuse}}}}_{{\href{../text/conventions.html#text-context}{I}}}~~\mbox{‘\texttt{{)}}’}~~\mbox{‘\texttt{{)}}’} &amp; \quad\equiv\quad{} &amp; &amp; \\
+&amp;&amp;&amp; \multicolumn{4}{&#64;{}l&#64;{}}{\quad
+\begin{array}[t]{&#64;{}l&#64;{}}
+\mbox{‘\texttt{{(}}’}~~\mbox{‘\texttt{import}’}~~{{\href{../text/values.html#text-name}{\mathtt{name}}}^{2}}~~\mbox{‘\texttt{{(}}’}~~\mbox{‘\texttt{func}’}~~{{\href{../text/values.html#text-id}{\mathtt{id}}}^?}~~\mbox{‘\texttt{{(}}’}~~\mbox{‘\texttt{exact}’}~~{{\href{../text/types.html#text-typeuse}{\mathtt{typeuse}}}}_{{\href{../text/conventions.html#text-context}{I}}}~~\mbox{‘\texttt{{)}}’}~~\mbox{‘\texttt{{)}}’}~~\mbox{‘\texttt{{)}}’} \\
 \end{array}
 } \\[0.8ex]
 &amp; {{\href{../text/modules.html#text-export}{\mathtt{export}}}}_{{\href{../text/conventions.html#text-context}{I}}} &amp; ::= &amp; \mbox{‘\texttt{{(}}’}~~\mbox{‘\texttt{func}’}~~{{\mathit{id}}^?}{:}{{\href{../text/values.html#text-id}{\mathtt{id}}}^?}~~\mbox{‘\texttt{{(}}’}~~\mbox{‘\texttt{export}’}~~{\href{../text/values.html#text-name}{\mathtt{name}}}~~\mbox{‘\texttt{{)}}’}~~\dots~~\mbox{‘\texttt{{)}}’} &amp; \quad\equiv\quad{} &amp; &amp; \\

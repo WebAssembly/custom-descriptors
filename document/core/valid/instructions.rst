@@ -803,6 +803,16 @@ $${rule-prose: Instr_ok/ref.eq}
 $${rule: Instr_ok/ref.eq}
 
 
+.. _valid-ref.get_desc:
+
+:math:`\REFGETDESC~x`
+.....................
+
+$${rule-prose: Instr_ok/ref.get_desc}
+
+$${rule: Instr_ok/ref.get_desc}
+
+
 .. _valid-ref.test:
 
 :math:`\REFTEST~\X{rt}`

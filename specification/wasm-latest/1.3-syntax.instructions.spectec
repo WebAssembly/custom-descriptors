@@ -519,6 +519,7 @@ def $free_instr(REF.NULL heaptype) = $free_heaptype(heaptype)
 def $free_instr(REF.IS_NULL) = {}
 def $free_instr(REF.AS_NON_NULL) = {}
 def $free_instr(REF.EQ) = {}
+def $free_instr(REF.GET_DESC typeidx) = $free_typeidx(typeidx)
 def $free_instr(REF.TEST reftype) = $free_reftype(reftype)
 def $free_instr(REF.CAST reftype) = $free_reftype(reftype)
 def $free_instr(REF.CAST_DESC_EQ reftype) = $free_reftype(reftype)

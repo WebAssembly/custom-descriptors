@@ -32,15 +32,18 @@ Category                                  Constructor                           
 (reserved)                                                                                       :math:`\hex{68}` .. :math:`\hex{65}`
 :ref:`Reference type <syntax-reftype>`    |REF|                                                  :math:`\hex{64}` (-28 as |Bs7|)
 :ref:`Reference type <syntax-reftype>`    |REF| |NULL|                                           :math:`\hex{63}` (-29 as |Bs7|)
-(reserved)                                                                                       :math:`\hex{62}` .. :math:`\hex{61}`
+:ref:`Heap type <syntax-heaptype>`        :math:`\EXACT~\typeidx`                                :math:`\hex{62}` (-30 as |Bs7|)
+(reserved)                                                                                       :math:`\hex{61}`
 :ref:`Composite type <syntax-comptype>`   :math:`\TFUNC~[\valtype^\ast] \Tarrow[\valtype^\ast]`  :math:`\hex{60}` (-32 as |Bs7|)
 :ref:`Composite type <syntax-comptype>`   :math:`\TSTRUCT~\fieldtype^\ast`                       :math:`\hex{5F}` (-33 as |Bs7|)
 :ref:`Composite type <syntax-comptype>`   :math:`\TARRAY~\fieldtype`                             :math:`\hex{5E}` (-34 as |Bs7|)
 (reserved)                                                                                       :math:`\hex{5D}` .. :math:`\hex{51}`
-:ref:`Sub type <syntax-subtype>`          :math:`\TSUB~\typeidx^\ast~\comptype`                  :math:`\hex{50}` (-48 as |Bs7|)
-:ref:`Sub type <syntax-subtype>`          :math:`\TSUB~\TFINAL~\typeidx^\ast~\comptype`          :math:`\hex{4F}` (-49 as |Bs7|)
+:ref:`Sub type <syntax-subtype>`          :math:`\TSUB~\typeidx^\ast~\desctype`                  :math:`\hex{50}` (-48 as |Bs7|)
+:ref:`Sub type <syntax-subtype>`          :math:`\TSUB~\TFINAL~\typeidx^\ast~\desctype`          :math:`\hex{4F}` (-49 as |Bs7|)
 :ref:`Recursive type <syntax-rectype>`    :math:`\TREC~\subtype^\ast`                            :math:`\hex{4E}` (-50 as |Bs7|)
-(reserved)                                                                                       :math:`\hex{4D}` .. :math:`\hex{41}`
+:ref:`Descriptor type <syntax-desctype>`  :math:`\TDESCRIPTOR~\typeidx`                          :math:`\hex{4D}` (-51 as |Bs7|)
+:ref:`Descriptor type <syntax-desctype>`  :math:`\TDESCRIBES~\typeidx`                           :math:`\hex{4C}` (-52 as |Bs7|)
+(reserved)                                                                                       :math:`\hex{4B}` .. :math:`\hex{41}`
 :ref:`Result type <syntax-resulttype>`    :math:`[\epsilon]`                                     :math:`\hex{40}` (-64 as |Bs7|)
 :ref:`Tag type <syntax-tagtype>`          :math:`\typeuse`                                       (none)
 :ref:`Global type <syntax-globaltype>`    :math:`\mut~\valtype`                                  (none)

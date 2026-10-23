@@ -52,7 +52,7 @@ Construct                                        Judgement
 :ref:`Global <valid-global>`                     :math:`C \vdashglobal \global : \globaltype`
 :ref:`Memory <valid-mem>`                        :math:`C \vdashmem \mem : \memtype`
 :ref:`Table <valid-table>`                       :math:`C \vdashtable \table : \tabletype`
-:ref:`Function <valid-func>`                     :math:`C \vdashfunc \func : \deftype`
+:ref:`Function <valid-func>`                     :math:`C \vdashfunc \func : \exactdeftype`
 :ref:`Local <valid-local>`                       :math:`C \vdashlocal \local : \localtype`
 :ref:`Element segment <valid-elem>`              :math:`C \vdashelem \elem : \reftype`
 :ref:`Element mode <valid-elemmode>`             :math:`C \vdashelemmode \elemmode : \reftype`

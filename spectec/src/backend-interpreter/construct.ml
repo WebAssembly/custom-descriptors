@@ -1864,8 +1864,8 @@ let rec al_of_instr instr =
   | RefEq -> nullary "REF.EQ"
   | RefI31 -> nullary "REF.I31"
   | I31Get sx -> CaseV ("I31.GET", [ al_of_sx sx ])
-  | StructNew (idx, Explicit, _) -> CaseV ("STRUCT.NEW", [ al_of_idx idx ]) (* TODO: descriptors *)
-  | StructNew (idx, Implicit, _) -> CaseV ("STRUCT.NEW_DEFAULT", [ al_of_idx idx ]) (* TODO: descriptors *)
+  | StructNew (idx, Explicit, _) -> CaseV ("STRUCT.NEW", [ al_of_idx idx ]) (* TODO(tlively): descriptors *)
+  | StructNew (idx, Implicit, _) -> CaseV ("STRUCT.NEW_DEFAULT", [ al_of_idx idx ]) (* TODO(tlively): descriptors *)
   | StructGet (idx1, idx2, sx_opt) ->
     CaseV ("STRUCT.GET", [
       al_of_opt al_of_sx sx_opt;

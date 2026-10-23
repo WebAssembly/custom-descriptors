@@ -182,6 +182,55 @@ $$
 \vspace{1ex}
 
 $$
+\begin{array}[t]{@{}lrrl@{}l@{}}
+& {\mathit{implopt}} & ::= & \mathsf{exact} \\
+& {\mathit{implinner}} & ::= & \mathbb{N} ~~|~~ \mathsf{rec}~\mathbb{N} \\
+& {\mathit{implmid}} & ::= & {{\mathit{implopt}}^?}~{\mathit{implinner}} \\
+& {\mathit{implouter}} & ::= & \mathsf{abs} ~~|~~ {\mathit{implmid}} \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathrm{testimplrhs{\kern-0.1em\scriptstyle 1}}}(0) & = & \mathsf{abs} \\
+{\mathrm{testimplrhs{\kern-0.1em\scriptstyle 1}}}(1) & = & 0 \\
+{\mathrm{testimplrhs{\kern-0.1em\scriptstyle 1}}}(2) & = & \mathsf{rec}~0 \\
+{\mathrm{testimplrhs{\kern-0.1em\scriptstyle 1}}}(3) & = & \mathsf{exact}~0 \\
+{\mathrm{testimplrhs{\kern-0.1em\scriptstyle 1}}}(4) & = & \mathsf{exact}~\mathsf{rec}~0 \\
+{\mathrm{testimplrhs{\kern-0.1em\scriptstyle 1}}}(5) & = & 0 \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathrm{testimplrhs{\kern-0.1em\scriptstyle 2}}}({{\mathit{implopt}}^?}, {\mathit{ii}}, {\mathit{im}}) & = & {}[{\mathit{ii}}~(\mathsf{exact}~{\mathit{ii}})~({{\mathit{implopt}}^?}~{\mathit{ii}})~{\mathit{im}}] \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathrm{testimpllhs{\kern-0.1em\scriptstyle 1}}}(\mathsf{abs}) & = & 0 \\
+{\mathrm{testimpllhs{\kern-0.1em\scriptstyle 1}}}(\mathsf{exact}~n) & = & n \\
+{\mathrm{testimpllhs{\kern-0.1em\scriptstyle 1}}}(\epsilon~n) & = & n \\
+{\mathrm{testimpllhs{\kern-0.1em\scriptstyle 1}}}({{\mathit{implopt}}^?}~\mathsf{rec}~n) & = & n \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathrm{testimpllhs{\kern-0.1em\scriptstyle 2}}}({{\mathit{implopt}}^?}~{\mathit{ii}}) & = & 0 \\
+\end{array}
+$$
+
+$$
+\begin{array}[t]{@{}lcl@{}l@{}}
+{\mathrm{testimpllhs{\kern-0.1em\scriptstyle 3}}}({\mathit{im}}) & = & 0 \\
+\end{array}
+$$
+
+\vspace{1ex}
+
+$$
 \begin{array}[t]{@{}lcl@{}l@{}}
 {\mathrm{fnest}}({({n^{i<k}})^{j}}) & = & {l^{j}} & \quad \mbox{if}~ (l = {|{n^{k}}|})^{j} \\
 \end{array}
@@ -471,6 +520,111 @@ $$
 \end{array}
 $$
 
+```
+
+
+# Negative Tests
+
+```sh
+$ (trap 'rm -f neg.spectec' EXIT; printf 'syntax exact = EXACT\nsyntax typeuse = | _IDX nat | REC nat\nsyntax exacttypeuse = exact? typeuse\nsyntax heaptype = | ANY | _HT exacttypeuse\nvar tu : typeuse\ndef $f(heaptype) : nat\ndef $f(tu) = 0\n' > neg.spectec && ../src/exe-spectec/main.exe neg.spectec)
+neg.spectec:7.8-7.10: type error: cannot parse expression as `heaptype`, because
+  - 7.8-7.10: expression's type `typeuse` does not match type `heaptype`
+  - 7.8-7.10: expression's type `typeuse` does not match type `heaptype`, type error: unknown case `_IDX` in type `heaptype`
+  - 7.8-7.10: cannot parse expression as `exacttypeuse`, because
+    - 7.8-7.10: expression's type `typeuse` does not match type `exacttypeuse`
+    - 7.8-7.10: expression's type `typeuse` does not match type `exacttypeuse`, type error: unknown case `_IDX` in type `exacttypeuse`
+    - 7.8-7.10: expression's type `typeuse` does not match type `exacttypeuse`
+[1]
+$ (trap 'rm -f neg.spectec' EXIT; printf 'syntax exact = EXACT\nsyntax typeuse = | _IDX nat | REC nat\nsyntax exacttypeuse = exact? typeuse\nsyntax heaptype = | ANY | _HT exacttypeuse\ndef $f(heaptype) : nat\ndef $f(_IDX 0) = 0\n' > neg.spectec && ../src/exe-spectec/main.exe neg.spectec)
+neg.spectec:6.8-6.14: type error: cannot parse expression as `heaptype`, because
+  - 6.8-6.12: type error: unknown case `_IDX` in type `heaptype`
+  - 6.8-6.12: cannot parse expression as `exacttypeuse`, because
+    - 6.8-6.12: cannot parse expression as `exacttypeuse`, because
+      - 6.8-6.12: cannot parse expression as `exact?`, because
+        - 6.8-6.12: cannot parse expression as `exact`, because
+          - 6.8-6.12: cannot parse expression as `exact`, because
+            - 6.8-6.12: atom does not match notation EXACT
+          - 6.8-6.12: cannot parse expression as `exact`, because
+            - 6.8-6.12: atom does not match notation EXACT
+        - 6.8-6.12: atom does not match type `exact?`
+    - 6.8-6.12: cannot parse expression as `exacttypeuse`, because
+      - 6.8-6.12: cannot parse expression as `exact?`, because
+        - 6.8-6.12: cannot parse expression as `exact`, because
+          - 6.8-6.12: cannot parse expression as `exact`, because
+            - 6.8-6.12: atom does not match notation EXACT
+          - 6.8-6.12: cannot parse expression as `exact`, because
+            - 6.8-6.12: atom does not match notation EXACT
+        - 6.8-6.12: atom does not match type `exact?`
+  - 6.8-6.14: cannot parse expression as `exacttypeuse`, because
+    - 6.8-6.14: cannot parse expression as `exacttypeuse`, because
+      - 6.8-6.12: cannot parse expression as `exact?`, because
+        - 6.8-6.12: cannot parse expression as `exact`, because
+          - 6.8-6.12: cannot parse expression as `exact`, because
+            - 6.8-6.12: atom does not match notation EXACT
+          - 6.8-6.12: cannot parse expression as `exact`, because
+            - 6.8-6.12: atom does not match notation EXACT
+        - 6.8-6.12: atom does not match type `exact?`
+    - 6.8-6.14: cannot parse expression as `exacttypeuse`, because
+      - 6.8-6.12: cannot parse expression as `exact?`, because
+        - 6.8-6.12: cannot parse expression as `exact`, because
+          - 6.8-6.12: cannot parse expression as `exact`, because
+            - 6.8-6.12: atom does not match notation EXACT
+          - 6.8-6.12: cannot parse expression as `exact`, because
+            - 6.8-6.12: atom does not match notation EXACT
+        - 6.8-6.12: atom does not match type `exact?`
+[1]
+$ (trap 'rm -f neg.spectec' EXIT; printf 'syntax exact = EXACT\nsyntax typeuse = | _IDX nat | REC nat\nsyntax exacttypeuse = exact? typeuse\nsyntax heaptype = | ANY | _HT exacttypeuse\ndef $f(heaptype) : nat\ndef $f(REC 0) = 0\n' > neg.spectec && ../src/exe-spectec/main.exe neg.spectec)
+neg.spectec:6.8-6.13: type error: cannot parse expression as `heaptype`, because
+  - 6.8-6.11: type error: unknown case `REC` in type `heaptype`
+  - 6.8-6.11: cannot parse expression as `exacttypeuse`, because
+    - 6.8-6.11: cannot parse expression as `exacttypeuse`, because
+      - 6.8-6.11: cannot parse expression as `exact?`, because
+        - 6.8-6.11: cannot parse expression as `exact`, because
+          - 6.8-6.11: cannot parse expression as `exact`, because
+            - 6.8-6.11: atom does not match notation EXACT
+          - 6.8-6.11: cannot parse expression as `exact`, because
+            - 6.8-6.11: atom does not match notation EXACT
+        - 6.8-6.11: atom does not match type `exact?`
+    - 6.8-6.11: cannot parse expression as `exacttypeuse`, because
+      - 6.8-6.11: cannot parse expression as `exact?`, because
+        - 6.8-6.11: cannot parse expression as `exact`, because
+          - 6.8-6.11: cannot parse expression as `exact`, because
+            - 6.8-6.11: atom does not match notation EXACT
+          - 6.8-6.11: cannot parse expression as `exact`, because
+            - 6.8-6.11: atom does not match notation EXACT
+        - 6.8-6.11: atom does not match type `exact?`
+  - 6.8-6.13: cannot parse expression as `exacttypeuse`, because
+    - 6.8-6.13: cannot parse expression as `exacttypeuse`, because
+      - 6.8-6.11: cannot parse expression as `exact?`, because
+        - 6.8-6.11: cannot parse expression as `exact`, because
+          - 6.8-6.11: cannot parse expression as `exact`, because
+            - 6.8-6.11: atom does not match notation EXACT
+          - 6.8-6.11: cannot parse expression as `exact`, because
+            - 6.8-6.11: atom does not match notation EXACT
+        - 6.8-6.11: atom does not match type `exact?`
+    - 6.8-6.13: cannot parse expression as `exacttypeuse`, because
+      - 6.8-6.11: cannot parse expression as `exact?`, because
+        - 6.8-6.11: cannot parse expression as `exact`, because
+          - 6.8-6.11: cannot parse expression as `exact`, because
+            - 6.8-6.11: atom does not match notation EXACT
+          - 6.8-6.11: cannot parse expression as `exact`, because
+            - 6.8-6.11: atom does not match notation EXACT
+        - 6.8-6.11: atom does not match type `exact?`
+[1]
+$ (trap 'rm -f neg.spectec' EXIT; printf 'syntax ambig = | _A nat | _B nat\ndef $f(nat) : ambig\ndef $f(n) = n\n' > neg.spectec && ../src/exe-spectec/main.exe neg.spectec)
+neg.spectec:3.13-3.14: type error: ambiguous coercion from `nat` to `ambig`
+[1]
+$ (trap 'rm -f neg.spectec' EXIT; printf 'syntax opt1 = O1?\nsyntax opt2 = O2?\nsyntax inner = | IN nat\nsyntax case1 = opt1 inner\nsyntax case2 = opt2 inner\nsyntax ambig = | _A case1 | _B case2\ndef $f(nat) : ambig\ndef $f(n) = IN n\n' > neg.spectec && ../src/exe-spectec/main.exe neg.spectec)
+neg.spectec:8.13-8.17: type error: cannot parse expression as `ambig`, because
+  - 8.13-8.15: type error: unknown case `IN` in type `ambig`
+  - 8.13-8.17: ambiguous variant case for type `ambig`
+[1]
+$ (trap 'rm -f neg.spectec' EXIT; printf 'syntax ambig = nat? nat?\ndef $f(nat) : ambig\ndef $f(n) = n\n' > neg.spectec && ../src/exe-spectec/main.exe neg.spectec)
+neg.spectec:3.13-3.14: type error: cannot parse expression as `ambig`, because
+  - 3.13-3.14: ambiguous coercion from `nat` to `ambig`
+  - 3.13-3.14: cannot parse expression as `ambig`, because
+    - 3.13-3.14: ambiguous notation for type `ambig`
+[1]
 ```
 
 
@@ -1669,9 +1823,9 @@ def $subst_typeuse(typeuse : typeuse, typevar*, typeuse*) : typeuse
 
 ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:356.1-356.112
 def $subst_heaptype(heaptype : heaptype, typevar*, typeuse*) : heaptype
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:392.1-392.89
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:392.1-392.81
   def $subst_heaptype{`exact?` : exact?, tv' : typevar, `tv*` : typevar*, `tu*` : typeuse*}(_HT_heaptype(`%%`_exacttypeuse(exact?{exact <- `exact?`}, (tv' : typevar <: typeuse))), tv*{tv <- `tv*`}, tu*{tu <- `tu*`}) = _HT_heaptype(`%%`_exacttypeuse(exact?{exact <- `exact?`}, $subst_typevar(tv', tv*{tv <- `tv*`}, tu*{tu <- `tu*`})))
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:393.1-393.87
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:393.1-393.79
   def $subst_heaptype{`exact?` : exact?, dt : deftype, `tv*` : typevar*, `tu*` : typeuse*}(_HT_heaptype(`%%`_exacttypeuse(exact?{exact <- `exact?`}, (dt : deftype <: typeuse))), tv*{tv <- `tv*`}, tu*{tu <- `tu*`}) = _HT_heaptype(`%%`_exacttypeuse(exact?{exact <- `exact?`}, ($subst_deftype(dt, tv*{tv <- `tv*`}, tu*{tu <- `tu*`}) : deftype <: typeuse)))
   ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:394.1-394.53
   def $subst_heaptype{ht : heaptype, `tv*` : typevar*, `tu*` : typeuse*}(ht, tv*{tv <- `tv*`}, tu*{tu <- `tu*`}) = ht
@@ -1922,7 +2076,7 @@ rec {
 def $free_heaptype(heaptype : heaptype) : free
   ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:554.1-554.65
   def $free_heaptype{absheaptype : absheaptype}((absheaptype : absheaptype <: heaptype)) = $free_absheaptype(absheaptype)
-  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:555.1-555.64
+  ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:555.1-555.60
   def $free_heaptype{typeuse : typeuse}(_HT_heaptype(`%%`_exacttypeuse(EXACT_exact?{}, typeuse))) = $free_typeuse(typeuse)
 
 ;; ../../../../specification/wasm-latest/1.2-syntax.types.spectec:504.1-504.34
@@ -3475,7 +3629,7 @@ relation Deftype_sub: `%|-%<:%`(context, deftype, deftype)
     `%|-%<:%`(C, deftype_1, deftype_2)
     -- if ($clos_deftype(C, deftype_1) = $clos_deftype(C, deftype_2))
 
-  ;; ../../../../specification/wasm-latest/2.2-validation.subtyping.spectec:213.1-216.57
+  ;; ../../../../specification/wasm-latest/2.2-validation.subtyping.spectec:213.1-216.49
   rule super{C : context, deftype_1 : deftype, deftype_2 : deftype, `final?` : final?, `typeuse*` : typeuse*, desctype : desctype, i : nat}:
     `%|-%<:%`(C, deftype_1, deftype_2)
     -- if ($unrolldt(deftype_1) = SUB_subtype(final?{final <- `final?`}, typeuse*{typeuse <- `typeuse*`}, desctype))
@@ -3487,7 +3641,7 @@ relation Heaptype_sub: `%|-%<:%`(context, heaptype, heaptype)
   rule refl{C : context, heaptype : heaptype}:
     `%|-%<:%`(C, heaptype, heaptype)
 
-  ;; ../../../../specification/wasm-latest/2.2-validation.subtyping.spectec:23.1-25.48
+  ;; ../../../../specification/wasm-latest/2.2-validation.subtyping.spectec:23.1-25.44
   rule `exact-l`{C : context, typeuse : typeuse, heaptype : heaptype}:
     `%|-%<:%`(C, _HT_heaptype(`%%`_exacttypeuse(?(EXACT_exact), typeuse)), heaptype)
     -- Heaptype_sub: `%|-%<:%`(C, _HT_heaptype(`%%`_exacttypeuse(?(), typeuse)), heaptype)
@@ -3535,12 +3689,12 @@ relation Heaptype_sub: `%|-%<:%`(context, heaptype, heaptype)
     `%|-%<:%`(C, _HT_heaptype(`%%`_exacttypeuse(?(), (deftype_1 : deftype <: typeuse))), _HT_heaptype(`%%`_exacttypeuse(?(), (deftype_2 : deftype <: typeuse))))
     -- Deftype_sub: `%|-%<:%`(C, deftype_1, deftype_2)
 
-  ;; ../../../../specification/wasm-latest/2.2-validation.subtyping.spectec:61.1-63.57
+  ;; ../../../../specification/wasm-latest/2.2-validation.subtyping.spectec:61.1-63.53
   rule `typeidx-l`{C : context, typeidx : typeidx, heaptype : heaptype}:
     `%|-%<:%`(C, _HT_heaptype(`%%`_exacttypeuse(?(), _IDX_typeuse(typeidx))), heaptype)
     -- Heaptype_sub: `%|-%<:%`(C, _HT_heaptype(`%%`_exacttypeuse(?(), (C.TYPES_context[typeidx!`%`_typeidx.0] : deftype <: typeuse))), heaptype)
 
-  ;; ../../../../specification/wasm-latest/2.2-validation.subtyping.spectec:65.1-67.57
+  ;; ../../../../specification/wasm-latest/2.2-validation.subtyping.spectec:65.1-67.53
   rule `typeidx-r`{C : context, heaptype : heaptype, typeidx : typeidx}:
     `%|-%<:%`(C, heaptype, _HT_heaptype(`%%`_exacttypeuse(?(), _IDX_typeuse(typeidx))))
     -- Heaptype_sub: `%|-%<:%`(C, heaptype, _HT_heaptype(`%%`_exacttypeuse(?(), (C.TYPES_context[typeidx!`%`_typeidx.0] : deftype <: typeuse))))

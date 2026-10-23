@@ -97,6 +97,7 @@ type env =
     mutable grams : gram_typ env';
     mutable atoms : atom env';    (* implicit single-atom type defs *)
     mutable pm : bool;            (* +- or -+ encountered *)
+    mutable implicit_lhs : bool;  (* inside implicit constructor on lhs *)
   }
 
 let new_env () =
@@ -122,6 +123,7 @@ let new_env () =
     grams = Map.empty;
     atoms = Map.empty;
     pm = false;
+    implicit_lhs = false;
   }
 
 let local_env env =
@@ -418,6 +420,21 @@ let iter_attempt f xs =
 let fail at msg = Fail [Trace (at, msg, [])]
 let fail_silent = Fail []
 
+let unique_choice at msg env fs =
+  let rec loop oks traces = function
+    | [] ->
+      (match List.rev oks with
+      | [] -> Fail traces
+      | [(x, env')] -> promote_env env' env; Ok x
+      | _ -> fail at msg
+      )
+    | f::fs' ->
+      let env' = local_env env in
+      match f env' with
+      | Ok x -> loop ((x, env')::oks) traces fs'
+      | Fail traces1 -> loop oks (traces @ traces1) fs'
+  in loop [] [] fs
+
 let fail_atom at atom t msg =
   fail at (msg ^ " `" ^ string_of_atom atom ^ "` in type `" ^ Il.string_of_typ t ^ "`")
 
@@ -541,6 +558,19 @@ let expand_id env t =
   match expand env t with
   | Il.VarT (id, _) -> id
   | _ -> "" $ no_region
+
+let strip_implicit_mixop (mixop : Il.mixop) : Il.mixop option =
+  let is_arg = function Mixop.Arg () -> true | _ -> false in
+  match mixop with
+  | Mixop.Arg () -> Some mixop
+  | Mixop.Seq (Mixop.Atom {it = Atom.Atom s; _} :: mixops)
+    when s <> "_" && s.[0] = '_' && mixops <> [] && List.for_all is_arg mixops ->
+    Some (Mixop.Seq mixops)
+  | Mixop.Seq mixops when mixops <> [] && List.for_all is_arg mixops ->
+    Some mixop
+  | _ -> None
+
+let is_implicit_mixop mixop = Option.is_some (strip_implicit_mixop mixop)
 
 
 let as_nat_typ_opt env t : unit option =
@@ -1663,6 +1693,7 @@ and elab_exp_notation' ?(side = `Rhs) env tid (e : exp) not : (Il.exp list * Il.
 
   (* Trailing elements can be omitted if they can be eps *)
   | SeqE [], Seq ((Arg (x1, t1))::nots2) ->
+    if env.implicit_lhs then fail_silent else
     let* e1' = cast_empty "omitted sequence tail" env t1 e.at in
     let s1 = Il.Subst.add_varid Il.Subst.empty x1 e1' in
     let not2 = Mixop.Seq nots2 in
@@ -1701,6 +1732,7 @@ and elab_exp_notation_iter' ?(side = `Rhs) env tid (es : exp list) (t1, iter) x 
   | [], Il.Opt ->
     (* Empty option *)
     assert (eo' = None);
+    if env.implicit_lhs then fail_silent else
     let e0' = Il.OptE None $$ at % t in
     let s0 = Il.Subst.add_varid Il.Subst.empty x e0' in
     let not = Mixop.Seq nots in
@@ -1710,9 +1742,10 @@ and elab_exp_notation_iter' ?(side = `Rhs) env tid (es : exp list) (t1, iter) x 
 
   | e1::es2, Il.Opt ->
     assert (eo' = None);
-    choice env [
+    unique_choice at ("ambiguous notation for type `" ^ tid.it ^ "`") env [
       (fun env ->
         (* Try parsing as empty option *)
+        if env.implicit_lhs || e1.it = EpsE then fail_silent else
         let e0' = Il.OptE None $$ Source.before_region e1.at % t in
         let s0 = Il.Subst.add_varid Il.Subst.empty x e0' in
         let not = Mixop.Seq nots in
@@ -1734,6 +1767,7 @@ and elab_exp_notation_iter' ?(side = `Rhs) env tid (es : exp list) (t1, iter) x 
 
   | [], Il.List ->
     (* Empty list *)
+    if env.implicit_lhs && eo' = None then fail_silent else
     let e' =
       match eo' with
       | Some e0' -> e0'
@@ -1749,6 +1783,7 @@ and elab_exp_notation_iter' ?(side = `Rhs) env tid (es : exp list) (t1, iter) x 
     choice env [
       (fun env ->
         (* Try parsing as empty list *)
+        if env.implicit_lhs && eo' = None then fail_silent else
         let e' =
           match eo' with
           | Some e0' -> e0'
@@ -1807,23 +1842,51 @@ and elab_exp_variant ?(side = `Rhs) env tid (e : exp) (tcs : Il.typcase list) t 
       (match head e1 with Ok _ as ok -> ok | _ -> head (SeqE es $ e.at))
     | _ -> fail_typ env at "expression" t
   in
-  let* atom = head e in
-  let* mixop, (tC, _, _), _ = attempt (find_case_atom tcs atom atom.at) t in
-  let* xts =
-    if is_unboxed_case_typ tC then
-      Ok [("_" $ tC.at, tC)]
-    else
-      as_tup_typ "tuple" env Check tC e.at
+  let elab_case env mixop tC not =
+    let* es', _s = elab_exp_notation' ~side env tid e not in
+    let e' =
+      match es' with
+      | [e'] when is_unboxed_case_typ tC -> e'
+      | _ -> Il.TupE es' $$ e.at % tC
+    in
+    let ch' = if side = `Lhs then Il.Checked else Il.Unchecked in
+    Ok (Il.CaseE (mixop, e', ch') $$ at % t)
   in
-  let not = Mixop.apply mixop xts in
-  let* es', _s = elab_exp_notation' ~side env tid e not in
-  let e' =
-    match es' with
-    | [e'] when is_unboxed_case_typ tC -> e'
-    | _ -> Il.TupE es' $$ e.at % tC
-  in
-  let ch' = if side = `Lhs then Il.Checked else Il.Unchecked in
-  Ok (Il.CaseE (mixop, e', ch') $$ at % t)
+  choice env [
+    (fun env ->
+      env.implicit_lhs <- false;
+      let* atom = head e in
+      let* mixop, (tC, _, _), _ = attempt (find_case_atom tcs atom atom.at) t in
+      let* xts =
+        if is_unboxed_case_typ tC then
+          Ok [("_" $ tC.at, tC)]
+        else
+          as_tup_typ "tuple" env Check tC e.at
+      in
+      elab_case env mixop tC (Mixop.apply mixop xts)
+    );
+    (fun env ->
+      if side = `Lhs then env.implicit_lhs <- true;
+      let implicit_cases =
+        List.filter_map (fun (mixop, (tC, _, _), _) ->
+          match strip_implicit_mixop mixop with
+          | Some mixop' ->
+            Some (fun env ->
+              let* xts =
+                if is_unboxed_case_typ tC then
+                  Ok [("_" $ tC.at, tC)]
+                else
+                  as_tup_typ "tuple" env Check tC e.at
+              in
+              elab_case env mixop tC (Mixop.apply mixop' xts)
+            )
+          | None -> None
+        ) tcs
+      in
+      if implicit_cases = [] then fail_typ env at "expression" t else
+      unique_choice at ("ambiguous variant case for type " ^ typ_string env t) env implicit_cases
+    );
+  ]
 
 
 (*
@@ -1901,6 +1964,59 @@ and cast_exp' ?(side = `Rhs) phrase env (e' : Il.exp) t1 t2 : Il.exp' attempt =
   ) @@ fun _ ->
   if equiv_typ env t1 t2 then Ok e'.it else
   let t1', t2' = reduce env t1, reduce env t2 in
+  let cast_to_variant env =
+    match expand_def env t2' with
+    | Il.VariantT tcs2, NoDots ->
+      let ch' = if side = `Lhs then Il.Checked else Il.Unchecked in
+      let cases =
+        List.filter_map (fun (mixop2, (tC2, _, prems2), _) ->
+          if not (is_implicit_mixop mixop2) then None else
+          if prems2 <> [] && List.length tcs2 > 1 then None else
+          Some (fun env ->
+            match unbox_case_typ tC2 with
+            | [t21] ->
+              let* e1' = cast_exp ~side phrase env e' t1' t21 in
+              let e'' =
+                if is_unboxed_case_typ tC2 then e1' else
+                Il.TupE [e1'] $$ e'.at % tC2
+              in
+              Ok (Il.CaseE (mixop2, e'', ch'))
+            | _ :: _ :: _ when side = `Rhs ->
+              let* xts2 = as_tup_typ "tuple" env Check tC2 e'.at in
+              let rec cast_tup_at env i j s = function
+                | [] -> Ok []
+                | (x, tF) :: xts ->
+                  let tF' = Il.Subst.subst_typ s tF in
+                  let* eF' =
+                    if j = i then
+                      cast_exp ~side phrase env e' t1' tF'
+                    else
+                      cast_empty phrase env tF' e'.at
+                  in
+                  let s' = Il.Subst.add_varid s x eF' in
+                  let* es' = cast_tup_at env i (j + 1) s' xts in
+                  Ok (eF' :: es')
+              in
+              let branches =
+                List.mapi (fun i _ env ->
+                  let* es' = cast_tup_at env i 0 Il.Subst.empty xts2 in
+                  let e'' = Il.TupE es' $$ e'.at % tC2 in
+                  Ok (Il.CaseE (mixop2, e'', ch'))
+                ) xts2
+              in
+              unique_choice e'.at
+                ("ambiguous coercion from " ^ typ_string env t1 ^ " to " ^ typ_string env t2)
+                env branches
+            | _ -> fail_typ2 env e'.at phrase t1 t2 ""
+          )
+        ) tcs2
+      in
+      if cases = [] then fail_typ2 env e'.at phrase t1 t2 "" else
+      unique_choice e'.at
+        ("ambiguous coercion from " ^ typ_string env t1 ^ " to " ^ typ_string env t2)
+        env cases
+    | _ -> fail_typ2 env e'.at phrase t1 t2 ""
+  in
   match t1'.it, t2'.it with
   | _, _ when sub_typ env t1' t2' ->
     Ok (Il.SubE (e', t1', t2'))
@@ -1984,26 +2100,12 @@ and cast_exp' ?(side = `Rhs) phrase env (e' : Il.exp) t1 t2 : Il.exp' attempt =
 
         | _ -> fail_typ2 env e'.at phrase t1 t2 ""
       );
+
+      cast_to_variant;
     ]
 
   | _, Il.VarT _ ->
-    (match expand_def env t2' with
-    | Il.VariantT [mixop2, (tC2, _, _), _], NoDots ->
-      (* A ConT payload can be cast to the ConT *)
-      (match unbox_case_typ tC2 with
-      | [t21] ->
-        let* e1' = cast_exp ~side phrase env e' t1' t21 in
-        let e'' =
-          if is_unboxed_case_typ tC2 then e1' else
-          Il.TupE [e1'] $$ e'.at % tC2
-        in
-        Ok (Il.CaseE (mixop2, e'', Unchecked))
-
-      | _ -> fail_typ2 env e'.at phrase t1 t2 ""
-      )
-
-    | _ -> fail_typ2 env e'.at phrase t1 t2 ""
-    )
+    cast_to_variant env
 
   | Il.IterT (t11, Opt), Il.IterT (t21, List) ->
     choice env [
@@ -2017,6 +2119,9 @@ and cast_exp' ?(side = `Rhs) phrase env (e' : Il.exp) t1 t2 : Il.exp' attempt =
         Ok (Il.ListE [e''])
       );
     ]
+  | _, Il.IterT (t21, Opt) ->
+    let* e'' = cast_exp ~side phrase env e' t1 t21 in
+    Ok (Il.OptE (Some e''))
   | _, Il.IterT (t21, (List | List1)) ->
     let* e'' = cast_exp ~side phrase env e' t1 t21 in
     Ok (Il.ListE [e''])

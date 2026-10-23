@@ -389,8 +389,8 @@ def $subst_addrtype(at, tv*, tu*) = at
 def $subst_numtype(nt, tv*, tu*) = nt
 def $subst_vectype(vt, tv*, tu*) = vt
 
-def $subst_heaptype(_HT exact? tv', tv*, tu*) = _HT exact? $subst_typevar(tv', tv*, tu*)
-def $subst_heaptype(_HT exact? dt, tv*, tu*) = _HT exact? $subst_deftype(dt, tv*, tu*)
+def $subst_heaptype(exact? tv', tv*, tu*) = exact? $subst_typevar(tv', tv*, tu*)
+def $subst_heaptype(exact? dt, tv*, tu*) = exact? $subst_deftype(dt, tv*, tu*)
 def $subst_heaptype(ht, tv*, tu*) = ht  -- otherwise
 
 def $subst_reftype((REF null? ht), tv*, tu*) = REF null? $subst_heaptype(ht, tv*, tu*)
@@ -552,7 +552,7 @@ def $free_typeuse(typevar) = $free_typevar(typevar)
 def $free_typeuse(deftype) = $free_deftype(deftype)
 
 def $free_heaptype(absheaptype) = $free_absheaptype(absheaptype)
-def $free_heaptype(_HT EXACT? typeuse) = $free_typeuse(typeuse)
+def $free_heaptype(EXACT? typeuse) = $free_typeuse(typeuse)
 
 def $free_reftype(REF null? heaptype) = $free_heaptype(heaptype)
 

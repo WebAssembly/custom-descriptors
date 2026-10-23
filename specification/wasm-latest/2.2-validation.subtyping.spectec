@@ -21,8 +21,8 @@ rule Heaptype_sub/refl:
   C |- heaptype <: heaptype
 
 rule Heaptype_sub/exact-l:
-  C |- _HT EXACT typeuse <: heaptype
-  -- Heaptype_sub: C |- _HT typeuse <: heaptype
+  C |- EXACT typeuse <: heaptype
+  -- Heaptype_sub: C |- typeuse <: heaptype
 
 rule Heaptype_sub/trans:
   C |- heaptype_1 <: heaptype_2
@@ -43,45 +43,45 @@ rule Heaptype_sub/array-eq:
   C |- ARRAY <: EQ
 
 rule Heaptype_sub/struct:
-  C |- _HT deftype <: STRUCT
+  C |- deftype <: STRUCT
   -- Expand: deftype ~~ STRUCT fieldtype*
 
 rule Heaptype_sub/array:
-  C |- _HT deftype <: ARRAY
+  C |- deftype <: ARRAY
   -- Expand: deftype ~~ ARRAY fieldtype
 
 rule Heaptype_sub/func:
-  C |- _HT deftype <: FUNC
+  C |- deftype <: FUNC
   -- Expand: deftype ~~ FUNC t_1* -> t_2*
 
 rule Heaptype_sub/def:
-  C |- _HT deftype_1 <: _HT deftype_2
+  C |- deftype_1 <: deftype_2
   -- Deftype_sub: C |- deftype_1 <: deftype_2
 
 rule Heaptype_sub/typeidx-l:
-  C |- _HT _IDX typeidx <: heaptype
-  -- Heaptype_sub: C |- _HT C.TYPES[typeidx] <: heaptype
+  C |- _IDX typeidx <: heaptype
+  -- Heaptype_sub: C |- C.TYPES[typeidx] <: heaptype
 
 rule Heaptype_sub/typeidx-r:
-  C |- heaptype <: _HT _IDX typeidx
-  -- Heaptype_sub: C |- heaptype <: _HT C.TYPES[typeidx]
+  C |- heaptype <: _IDX typeidx
+  -- Heaptype_sub: C |- heaptype <: C.TYPES[typeidx]
 
 ;; TODO(tlively): At least this struct rule should include the optional described
 ;; and descriptor types.
 rule Heaptype_sub/rec-struct:
-  C |- _HT REC i <: STRUCT
+  C |- REC i <: STRUCT
   -- if C.RECS[i] = SUB final? (STRUCT fieldtype*)
 
 rule Heaptype_sub/rec-array:
-  C |- _HT REC i <: ARRAY
+  C |- REC i <: ARRAY
   -- if C.RECS[i] = SUB final? (ARRAY fieldtype)
 
 rule Heaptype_sub/rec-func:
-  C |- _HT REC i <: FUNC
+  C |- REC i <: FUNC
   -- if C.RECS[i] = SUB final? (FUNC t_1* -> t_2*)
 
 rule Heaptype_sub/rec-sub:
-  C |- _HT REC i <: _HT typeuse*[j]
+  C |- REC i <: typeuse*[j]
   -- if C.RECS[i] = SUB final? typeuse* desctype
 
 rule Heaptype_sub/none:
@@ -201,8 +201,8 @@ rule Comptype_sub/func:
 ;; TODO(tlively): Check descriptor square rules
 rule Desctype_sub:
   C |- (DESCRIBES tu_11) (DESCRIPTOR tu_12) ct_1 <: (DESCRIBES tu_21) (DESCRIPTOR tu_22) ct_2
-  -- Heaptype_sub: C |- _HT tu_11 <: _HT tu_21
-  -- Heaptype_sub: C |- _HT tu_12 <: _HT tu_22
+  -- Heaptype_sub: C |- tu_11 <: tu_21
+  -- Heaptype_sub: C |- tu_12 <: tu_22
   -- Comptype_sub: C |- ct_1 <: ct_2
 
 
@@ -213,7 +213,7 @@ rule Deftype_sub/refl:
 rule Deftype_sub/super:
   C |- deftype_1 <: deftype_2
   -- if $unrolldt(deftype_1) = SUB final? typeuse* desctype
-  -- Heaptype_sub: C |- _HT typeuse*[i] <: _HT deftype_2
+  -- Heaptype_sub: C |- typeuse*[i] <: deftype_2
 
 
 ;; External types
@@ -279,4 +279,4 @@ rule Externtype_sub/table:
 
 rule Externtype_sub/func:
   C |- FUNC exactdeftype_1 <: FUNC exactdeftype_2
-  -- Heaptype_sub: C |- _HT exactdeftype_1 <: _HT exactdeftype_2
+  -- Heaptype_sub: C |- exactdeftype_1 <: exactdeftype_2

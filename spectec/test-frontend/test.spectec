@@ -139,6 +139,42 @@ def $testemptyn6((["" "" ""]) 0) = 0
 
 
 ;;
+;; Implicit variant cases and coercions
+;;
+
+syntax implopt = EXACT
+syntax implinner = | _IDX nat | REC nat
+syntax implmid = implopt? implinner
+syntax implouter = | ABS | _HT implmid
+
+var ii : implinner
+var im : implmid
+
+def $testimplrhs1(nat) : implouter
+def $testimplrhs1(0) = ABS
+def $testimplrhs1(1) = _IDX 0
+def $testimplrhs1(2) = REC 0
+def $testimplrhs1(3) = EXACT _IDX 0
+def $testimplrhs1(4) = EXACT REC 0
+def $testimplrhs1(5) = 0
+
+def $testimplrhs2(implopt?, implinner, implmid) : implouter*
+def $testimplrhs2(implopt?, ii, im) = [ii (EXACT ii) (implopt? ii) im]
+
+def $testimpllhs1(implouter) : nat
+def $testimpllhs1(ABS) = 0
+def $testimpllhs1(EXACT _IDX n) = n
+def $testimpllhs1(eps _IDX n) = n
+def $testimpllhs1(implopt? REC n) = n
+
+def $testimpllhs2(implouter) : nat
+def $testimpllhs2(implopt? ii) = 0
+
+def $testimpllhs3(implouter) : nat
+def $testimpllhs3(im) = 0
+
+
+;;
 ;; Nested iteration
 ;;
 

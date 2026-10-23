@@ -122,7 +122,7 @@ rule Externaddr_ok/table:
   -- if s.TABLES[a] = tableinst
 
 rule Externaddr_ok/func:
-  s |- FUNC a : FUNC (_HT EXACT funcinst.TYPE)
+  s |- FUNC a : FUNC EXACT funcinst.TYPE
   -- if s.FUNCS[a] = funcinst
 
 rule Externaddr_ok/sub:

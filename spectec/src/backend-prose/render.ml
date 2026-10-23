@@ -374,9 +374,10 @@ and al_to_el_expr expr =
         let* elel = al_to_el_exprs el in
         let eles = case_to_el_exprs elal elel in
         let ele = El.Ast.SeqE eles in
-        (match elal, elel with
-        | _, [] -> Some ele
-        | None :: Some _ :: _, _ -> Some ele
+        (match elal, elel, eles with
+        | _, [], _ -> Some ele
+        | None :: _, _, [_] -> Some ele
+        | None :: Some _ :: _, _, _ -> Some ele
         | _ ->
           (match op with
           | Mixop.Brack (lbr, _, rbr) ->
@@ -404,6 +405,7 @@ and al_to_el_expr expr =
   Option.map (fun exp' -> exp' $ no_region) exp'
 
 and case_to_el_exprs al el =
+  let is_infix = match al with None :: Some _ :: _ -> true | _ -> false in
   match al with
   | [] -> error no_region "empty mixop in a AL case expr"
   | hd::tl ->
@@ -411,7 +413,7 @@ and case_to_el_exprs al el =
       (fun acc a e ->
         match e.it with
         (* Remove epsilon argument for case *)
-        | El.Ast.EpsE when hd <> None -> a::None::acc
+        | El.Ast.EpsE when not is_infix -> a::None::acc
         | _ -> a::Some(e)::acc
       )
       [ hd ]

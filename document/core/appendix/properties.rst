@@ -435,7 +435,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
 
 * Under :ref:`context <context>` :math:`C`:
 
-  * The :ref:`function <syntax-func>` :math:`\func` must be :ref:`valid <valid-func>` with some :ref:`defined type <syntax-deftype>` :math:`\deftype'`.
+  * The :ref:`function <syntax-func>` :math:`\func` must be :ref:`valid <valid-func>` with some :ref:`exact defined type <syntax-exactdeftype>` :math:`\EXACT~\deftype'`.
 
   * The :ref:`defined type <syntax-deftype>` :math:`\deftype'` must :ref:`match <match-deftype>` :math:`\deftype`.
 
@@ -448,7 +448,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
      \qquad
      S \vdashmoduleinst \moduleinst : C
      \\
-     C \vdashfunc \func : \deftype'
+     C \vdashfunc \func : \EXACT~\deftype'
      \qquad
      C \vdashdeftypematch \deftype' \subdeftypematch \deftype
      \end{array}
@@ -707,7 +707,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
 
 * For each :ref:`table address <syntax-tableaddr>` :math:`\tableaddr_i` in :math:`\moduleinst.\MITABLES`, the :ref:`external address <syntax-externaddr>` :math:`\XATABLE~\tableaddr_i` must be :ref:`valid <valid-externaddr-table>` with some :ref:`external type <syntax-externtype>` :math:`\XTTABLE~\tabletype_i`.
 
-* For each :ref:`function address <syntax-funcaddr>` :math:`\funcaddr_i` in :math:`\moduleinst.\MIFUNCS`, the :ref:`external address <syntax-externaddr>` :math:`\XAFUNC~\funcaddr_i` must be :ref:`valid <valid-externaddr-func>` with some :ref:`external type <syntax-externtype>` :math:`\XTFUNC~\deftype_{\K{F}i}`.
+* For each :ref:`function address <syntax-funcaddr>` :math:`\funcaddr_i` in :math:`\moduleinst.\MIFUNCS`, the :ref:`external address <syntax-externaddr>` :math:`\XAFUNC~\funcaddr_i` must be :ref:`valid <valid-externaddr-func>` with some :ref:`external type <syntax-externtype>` :math:`\XTFUNC~\exactdeftype_i`.
 
 * For each :ref:`data address <syntax-dataaddr>` :math:`\dataaddr_i` in :math:`\moduleinst.\MIDATAS`, the :ref:`data instance <syntax-datainst>` :math:`S.\SDATAS[\dataaddr_i]` must be :ref:`valid <valid-datainst>` with :math:`\X{ok}_i`.
 
@@ -727,7 +727,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
 
 * Let :math:`\tabletype^\ast` be the concatenation of all :math:`\tabletype_i` in order.
 
-* Let :math:`\deftype_{\K{F}}^\ast` be the concatenation of all :math:`\deftype_{\K{F}i}` in order.
+* Let :math:`\exactdeftype^\ast` be the concatenation of all :math:`\exactdeftype_i` in order.
 
 * Let :math:`\reftype^\ast` be the concatenation of all :math:`\reftype_i` in order.
 
@@ -738,7 +738,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
 * Let :math:`x^\ast` be the sequence of :ref:`function indices <syntax-funcidx>` from :math:`0` to :math:`k-1` for some :math:`k` that is smaller than or equal to the number of functions in the instance.
 
 * Then the module instance is valid with :ref:`context <context>`
-  :math:`\{\CTYPES~\deftype^\ast,` :math:`\CTAGS~\tagtype^\ast,` :math:`\CGLOBALS~\globaltype^\ast,` :math:`\CMEMS~\memtype^\ast,` :math:`\CTABLES~\tabletype^\ast,` :math:`\CFUNCS~\deftype_{\K{F}}^\ast,` :math:`\CDATAS~\X{ok}^\ast,` :math:`\CELEMS~\reftype^\ast,` :math:`\CREFS~x^\ast\}`.
+  :math:`\{\CTYPES~\deftype^\ast,` :math:`\CTAGS~\tagtype^\ast,` :math:`\CGLOBALS~\globaltype^\ast,` :math:`\CMEMS~\memtype^\ast,` :math:`\CTABLES~\tabletype^\ast,` :math:`\CFUNCS~\exactdeftype^\ast,` :math:`\CDATAS~\X{ok}^\ast,` :math:`\CELEMS~\reftype^\ast,` :math:`\CREFS~x^\ast\}`.
 
 .. math::
    ~\\[-1ex]
@@ -750,7 +750,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
      \\
      (S \vdashexternaddr \XAGLOBAL~\globaladdr : \XTGLOBAL~\globaltype)^\ast
      \qquad
-     (S \vdashexternaddr \XAFUNC~\funcaddr : \XTFUNC~\deftype_{\K{F}})^\ast
+     (S \vdashexternaddr \XAFUNC~\funcaddr : \XTFUNC~\exactdeftype)^\ast
      \\
      (S \vdashexternaddr \XAMEM~\memaddr : \XTMEM~\memtype)^\ast
      \qquad
@@ -784,7 +784,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
          \CGLOBALS & \globaltype^\ast, \\
          \CMEMS & \memtype^\ast, \\
          \CTABLES & \tabletype^\ast, \\
-         \CFUNCS & \deftype_{\K{F}}^\ast, \\
+         \CFUNCS & \exactdeftype^\ast, \\
          \CDATAS & \X{ok}^\ast, \\
          \CELEMS & \reftype^\ast, \\
          \CREFS & 0 \dots k-1 ~\}
@@ -824,6 +824,8 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
        \\\
        (S; C \vdashglobaltype \globaltype \OKglobaltype)^\ast
        \qquad
+       \exactdeftype^\ast = (\exact^?~\deftype')^\ast
+       \qquad
        (S; C \vdashdeftype \deftype' \OKdeftype)^\ast
        \\
        (S; C \vdashmemtype \memtype \OKmemtype)^\ast
@@ -839,7 +841,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
          \CGLOBALS & \globaltype^\ast, \\
          \CMEMS & \memtype^\ast, \\
          \CTABLES & \tabletype^\ast, \\
-         \CFUNCS & {\deftype'}^\ast, \\
+         \CFUNCS & \exactdeftype^\ast, \\
          \CELEMS & \reftype^\ast, \\
          \CDATAS & {\X{ok}}^\ast ~\}
          \end{array}

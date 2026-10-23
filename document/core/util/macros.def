@@ -309,6 +309,7 @@
 .. |subtype| mathdef:: \xref{syntax/types}{syntax-subtype}{\X{subtype}}
 .. |rectype| mathdef:: \xref{syntax/types}{syntax-rectype}{\X{rectype}}
 .. |deftype| mathdef:: \xref{valid/conventions}{syntax-deftype}{\X{deftype}}
+.. |exactdeftype| mathdef:: \xref{valid/conventions}{syntax-exactdeftype}{\X{exactdeftype}}
 
 .. |globaltype| mathdef:: \xref{syntax/types}{syntax-globaltype}{\X{globaltype}}
 .. |tabletype| mathdef:: \xref{syntax/types}{syntax-tabletype}{\X{tabletype}}
@@ -327,6 +328,7 @@
 .. |init| mathdef:: \xref{valid/conventions}{syntax-init}{\X{init}}
 
 .. |typeuse| mathdef:: \xref{syntax/types}{syntax-typeuse}{\X{typeuse}}
+.. |exacttypeuse| mathdef:: \xref{syntax/types}{syntax-exacttypeuse}{\X{exacttypeuse}}
 
 .. |instrtype| mathdef:: \xref{valid/conventions}{syntax-instrtype}{\X{instrtype}}
 .. |localtype| mathdef:: \xref{valid/conventions}{syntax-localtype}{\X{localtype}}
@@ -343,10 +345,9 @@
 .. |rolldt| mathdef:: \xref{valid/conventions}{aux-roll-deftype}{\F{roll}}
 .. |unrolldt| mathdef:: \xref{valid/conventions}{aux-unroll-deftype}{\F{unroll}}
 .. |expanddt| mathdef:: \xref{valid/conventions}{aux-expand-deftype}{\F{expand}}
-.. |expanddttodesctype| mathdef:: \xref{valid/conventions}{aux-expand-deftype-to-desctype}{\F{expand}}
 .. |approxexpanddt| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype}{\approx}}
 .. |approxexpandyy| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-typeuse}{\approx}}
-.. |approxexpanddttodesctype| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype-to-desctype}{\approx}}
+.. |simexpanddesc| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype-to-desctype}{\sim}}
 .. |unrollht| mathdef:: \xref{appendix/properties}{aux-unroll-heaptype}{\F{unroll}}
 
 .. |unpack| mathdef:: \xref{syntax/types}{aux-unpack}{\F{unpack}}
@@ -1719,7 +1720,7 @@
 .. |frelaxedmin| mathdef:: \xref{exec/numerics}{op-frelaxed_min}{\F{frelaxed\_min}}
 .. |frelaxedmax| mathdef:: \xref{exec/numerics}{op-frelaxed_max}{\F{frelaxed\_max}}
 .. |irelaxedq15mulrs| mathdef:: \xref{exec/numerics}{op-irelaxed_q15mulr_s}{\F{irelaxed\_q15mulr\_s}}
-.. |irelaxeddot| mathdef:: \xref{exec/numerics}{op-irelaxed_dot}{\F{irelaxed\_dot}}
+.. |ivrelaxeddot| mathdef:: \xref{exec/numerics}{op-ivrelaxed_dot}{\F{ivrelaxed\_dot}}
 
 
 .. Numerics, meta functions

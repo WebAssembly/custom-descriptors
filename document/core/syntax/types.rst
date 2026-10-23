@@ -325,7 +325,7 @@ Recursive Types
 Each type can also be declared *final*, preventing further subtyping.
 Each composite type can also optionally have a :ref:`described <syntax-desctype>` :ref:`type use <syntax-typeuse>` and a :ref:`descriptor <syntax-desctype>` :ref:`type use <syntax-typeuse>`.
 
-$${syntax: {rectype subtype describestype descriptortype desctype}}
+$${syntax: {rectype subtype describes descriptor desctype}}
 
 In a :ref:`module <syntax-module>`, each member of a recursive type is assigned a separate :ref:`type index <syntax-typeidx>`.
 

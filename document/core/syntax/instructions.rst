@@ -312,7 +312,7 @@ Instructions in this group are concerned with creating and accessing :ref:`refer
 
 $${syntax: {instr/struct instr/array instr/i31 instr/extern}}
 
-The instructions ${:STRUCT.NEW}, ${:STRUCT.NEW_DEFAULT} allocate a new :ref:`structure <syntax-structtype>`, initializing them either with operands or with default values.
+The instructions ${:STRUCT.NEW} and ${:STRUCT.NEW_DEFAULT} allocate a new :ref:`structure <syntax-structtype>`, initializing them either with operands or with default values.
 The instructions ${:STRUCT.NEW_DESC} and ${:STRUCT.NEW_DEFAULT_DESC} do the same, but additionally take the :ref:`descriptor <syntax-desctype>` operand necessary to allocate types with descriptors.
 The remaining instructions on structs access individual fields,
 allowing for different sign extension modes in the case of :ref:`packed <syntax-packtype>` storage types.

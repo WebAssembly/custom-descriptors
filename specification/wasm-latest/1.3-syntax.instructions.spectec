@@ -333,7 +333,6 @@ syntax instr/struct hint(desc "structure reference instruction") = ...
   | STRUCT.NEW_DEFAULT_DESC typeidx
   | STRUCT.GET sx? typeidx fieldidx      hint(show STRUCT.GET#_#% % %)
   | STRUCT.SET typeidx fieldidx
-
   | ...
 
 syntax instr/array hint(desc "array reference instruction") = ...
@@ -392,7 +391,7 @@ syntax instr/vec hint(desc "vector instruction") = ...
   | VCVTOP shape_1 shape_2 vcvtop__(shape_2, shape_1) hint(show ##%1.%3#_# ##%2)
   | VSPLAT shape                        hint(show ##%.SPLAT) hint(macro "VSPLAT")
   | VEXTRACT_LANE shape sx? laneidx     hint(show ##%.EXTRACT_LANE %) hint(show ##%.EXTRACT_LANE#_#% %) hint(macro "VEXTRACT_LANE")
-    -- if sx? = eps <=> $lanetype(shape) <- I32 I64 F32 F64
+    -- if sx? = eps <=> $lanetype(shape) = numtype
   | VREPLACE_LANE shape laneidx         hint(show ##%.REPLACE_LANE %) hint(macro "VREPLACE_LANE")
   | ...
 
@@ -530,6 +529,8 @@ def $free_instr(I31.GET sx) = {}
 
 def $free_instr(STRUCT.NEW typeidx) = $free_typeidx(typeidx)
 def $free_instr(STRUCT.NEW_DEFAULT typeidx) = $free_typeidx(typeidx)
+def $free_instr(STRUCT.NEW_DESC typeidx) = $free_typeidx(typeidx)
+def $free_instr(STRUCT.NEW_DEFAULT_DESC typeidx) = $free_typeidx(typeidx)
 def $free_instr(STRUCT.GET sx? typeidx u32) = $free_typeidx(typeidx)
 def $free_instr(STRUCT.SET typeidx u32) = $free_typeidx(typeidx)
 

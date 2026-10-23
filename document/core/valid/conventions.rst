@@ -94,14 +94,16 @@ Convention
 .. index:: ! defined type, recursive type
    pair: abstract syntax; defined type
 .. _syntax-deftype:
+.. _syntax-exactdeftype:
 
 Defined Types
 ~~~~~~~~~~~~~
 
 *Defined types* denote the individual types defined in a :ref:`module <syntax-module>`.
 Each such type is represented as a projection from the :ref:`recursive type <syntax-rectype>` group it originates from, indexed by its position in that group.
+For the purpose of typing :ref:`functions <syntax-func>`, a defined type may be annotated with :ref:`exactness <syntax-exact>`.
 
-$${syntax: deftype}
+$${syntax: {deftype exactdeftype}}
 
 Defined types do not occur in the :ref:`binary <binary>` or :ref:`text <text>` format,
 but are formed by :ref:`rolling up <aux-roll-deftype>` the :ref:`recursive types <syntax-reftype>` defined in a module.
@@ -169,9 +171,11 @@ $${rule: Expand {Expand_use/*}}
 
 $${relation-ignore: Expand Expand_use}
 
-The same notation also denotes the expansion of a :ref:`defined type <syntax-deftype>` or :ref:`type use <syntax-typeuse>` to a :ref:`desctype <syntax-desctype>`.
+The following auxiliary relation denotes the expansion of a :ref:`defined type <syntax-deftype>` to a :ref:`descriptor type <syntax-desctype>`:
 
 $${rule: Expand_desc}
+
+$${relation-ignore: Expand_desc}
 
 
 .. index:: ! instruction type, value type, result type, instruction, local, local index
@@ -223,7 +227,7 @@ Validity of an individual definition is specified relative to a *context*,
 which collects relevant information about the surrounding :ref:`module <syntax-module>` and the definitions in scope:
 
 * *Types*: the list of :ref:`types <syntax-type>` defined in the current module.
-* *Functions*: the list of :ref:`functions <syntax-func>` declared in the current module, represented by a concrete :ref:`heap type <syntax-heaptype>` that :ref:`expands <aux-expand-deftype>` to their :ref:`function type <syntax-functype>`.
+* *Functions*: the list of :ref:`functions <syntax-func>` declared in the current module, represented by a (possibly :ref:`exact <syntax-exact>`) :ref:`defined type <syntax-deftype>` that :ref:`expands <aux-expand-deftype>` to their :ref:`function type <syntax-functype>`.
 * *Tables*: the list of :ref:`tables <syntax-table>` declared in the current module, represented by their :ref:`table type <syntax-tabletype>`.
 * *Memories*: the list of :ref:`memories <syntax-mem>` declared in the current module, represented by their :ref:`memory type <syntax-memtype>`.
 * *Globals*: the list of :ref:`globals <syntax-global>` declared in the current module, represented by their :ref:`global type <syntax-globaltype>`.
@@ -279,7 +283,7 @@ The following conventions are adopted in stating these rules.
 
   .. note::
      For example, if ${:A} is a :ref:`function <syntax-func>`,
-     then ${:T} is a :ref:`defined function type <syntax-deftype>`;
+     then ${:T} is an :ref:`exact defined type <syntax-exactdeftype>`;
      for an ${:A} that is a :ref:`global <syntax-global>`,
      ${:T} is a :ref:`global type <syntax-globaltype>`;
      and so on.

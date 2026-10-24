@@ -1,5 +1,5 @@
 const DOCUMENTATION_OPTIONS = {
-    VERSION: '3.0 + Custom Descriptors (2026-10-23)',
+    VERSION: '3.0 + Custom Descriptors (2026-10-24)',
     LANGUAGE: 'en',
     COLLAPSE_INDEX: false,
     BUILDER: 'html',

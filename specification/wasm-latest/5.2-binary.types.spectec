@@ -69,22 +69,22 @@ grammar Bcomptype : comptype =
   | 0x5F ft*:Blist(Bfieldtype) => STRUCT ft*
   | 0x60 t_1*:Bresulttype t_2*:Bresulttype => FUNC t_1* -> t_2*
 
-grammar Bdescribestype : describestype =
+grammar Bdescribes : describes =
   | 0x4C x:Btypeidx => DESCRIBES (_IDX x)
 
-grammar Bdescriptortype : descriptortype =
+grammar Bdescriptor : descriptor =
   | 0x4D x:Btypeidx => DESCRIPTOR (_IDX x)
 
 grammar Bdesctype : desctype =
-  | d_1:Bdescribestype d_2:Bdescriptortype ct:Bcomptype => d_1 d_2 ct
-  | d_1:Bdescribestype ct:Bcomptype => d_1 ct
-  | d_2:Bdescriptortype ct:Bcomptype => d_2 ct
+  | dcs:Bdescribes dcr:Bdescriptor ct:Bcomptype => dcs dcr ct
+  | dcs:Bdescribes ct:Bcomptype => dcs ct
+  | dcr:Bdescriptor ct:Bcomptype => dcr ct
   | ct:Bcomptype => ct
 
 grammar Bsubtype : subtype =
-  | 0x4F x*:Blist(Btypeidx) d:Bdesctype => SUB FINAL (_IDX x)* d
-  | 0x50 x*:Blist(Btypeidx) d:Bdesctype => SUB (_IDX x)* d
-  | d:Bdesctype => SUB FINAL eps d
+  | 0x4F x*:Blist(Btypeidx) dct:Bdesctype => SUB FINAL (_IDX x)* dct
+  | 0x50 x*:Blist(Btypeidx) dct:Bdesctype => SUB (_IDX x)* dct
+  | dct:Bdesctype => SUB FINAL eps dct
 
 grammar Brectype : rectype =
   | 0x4E st*:Blist(Bsubtype) => REC st*

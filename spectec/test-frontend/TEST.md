@@ -9147,34 +9147,34 @@ grammar Bcomptype : comptype
   prod{`t_1*` : valtype*, `t_2*` : valtype*} {{0x60} {`%`_resulttype(t_1*{t_1 <- `t_1*`},):Bresulttype} {`%`_resulttype(t_2*{t_2 <- `t_2*`},):Bresulttype}} => `FUNC%->%`_comptype(`%`_resulttype(t_1*{t_1 <- `t_1*`},), `%`_resulttype(t_2*{t_2 <- `t_2*`},))
 
 ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-grammar Bdescribestype : describestype
+grammar Bdescribes : describes
   ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-  prod{x : idx} {{0x4C} {x:Btypeidx}} => DESCRIBES_describestype(_IDX_typeuse(x))
+  prod{x : idx} {{0x4C} {x:Btypeidx}} => DESCRIBES_describes(_IDX_typeuse(x))
 
 ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-grammar Bdescriptortype : descriptortype
+grammar Bdescriptor : descriptor
   ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-  prod{x : idx} {{0x4D} {x:Btypeidx}} => DESCRIPTOR_descriptortype(_IDX_typeuse(x))
+  prod{x : idx} {{0x4D} {x:Btypeidx}} => DESCRIPTOR_descriptor(_IDX_typeuse(x))
 
 ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
 grammar Bdesctype : desctype
   ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-  prod{d_1 : describestype, d_2 : descriptortype, ct : comptype} {{d_1:Bdescribestype} {d_2:Bdescriptortype} {ct:Bcomptype}} => `%%%`_desctype(?(d_1), ?(d_2), ct)
+  prod{dcs : describes, dcr : descriptor, ct : comptype} {{dcs:Bdescribes} {dcr:Bdescriptor} {ct:Bcomptype}} => `%%%`_desctype(?(dcs), ?(dcr), ct)
   ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-  prod{d_1 : describestype, ct : comptype} {{d_1:Bdescribestype} {ct:Bcomptype}} => `%%%`_desctype(?(d_1), ?(), ct)
+  prod{dcs : describes, ct : comptype} {{dcs:Bdescribes} {ct:Bcomptype}} => `%%%`_desctype(?(dcs), ?(), ct)
   ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-  prod{d_2 : descriptortype, ct : comptype} {{d_2:Bdescriptortype} {ct:Bcomptype}} => `%%%`_desctype(?(), ?(d_2), ct)
+  prod{dcr : descriptor, ct : comptype} {{dcr:Bdescriptor} {ct:Bcomptype}} => `%%%`_desctype(?(), ?(dcr), ct)
   ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
   prod{ct : comptype} ct:Bcomptype => `%%%`_desctype(?(), ?(), ct)
 
 ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
 grammar Bsubtype : subtype
   ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-  prod{`x*` : idx*, d : desctype} {{0x4F} {x*{x <- `x*`}:Blist(syntax typeidx, grammar Btypeidx)} {d:Bdesctype}} => SUB_subtype(?(FINAL_final), _IDX_typeuse(x)*{x <- `x*`}, d)
+  prod{`x*` : idx*, dct : desctype} {{0x4F} {x*{x <- `x*`}:Blist(syntax typeidx, grammar Btypeidx)} {dct:Bdesctype}} => SUB_subtype(?(FINAL_final), _IDX_typeuse(x)*{x <- `x*`}, dct)
   ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-  prod{`x*` : idx*, d : desctype} {{0x50} {x*{x <- `x*`}:Blist(syntax typeidx, grammar Btypeidx)} {d:Bdesctype}} => SUB_subtype(?(), _IDX_typeuse(x)*{x <- `x*`}, d)
+  prod{`x*` : idx*, dct : desctype} {{0x50} {x*{x <- `x*`}:Blist(syntax typeidx, grammar Btypeidx)} {dct:Bdesctype}} => SUB_subtype(?(), _IDX_typeuse(x)*{x <- `x*`}, dct)
   ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-  prod{d : desctype} d:Bdesctype => SUB_subtype(?(FINAL_final), [], d)
+  prod{dct : desctype} dct:Bdesctype => SUB_subtype(?(FINAL_final), [], dct)
 
 ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
 grammar Brectype : rectype

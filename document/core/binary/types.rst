@@ -125,8 +125,8 @@ $${grammar: Bmut Bcomptype Bfieldtype Bstoragetype Bpacktype}
 .. _binary-rectype:
 .. _binary-subtype:
 .. _binary-desctype:
-.. _binary-describestype:
-.. _binary-descriptortype:
+.. _binary-describes:
+.. _binary-descriptor:
 
 Recursive Types
 ~~~~~~~~~~~~~~~
@@ -135,7 +135,7 @@ Recursive Types
 Additional shorthands are recognized for unary recursions and sub types without super types.
 Each :ref:`composite type <binary-comptype>` may be preceded by a :ref:`describes <syntax-desctype>` clause encoded by the byte ${:0x4C} and a :ref:`type index <binary-typeidx>`, and a :ref:`descriptor <syntax-desctype>` clause encoded by the byte ${:0x4D} and a :ref:`type index <binary-typeidx>`.
 
-$${grammar: Brectype Bsubtype Bdesctype Bdescribestype Bdescriptortype}
+$${grammar: Brectype Bsubtype Bdesctype Bdescribes Bdescriptor}
 
 
 .. index:: limits

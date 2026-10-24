@@ -58,6 +58,8 @@ Control Instructions
 .. _binary-br_on_non_null:
 .. _binary-br_on_cast:
 .. _binary-br_on_cast_fail:
+.. _binary-br_on_cast_desc_eq:
+.. _binary-br_on_cast_desc_eq_fail:
 .. _binary-return:
 .. _binary-call:
 .. _binary-call_ref:
@@ -158,6 +160,8 @@ Generic :ref:`reference instructions <syntax-instr-ref>` are represented by sing
 .. _binary-ref.as_non_null:
 .. _binary-ref.test:
 .. _binary-ref.cast:
+.. _binary-ref.get_desc:
+.. _binary-ref.cast_desc_eq:
 
 $${grammar: {Binstr/ref}}
 
@@ -176,6 +180,8 @@ Aggregate Instructions
 .. _binary-i31.get_u:
 .. _binary-struct.new:
 .. _binary-struct.new_default:
+.. _binary-struct.new_desc:
+.. _binary-struct.new_default_desc:
 .. _binary-struct.get:
 .. _binary-struct.get_s:
 .. _binary-struct.get_u:

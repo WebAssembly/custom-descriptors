@@ -119,7 +119,7 @@ rule Instr_ok/br_on_cast_desc_eq:
   C |- BR_ON_CAST_DESC_EQ l rt_1 rt_2 : t* rt_1 (REF NULL (_HT exact? _IDX y)) -> t* ($diffrt(rt_1, rt_2))
   -- if C.LABELS[l] = t* rt
   -- if rt_2 = (REF null? (_HT exact? _IDX x))
-  -- Expand_desc: C.TYPES[x] ~ describestype? (DESCRIPTOR (_IDX y)) ct
+  -- Expand_desc: C.TYPES[x] ~ dcs? (DESCRIPTOR (_IDX y)) ct
   ----
   -- Reftype_ok: C |- rt_1 : OK
   -- Reftype_ok: C |- rt_3 : OK
@@ -131,7 +131,7 @@ rule Instr_ok/br_on_cast_desc_eq_fail:
   C |- BR_ON_CAST_DESC_EQ_FAIL l rt_1 rt_2 : t* rt_1 (REF NULL (_HT exact? _IDX y)) -> t* rt_2
   -- if C.LABELS[l] = t* rt
   -- if rt_2 = (REF null? (_HT exact? _IDX x))
-  -- Expand_desc: C.TYPES[x] ~ describestype? (DESCRIPTOR (_IDX y)) ct
+  -- Expand_desc: C.TYPES[x] ~ dcs? (DESCRIPTOR (_IDX y)) ct
   ----
   -- Reftype_ok: C |- rt_1 : OK
   -- Reftype_ok: C |- rt_3 : OK
@@ -256,7 +256,7 @@ rule Instr_ok/ref.eq:
 
 rule Instr_ok/ref.get_desc:
   C |- REF.GET_DESC x : (REF NULL (_HT exact? _IDX x)) -> (REF (_HT exact? _IDX y))
-  -- Expand_desc: C.TYPES[x] ~ describestype? (DESCRIPTOR (_IDX y)) ct
+  -- Expand_desc: C.TYPES[x] ~ dcs? (DESCRIPTOR (_IDX y)) ct
 
 rule Instr_ok/ref.test:
   C |- REF.TEST rt : rt' -> I32
@@ -273,7 +273,7 @@ rule Instr_ok/ref.cast:
 rule Instr_ok/ref.cast_desc_eq:
   C |- REF.CAST_DESC_EQ rt : (REF NULL ht) (REF NULL (_HT exact? _IDX y)) -> rt
   -- if rt = (REF null? (_HT exact? _IDX x))
-  -- Expand_desc: C.TYPES[x] ~ describestype? (DESCRIPTOR (_IDX y)) ct
+  -- Expand_desc: C.TYPES[x] ~ dcs? (DESCRIPTOR (_IDX y)) ct
   ----
   -- Heaptype_ok: C |- ht : OK
   -- Heaptype_sub: C |- (_HT exact? _IDX x) <: ht
@@ -289,20 +289,20 @@ rule Instr_ok/i31.get:
 
 rule Instr_ok/struct.new:
   C |- STRUCT.NEW x : $unpack(zt)* -> (REF (_HT EXACT _IDX x))
-  -- Expand_desc: C.TYPES[x] ~ describestype? eps STRUCT (mut? zt)*
+  -- Expand_desc: C.TYPES[x] ~ dcs? eps STRUCT (mut? zt)*
 
 rule Instr_ok/struct.new_default:
   C |- STRUCT.NEW_DEFAULT x : eps -> (REF (_HT EXACT _IDX x))
-  -- Expand_desc: C.TYPES[x] ~ describestype? eps STRUCT (mut? zt)*
+  -- Expand_desc: C.TYPES[x] ~ dcs? eps STRUCT (mut? zt)*
   -- (Defaultable: |- $unpack(zt) DEFAULTABLE)*
 
 rule Instr_ok/struct.new_desc:
   C |- STRUCT.NEW_DESC x : $unpack(zt)* (REF NULL (_HT EXACT _IDX y)) -> (REF (_HT EXACT _IDX x))
-  -- Expand_desc: C.TYPES[x] ~ describestype? (DESCRIPTOR (_IDX y)) STRUCT (mut? zt)*
+  -- Expand_desc: C.TYPES[x] ~ dcs? (DESCRIPTOR (_IDX y)) STRUCT (mut? zt)*
 
 rule Instr_ok/struct.new_default_desc:
   C |- STRUCT.NEW_DEFAULT_DESC x : (REF NULL (_HT EXACT _IDX y)) -> (REF (_HT EXACT _IDX x))
-  -- Expand_desc: C.TYPES[x] ~ describestype? (DESCRIPTOR (_IDX y)) STRUCT (mut? zt)*
+  -- Expand_desc: C.TYPES[x] ~ dcs? (DESCRIPTOR (_IDX y)) STRUCT (mut? zt)*
   -- (Defaultable: |- $unpack(zt) DEFAULTABLE)*
 
 def $is_packtype(storagetype) : bool             hint(show %1 =/= $unpack(%1)) hint(prose "%1 is a packed type")

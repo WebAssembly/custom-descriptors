@@ -76,10 +76,7 @@ grammar Bdescriptor : descriptor =
   | 0x4D x:Btypeidx => DESCRIPTOR (_IDX x)
 
 grammar Bdesctype : desctype =
-  | dcs:Bdescribes dcr:Bdescriptor ct:Bcomptype => dcs dcr ct
-  | dcs:Bdescribes ct:Bcomptype => dcs ct
-  | dcr:Bdescriptor ct:Bcomptype => dcr ct
-  | ct:Bcomptype => ct
+  | (dcs:Bdescribes)? (dcr:Bdescriptor)? ct:Bcomptype => dcs? dcr? ct
 
 grammar Bsubtype : subtype =
   | 0x4F x*:Blist(Btypeidx) dct:Bdesctype => SUB FINAL (_IDX x)* dct

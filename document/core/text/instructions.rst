@@ -85,6 +85,8 @@ $${grammar: Tblocktype_ Tblockinstr_/plain Tcatch_}
 .. _text-br_on_non_null:
 .. _text-br_on_cast:
 .. _text-br_on_cast_fail:
+.. _text-br_on_cast_desc_eq:
+.. _text-br_on_cast_desc_eq_fail:
 .. _text-return:
 .. _text-call:
 .. _text-call_ref:
@@ -205,6 +207,8 @@ Reference Instructions
 .. _text-ref.as_non_null:
 .. _text-ref.test:
 .. _text-ref.cast:
+.. _text-ref.get_desc:
+.. _text-ref.cast_desc_eq:
 
 $${grammar: {Tplaininstr_/ref}}
 
@@ -221,6 +225,8 @@ Aggregate Instructions
 .. _text-i31.get_u:
 .. _text-struct.new:
 .. _text-struct.new_default:
+.. _text-struct.new_desc:
+.. _text-struct.new_default_desc:
 .. _text-struct.get:
 .. _text-struct.get_s:
 .. _text-struct.get_u:

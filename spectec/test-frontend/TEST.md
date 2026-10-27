@@ -9159,13 +9159,7 @@ grammar Bdescriptor : descriptor
 ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
 grammar Bdesctype : desctype
   ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-  prod{dcs : describes, dcr : descriptor, ct : comptype} {{dcs:Bdescribes} {dcr:Bdescriptor} {ct:Bcomptype}} => `%%%`_desctype(?(dcs), ?(dcr), ct)
-  ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-  prod{dcs : describes, ct : comptype} {{dcs:Bdescribes} {ct:Bcomptype}} => `%%%`_desctype(?(dcs), ?(), ct)
-  ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-  prod{dcr : descriptor, ct : comptype} {{dcr:Bdescriptor} {ct:Bcomptype}} => `%%%`_desctype(?(), ?(dcr), ct)
-  ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
-  prod{ct : comptype} ct:Bcomptype => `%%%`_desctype(?(), ?(), ct)
+  prod{`dcs?` : describes?, `dcr?` : descriptor?, ct : comptype} {{dcs:Bdescribes?{dcs <- `dcs?`}} {dcr:Bdescriptor?{dcr <- `dcr?`}} {ct:Bcomptype}} => `%%%`_desctype(dcs?{dcs <- `dcs?`}, dcr?{dcr <- `dcr?`}, ct)
 
 ;; ../../../../specification/wasm-latest/5.2-binary.types.spectec
 grammar Bsubtype : subtype
@@ -11089,6 +11083,8 @@ grammar Theaptype_(I : I) : heaptype
   ;; ../../../../specification/wasm-latest/6.2-text.types.spectec
   prod{ht : heaptype} ht:Tabsheaptype => ht
   ;; ../../../../specification/wasm-latest/6.2-text.types.spectec
+  prod{x : idx} {{"("} {"exact"} {x:Ttypeidx_(I)} {")"}} => _HT_heaptype(`%%`_exacttypeuse(?(EXACT_exact), _IDX_typeuse(x)))
+  ;; ../../../../specification/wasm-latest/6.2-text.types.spectec
   prod{x : idx} x:Ttypeidx_(I) => _HT_heaptype(`%%`_exacttypeuse(?(), _IDX_typeuse(x)))
 
 ;; ../../../../specification/wasm-latest/6.2-text.types.spectec
@@ -11156,6 +11152,21 @@ grammar Tcomptype_(I : I) : (comptype, idctxt)
   prod{`t_1*` : valtype*, `t_2*` : valtype*, `id?*` : char?*} {{"("} {"func"} {(t_1, ?(`%`_name(lift(id?{id <- `id?`}),)))*{`id?` <- `id?*`, t_1 <- `t_1*`}:Tlist(syntax (valtype, name?), grammar Tparam_(I))} {t_2*{t_2 <- `t_2*`}:Tlist(syntax valtype, grammar Tresult_(I))} {")"}} => (`FUNC%->%`_comptype(`%`_resulttype(t_1*{t_1 <- `t_1*`},), `%`_resulttype(t_2*{t_2 <- `t_2*`},)), {TYPES [], TAGS [], GLOBALS [], MEMS [], TABLES [], FUNCS [], DATAS [], ELEMS [], LOCALS [], LABELS [], FIELDS [[?(`%`_name([],))]], TYPEDEFS []})
 
 ;; ../../../../specification/wasm-latest/6.2-text.types.spectec
+grammar Tdescribes_(I : I) : describes
+  ;; ../../../../specification/wasm-latest/6.2-text.types.spectec
+  prod{x : idx} {{"("} {"describes"} {x:Ttypeidx_(I)} {")"}} => DESCRIBES_describes(_IDX_typeuse(x))
+
+;; ../../../../specification/wasm-latest/6.2-text.types.spectec
+grammar Tdescriptor_(I : I) : descriptor
+  ;; ../../../../specification/wasm-latest/6.2-text.types.spectec
+  prod{x : idx} {{"("} {"descriptor"} {x:Ttypeidx_(I)} {")"}} => DESCRIPTOR_descriptor(_IDX_typeuse(x))
+
+;; ../../../../specification/wasm-latest/6.2-text.types.spectec
+grammar Tdesctype_(I : I) : (desctype, idctxt)
+  ;; ../../../../specification/wasm-latest/6.2-text.types.spectec
+  prod{`dcs?` : describes?, `dcr?` : descriptor?, ct : comptype, I' : I} {{dcs?{dcs <- `dcs?`}:Tdescribes_(I)?{}} {dcr?{dcr <- `dcr?`}:Tdescriptor_(I)?{}} {(ct, I'):Tcomptype_(I)}} => (`%%%`_desctype(dcs?{dcs <- `dcs?`}, dcr?{dcr <- `dcr?`}, ct), I')
+
+;; ../../../../specification/wasm-latest/6.2-text.types.spectec
 grammar Tfinal : final
   ;; ../../../../specification/wasm-latest/6.2-text.types.spectec
   prod "final" => FINAL_final
@@ -11163,7 +11174,7 @@ grammar Tfinal : final
 ;; ../../../../specification/wasm-latest/6.2-text.types.spectec
 grammar Tsubtype_(I : I) : (subtype, idctxt)
   ;; ../../../../specification/wasm-latest/6.2-text.types.spectec
-  prod{`fin?` : final?, `x*` : idx*, ct : comptype, I' : I} {{"("} {"sub"} {fin?{fin <- `fin?`}:Tfinal?{}} {x*{x <- `x*`}:Tlist(syntax typeidx, grammar Ttypeidx_(I))} {(ct, I'):Tcomptype_(I)} {")"}} => (SUB_subtype(fin?{fin <- `fin?`}, _IDX_typeuse(x)*{x <- `x*`}, `%%%`_desctype(?(), ?(), ct)), I')
+  prod{`fin?` : final?, `x*` : idx*, dct : desctype, I' : I} {{"("} {"sub"} {fin?{fin <- `fin?`}:Tfinal?{}} {x*{x <- `x*`}:Tlist(syntax typeidx, grammar Ttypeidx_(I))} {(dct, I'):Tdesctype_(I)} {")"}} => (SUB_subtype(fin?{fin <- `fin?`}, _IDX_typeuse(x)*{x <- `x*`}, dct), I')
 
 ;; ../../../../specification/wasm-latest/6.2-text.types.spectec
 grammar Ttypedef_(I : I) : (subtype, idctxt)
@@ -11322,6 +11333,10 @@ grammar Tplaininstr_(I : I) : instr
   prod{l : labelidx, rt_1 : reftype, rt_2 : reftype} {{"br_on_cast"} {l:Tlabelidx_(I)} {rt_1:Treftype_(I)} {rt_2:Treftype_(I)}} => BR_ON_CAST_instr(l, rt_1, rt_2)
   ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
   prod{l : labelidx, rt_1 : reftype, rt_2 : reftype} {{"br_on_cast_fail"} {l:Tlabelidx_(I)} {rt_1:Treftype_(I)} {rt_2:Treftype_(I)}} => BR_ON_CAST_FAIL_instr(l, rt_1, rt_2)
+  ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
+  prod{l : labelidx, rt_1 : reftype, rt_2 : reftype} {{"br_on_cast_desc_eq"} {l:Tlabelidx_(I)} {rt_1:Treftype_(I)} {rt_2:Treftype_(I)}} => BR_ON_CAST_DESC_EQ_instr(l, rt_1, rt_2)
+  ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
+  prod{l : labelidx, rt_1 : reftype, rt_2 : reftype} {{"br_on_cast_desc_eq_fail"} {l:Tlabelidx_(I)} {rt_1:Treftype_(I)} {rt_2:Treftype_(I)}} => BR_ON_CAST_DESC_EQ_FAIL_instr(l, rt_1, rt_2)
   ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
   prod{x : idx} {{"call"} {x:Tfuncidx_(I)}} => CALL_instr(x)
   ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
@@ -11485,6 +11500,10 @@ grammar Tplaininstr_(I : I) : instr
   ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
   prod{rt : reftype} {{"ref.cast"} {rt:Treftype_(I)}} => `REF.CAST`_instr(rt)
   ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
+  prod{x : idx} {{"ref.get_desc"} {x:Ttypeidx_(I)}} => `REF.GET_DESC`_instr(x)
+  ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
+  prod{rt : reftype} {{"ref.cast_desc_eq"} {rt:Treftype_(I)}} => `REF.CAST_DESC_EQ`_instr(rt)
+  ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
   prod "ref.i31" => `REF.I31`_instr
   ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
   prod "i31.get_s" => `I31.GET`_instr(S_sx)
@@ -11494,6 +11513,10 @@ grammar Tplaininstr_(I : I) : instr
   prod{x : idx} {{"struct.new"} {x:Ttypeidx_(I)}} => `STRUCT.NEW`_instr(x)
   ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
   prod{x : idx} {{"struct.new_default"} {x:Ttypeidx_(I)}} => `STRUCT.NEW_DEFAULT`_instr(x)
+  ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
+  prod{x : idx} {{"struct.new_desc"} {x:Ttypeidx_(I)}} => `STRUCT.NEW_DESC`_instr(x)
+  ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
+  prod{x : idx} {{"struct.new_default_desc"} {x:Ttypeidx_(I)}} => `STRUCT.NEW_DEFAULT_DESC`_instr(x)
   ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec
   prod{x : idx, i : fieldidx} {{"struct.get"} {x:Ttypeidx_(I)} {i:Tfieldidx__(I, x)}} => `STRUCT.GET`_instr(?(), x, i)
   ;; ../../../../specification/wasm-latest/6.3-text.instructions.spectec

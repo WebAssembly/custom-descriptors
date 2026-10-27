@@ -30,6 +30,7 @@ grammar Tabsheaptype : heaptype =
 
 grammar Theaptype_(I) : heaptype =
   | ht:Tabsheaptype => ht
+  | "(" "exact" x:Ttypeidx_(I) ")" => _HT EXACT (_IDX x)
   | x:Ttypeidx_(I) => _HT (_IDX x)
 
 grammar Tnull : null =
@@ -98,15 +99,23 @@ grammar Tcomptype_(I) : (comptype, idctxt) =
   | "(" "array" ft:Tfieldtype_(I) ")" => (ARRAY ft, {FIELDS (eps)})
   | "(" "func" (t_1,id?)*:Tlist(Tparam_(I)) t_2*:Tlist(Tresult_(I)) ")" => (FUNC t_1* -> t_2*, {FIELDS (eps)})
 
+grammar Tdescribes_(I) : describes =
+  | "(" "describes" x:Ttypeidx_(I) ")" => DESCRIBES (_IDX x)
+
+grammar Tdescriptor_(I) : descriptor =
+  | "(" "descriptor" x:Ttypeidx_(I) ")" => DESCRIPTOR (_IDX x)
+
+grammar Tdesctype_(I) : (desctype, idctxt) =
+  | dcs?:Tdescribes_(I)? dcr?:Tdescriptor_(I)? (ct,I'):Tcomptype_(I) => (dcs? dcr? ct, I')
 
 grammar Tfinal : final =
   | "final" => FINAL
 
 grammar Tsubtype_(I)/base : (subtype, idctxt) =
-  | "(" "sub" fin?:Tfinal? x*:Tlist(Ttypeidx_(I)) (ct,I'):Tcomptype_(I) ")" => (SUB fin? $($(_IDX x))* ct, I')
+  | "(" "sub" fin?:Tfinal? x*:Tlist(Ttypeidx_(I)) (dct,I'):Tdesctype_(I) ")" => (SUB fin? $($(_IDX x))* dct, I')
   | ...
 
-grammar Tsubtype_(I)/abbrev : (subtype, idctxt) = ... | Tcomptype_(I) == "(" "sub" "final" Tcomptype_(I) ")"
+grammar Tsubtype_(I)/abbrev : (subtype, idctxt) = ... | Tdesctype_(I) == "(" "sub" "final" Tdesctype_(I) ")"
 
 grammar Ttypedef_(I) : (subtype, idctxt) =
   | "(" "type" id?:Tid? (st,I'):Tsubtype_(I) ")" => (st, I' ++ {TYPES (id?)})

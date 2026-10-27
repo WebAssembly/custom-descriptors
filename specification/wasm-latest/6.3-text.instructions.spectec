@@ -106,6 +106,8 @@ grammar Tplaininstr_(I)/br : instr = ...
   | "br_on_non_null" l:Tlabelidx_(I) => BR_ON_NON_NULL l
   | "br_on_cast" l:Tlabelidx_(I) rt_1:Treftype_(I) rt_2:Treftype_(I) => BR_ON_CAST l rt_1 rt_2
   | "br_on_cast_fail" l:Tlabelidx_(I) rt_1:Treftype_(I) rt_2:Treftype_(I) => BR_ON_CAST_FAIL l rt_1 rt_2
+  | "br_on_cast_desc_eq" l:Tlabelidx_(I) rt_1:Treftype_(I) rt_2:Treftype_(I) => BR_ON_CAST_DESC_EQ l rt_1 rt_2
+  | "br_on_cast_desc_eq_fail" l:Tlabelidx_(I) rt_1:Treftype_(I) rt_2:Treftype_(I) => BR_ON_CAST_DESC_EQ_FAIL l rt_1 rt_2
   | ...
 
 grammar Tplaininstr_(I)/func-plain : instr = ...
@@ -309,6 +311,8 @@ grammar Tplaininstr_(I)/ref : instr = ...
   | "ref.eq" => REF.EQ
   | "ref.test" rt:Treftype_(I) => REF.TEST rt
   | "ref.cast" rt:Treftype_(I) => REF.CAST rt
+  | "ref.get_desc" x:Ttypeidx_(I) => REF.GET_DESC x
+  | "ref.cast_desc_eq" rt:Treftype_(I) => REF.CAST_DESC_EQ rt
   | ...
 
 grammar Tplaininstr_(I)/i31 : instr = ...
@@ -320,6 +324,8 @@ grammar Tplaininstr_(I)/i31 : instr = ...
 grammar Tplaininstr_(I)/struct : instr = ...
   | "struct.new" x:Ttypeidx_(I) => STRUCT.NEW x
   | "struct.new_default" x:Ttypeidx_(I) => STRUCT.NEW_DEFAULT x
+  | "struct.new_desc" x:Ttypeidx_(I) => STRUCT.NEW_DESC x
+  | "struct.new_default_desc" x:Ttypeidx_(I) => STRUCT.NEW_DEFAULT_DESC x
   | "struct.get" x:Ttypeidx_(I) i:Tfieldidx__(I,x) => STRUCT.GET x i
   | "struct.get_s" x:Ttypeidx_(I) i:Tfieldidx__(I,x) => STRUCT.GET S x i
   | "struct.get_u" x:Ttypeidx_(I) i:Tfieldidx__(I,x) => STRUCT.GET U x i

@@ -8653,10 +8653,11 @@ relation Funcinst_ok: `%|-%:%`(store, funcinst, deftype)
 ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec
 relation Structinst_ok: `%|-%:OK`(store, structinst)
   ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec
-  rule _{s : store, dt : deftype, `fv*` : fieldval*, `mut?*` : mut?*, `zt*` : storagetype*}:
-    `%|-%:OK`(s, {TYPE dt, FIELDS fv*{fv <- `fv*`}, DESC ?()})
-    -- Expand: `%~~%`(dt, STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`},)))
+  rule _{s : store, dt : deftype, `fv*` : fieldval*, `a?` : addr?, `dcs?` : describes?, `dcr?` : descriptor?, `mut?*` : mut?*, `zt*` : storagetype*}:
+    `%|-%:OK`(s, {TYPE dt, FIELDS fv*{fv <- `fv*`}, DESC a?{a <- `a?`}})
+    -- Expand_desc: `%~%`(dt, `%%%`_desctype(dcs?{dcs <- `dcs?`}, dcr?{dcr <- `dcr?`}, STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`},))))
     -- (Fieldval_ok: `%|-%:%`(s, fv, zt))*{fv <- `fv*`, zt <- `zt*`}
+    -- if (dcr?{dcr <- `dcr?`} = DESCRIPTOR_descriptor(s.STRUCTS_store[a].TYPE_structinst : deftype <: typeuse)?{a <- `a?`})
 
 ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec
 relation Arrayinst_ok: `%|-%:OK`(store, arrayinst)
@@ -8686,22 +8687,27 @@ relation ImmutReachable: `%>>_%%`(fieldval, store, fieldval)
     -- ImmutReachable: `%>>_%%`(fv_1, s, fv')
     -- ImmutReachable: `%>>_%%`(fv', s, fv_2)
 
-  ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec:247.1-250.20
-  rule `ref.struct`{a : addr, s : store, i : nat, `ft*` : fieldtype*, zt : storagetype}:
+  ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec:246.1-249.20
+  rule `ref.struct-field`{a : addr, s : store, i : nat, `ft*` : fieldtype*, zt : storagetype}:
     `%>>_%%`(`REF.STRUCT_ADDR`_fieldval(a), s, s.STRUCTS_store[a].FIELDS_structinst[i])
     -- Expand: `%~~%`(s.STRUCTS_store[a].TYPE_structinst, STRUCT_comptype(`%`_list(ft*{ft <- `ft*`},)))
     -- if (ft*{ft <- `ft*`}[i] = `%%`_fieldtype(?(), zt))
 
-  ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec:252.1-254.42
+  ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec:251.1-253.31
+  rule `ref.struct-desc`{a : addr, s : store, a' : addr}:
+    `%>>_%%`(`REF.STRUCT_ADDR`_fieldval(a), s, `REF.STRUCT_ADDR`_fieldval(a'))
+    -- if (s.STRUCTS_store[a].DESC_structinst = ?(a'))
+
+  ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec:255.1-257.42
   rule `ref.array`{a : addr, s : store, i : nat, zt : storagetype}:
     `%>>_%%`(`REF.ARRAY_ADDR`_fieldval(a), s, s.ARRAYS_store[a].FIELDS_arrayinst[i])
     -- Expand: `%~~%`(s.ARRAYS_store[a].TYPE_arrayinst, ARRAY_comptype(`%%`_fieldtype(?(), zt)))
 
-  ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec:256.1-257.44
+  ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec:259.1-260.44
   rule `ref.exn`{a : addr, s : store, i : nat}:
     `%>>_%%`(`REF.EXN_ADDR`_fieldval(a), s, (s.EXNS_store[a].FIELDS_exninst[i] : val <: fieldval))
 
-  ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec:259.1-260.28
+  ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec:262.1-263.28
   rule `ref.extern`{ref : ref, s : store}:
     `%>>_%%`(`REF.EXTERN`_fieldval(ref), s, (ref : ref <: fieldval))
 }
@@ -8794,8 +8800,8 @@ relation Extend_eleminst: `%<=%`(eleminst, eleminst)
 ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec
 relation Extend_structinst: `%<=%`(structinst, structinst)
   ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec
-  rule _{dt : deftype, `fv*` : fieldval*, `fv'*` : fieldval*, `mut?*` : mut?*, `zt*` : storagetype*}:
-    `%<=%`({TYPE dt, FIELDS fv*{fv <- `fv*`}, DESC ?()}, {TYPE dt, FIELDS fv'*{fv' <- `fv'*`}, DESC ?()})
+  rule _{dt : deftype, `fv*` : fieldval*, `a?` : addr?, `fv'*` : fieldval*, `mut?*` : mut?*, `zt*` : storagetype*}:
+    `%<=%`({TYPE dt, FIELDS fv*{fv <- `fv*`}, DESC a?{a <- `a?`}}, {TYPE dt, FIELDS fv'*{fv' <- `fv'*`}, DESC a?{a <- `a?`}})
     -- Expand: `%~~%`(dt, STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`},)))
     -- (if ((mut?{mut <- `mut?`} = ?(MUT_mut)) \/ (fv = fv')))*{fv <- `fv*`, fv' <- `fv'*`, `mut?` <- `mut?*`}
 

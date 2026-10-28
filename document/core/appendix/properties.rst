@@ -240,11 +240,11 @@ Module instances are classified by *module contexts*, which are regular :ref:`co
 
 * Each :ref:`exception instance <syntax-exninst>` :math:`\exninst_i` in :math:`S.\SEXNS` must be :ref:`valid <valid-exninst>`.
 
-* No :ref:`reference <syntax-ref>` to a bound :ref:`structure address <syntax-structaddr>` must be reachable from itself through a path consisting only of indirections through immutable structure or array :ref:`fields <syntax-fieldtype>`, structure descriptors, or fields of :ref:`exception instances <syntax-exninst>`.
+* No :ref:`reference <syntax-ref>` to a bound :ref:`structure address <syntax-structaddr>` must be reachable from itself through a path consisting only of indirections through immutable structure or array :ref:`fields <syntax-fieldtype>`, :ref:`descriptors <syntax-desctype>`, or fields of :ref:`exception instances <syntax-exninst>`.
 
-* No :ref:`reference <syntax-ref>` to a bound :ref:`array address <syntax-arrayaddr>` must be reachable from itself through a path consisting only of indirections through immutable structure or array :ref:`fields <syntax-fieldtype>`, structure descriptors, or fields of :ref:`exception instances <syntax-exninst>`.
+* No :ref:`reference <syntax-ref>` to a bound :ref:`array address <syntax-arrayaddr>` must be reachable from itself through a path consisting only of indirections through immutable structure or array :ref:`fields <syntax-fieldtype>`, :ref:`descriptors <syntax-desctype>`, or fields of :ref:`exception instances <syntax-exninst>`.
 
-* No :ref:`reference <syntax-ref>` to a bound :ref:`exception address <syntax-exnaddr>` must be reachable from itself through a path consisting only of indirections through immutable structure or array :ref:`fields <syntax-fieldtype>`, structure descriptors, or fields of :ref:`exception instances <syntax-exninst>`.
+* No :ref:`reference <syntax-ref>` to a bound :ref:`exception address <syntax-exnaddr>` must be reachable from itself through a path consisting only of indirections through immutable structure or array :ref:`fields <syntax-fieldtype>`, :ref:`descriptors <syntax-desctype>`, or fields of :ref:`exception instances <syntax-exninst>`.
 
 * Then the store is valid.
 
@@ -577,7 +577,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
 
   - The :ref:`field value <syntax-fieldval>` :math:`\fieldval_i` must be :ref:`valid <valid-fieldval>` with :ref:`storage type <syntax-storagetype>` :math:`\storagetype_i`.
 
-* The optional :ref:`descriptor <syntax-descriptor>` :math:`\descriptor^?` must be :math:`(\TDESCRIPTOR~S.\SSTRUCTS[a].\SITYPE)^?`.
+* The optional :ref:`descriptor <syntax-desctype>` :math:`\descriptor^?` must be :math:`(\TDESCRIPTOR~S.\SSTRUCTS[a].\SITYPE)^?`.
 
 * Then the structure instance is valid.
 

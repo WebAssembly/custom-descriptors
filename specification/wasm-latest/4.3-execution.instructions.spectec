@@ -164,6 +164,48 @@ rule Step_read/br_on_cast_fail-fail:
   -- otherwise
 
 
+rule Step_read/br_on_cast_desc_eq-null:
+  z; ref_1 ref_2 (BR_ON_CAST_DESC_EQ l rt_1 (REF null? ht))  ~>  TRAP
+  -- if ref_2 = REF.NULL_ADDR
+
+rule Step_read/br_on_cast_desc_eq-succeed-null:
+  z; ref_1 ref_2 (BR_ON_CAST_DESC_EQ l rt_1 (REF NULL ht))  ~>  ref_1 (BR l)
+  -- otherwise
+  -- if ref_1 = REF.NULL_ADDR
+
+rule Step_read/br_on_cast_desc_eq-succeed-addr:
+  z; ref_1 ref_2 (BR_ON_CAST_DESC_EQ l rt_1 (REF null? ht))  ~>  ref_1 (BR l)
+  -- otherwise
+  -- if ref_1 = REF.STRUCT_ADDR a
+  -- if $structinst(z)[a].DESC = a'
+  -- if ref_2 = REF.STRUCT_ADDR a'
+
+rule Step_read/br_on_cast_desc_eq-fail:
+  z; ref_1 ref_2 (BR_ON_CAST_DESC_EQ l rt_1 (REF null? ht))  ~>  ref_1
+  -- otherwise
+
+
+rule Step_read/br_on_cast_desc_eq_fail-null:
+  z; ref_1 ref_2 (BR_ON_CAST_DESC_EQ_FAIL l rt_1 (REF null? ht))  ~>  TRAP
+  -- if ref_2 = REF.NULL_ADDR
+
+rule Step_read/br_on_cast_desc_eq_fail-succeed-null:
+  z; ref_1 ref_2 (BR_ON_CAST_DESC_EQ_FAIL l rt_1 (REF NULL ht))  ~>  ref_1
+  -- otherwise
+  -- if ref_1 = REF.NULL_ADDR
+
+rule Step_read/br_on_cast_desc_eq_fail-succeed-addr:
+  z; ref_1 ref_2 (BR_ON_CAST_DESC_EQ_FAIL l rt_1 (REF null? ht))  ~>  ref_1
+  -- otherwise
+  -- if ref_1 = REF.STRUCT_ADDR a
+  -- if $structinst(z)[a].DESC = a'
+  -- if ref_2 = REF.STRUCT_ADDR a'
+
+rule Step_read/br_on_cast_desc_eq_fail-fail:
+  z; ref_1 ref_2 (BR_ON_CAST_DESC_EQ_FAIL l rt_1 (REF null? ht))  ~>  ref_1 (BR l)
+  -- otherwise
+
+
 ;; Function instructions
 
 rule Step_read/call:
@@ -693,6 +735,35 @@ rule Step_read/ref.cast-fail:
   -- otherwise
 
 
+rule Step_read/ref.get_desc-null:
+  z; (REF.NULL_ADDR) (REF.GET_DESC x)  ~>  TRAP
+
+rule Step_read/ref.get_desc-struct:
+  z; (REF.STRUCT_ADDR a) (REF.GET_DESC x)  ~>  (REF.STRUCT_ADDR a')
+  -- if $structinst(z)[a].DESC = a'
+
+
+rule Step_read/ref.cast_desc_eq-null:
+  z; ref_1 ref_2 (REF.CAST_DESC_EQ (REF null? ht))  ~>  TRAP
+  -- if ref_2 = REF.NULL_ADDR
+
+rule Step_read/ref.cast_desc_eq-succeed-null:
+  z; ref_1 ref_2 (REF.CAST_DESC_EQ (REF NULL ht))  ~>  ref_1
+  -- otherwise
+  -- if ref_1 = REF.NULL_ADDR
+
+rule Step_read/ref.cast_desc_eq-succeed-addr:
+  z; ref_1 ref_2 (REF.CAST_DESC_EQ (REF null? ht))  ~>  ref_1
+  -- otherwise
+  -- if ref_1 = REF.STRUCT_ADDR a
+  -- if $structinst(z)[a].DESC = a'
+  -- if ref_2 = REF.STRUCT_ADDR a'
+
+rule Step_read/ref.cast_desc_eq-fail:
+  z; ref_1 ref_2 (REF.CAST_DESC_EQ (REF null? ht))  ~>  TRAP
+  -- otherwise
+
+
 ;; Scalar reference instructions
 
 rule Step_pure/i31.get-null:
@@ -708,10 +779,25 @@ rule Step/struct.new:
   z; val^n (STRUCT.NEW x)  ~>  $add_structinst(z, si); (REF.STRUCT_ADDR a)
   -- Expand: $type(z, x) ~~ STRUCT (mut? zt)^n
   -- if a = |$structinst(z)|
-  -- if si = {TYPE $type(z, x), FIELDS ($packfield_(zt, val))^n}
+  -- if si = {TYPE $type(z, x), FIELDS ($packfield_(zt, val))^n, DESC eps}
 
 rule Step_read/struct.new_default:
   z; (STRUCT.NEW_DEFAULT x)  ~>  val* (STRUCT.NEW x)
+  -- Expand: $type(z, x) ~~ STRUCT (mut? zt)*
+  -- (if $default_($unpack(zt)) = val)*
+
+rule Step/struct.new_desc-null:
+  z; val^n (REF.NULL_ADDR) (STRUCT.NEW_DESC x)  ~>  z; TRAP
+  -- Expand: $type(z, x) ~~ STRUCT (mut? zt)^n
+
+rule Step/struct.new_desc-struct:
+  z; val^n (REF.STRUCT_ADDR a') (STRUCT.NEW_DESC x)  ~>  $add_structinst(z, si); (REF.STRUCT_ADDR a)
+  -- Expand: $type(z, x) ~~ STRUCT (mut? zt)^n
+  -- if a = |$structinst(z)|
+  -- if si = {TYPE $type(z, x), FIELDS ($packfield_(zt, val))^n, DESC a'}
+
+rule Step_read/struct.new_default_desc:
+  z; ref (STRUCT.NEW_DEFAULT_DESC x)  ~>  val* ref (STRUCT.NEW_DESC x)
   -- Expand: $type(z, x) ~~ STRUCT (mut? zt)*
   -- (if $default_($unpack(zt)) = val)*
 

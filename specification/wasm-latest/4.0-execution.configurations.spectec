@@ -89,7 +89,7 @@ syntax fieldval hint(desc "field value") =
   | val | packval
 
 syntax structinst hint(desc "structure instance") hint(macro "%" "SI%") =
-  { TYPE deftype, FIELDS fieldval* }
+  { TYPE deftype, FIELDS fieldval*, DESC structaddr? }
 
 syntax arrayinst hint(desc "array instance") hint(macro "%" "AI%") =
   { TYPE deftype, FIELDS fieldval* }

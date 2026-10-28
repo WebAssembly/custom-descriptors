@@ -1441,6 +1441,7 @@
 
 .. |SITYPE| mathdef:: \xref{exec/runtime}{syntax-structinst}{\K{type}}
 .. |SIFIELDS| mathdef:: \xref{exec/runtime}{syntax-structinst}{\K{fields}}
+.. |SIDESC| mathdef:: \xref{exec/runtime}{syntax-structinst}{\K{desc}}
 
 .. |AITYPE| mathdef:: \xref{exec/runtime}{syntax-arrayinst}{\K{type}}
 .. |AIFIELDS| mathdef:: \xref{exec/runtime}{syntax-arrayinst}{\K{fields}}
@@ -1480,6 +1481,7 @@
 .. |ZDBYTES| mathdef:: \DIBYTES
 .. |ZSSTRUCTS| mathdef:: \ZSTRUCTS
 .. |ZSFIELDS| mathdef:: \SIFIELDS
+.. |ZSDESC| mathdef:: \SIDESC
 .. |ZAARRAYS| mathdef:: \ZARRAYS
 .. |ZAFIELDS| mathdef:: \AIFIELDS
 

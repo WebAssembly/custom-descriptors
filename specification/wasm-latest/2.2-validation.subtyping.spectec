@@ -66,11 +66,9 @@ rule Heaptype_sub/typeidx-r:
   C |- heaptype <: _HT _IDX typeidx
   -- Heaptype_sub: C |- heaptype <: _HT C.TYPES[typeidx]
 
-;; TODO(tlively): At least this struct rule should include the optional described
-;; and descriptor types.
 rule Heaptype_sub/rec-struct:
   C |- _HT REC i <: STRUCT
-  -- if C.RECS[i] = SUB final? (STRUCT fieldtype*)
+  -- if C.RECS[i] = SUB final? (dcs? dcr? (STRUCT fieldtype*))
 
 rule Heaptype_sub/rec-array:
   C |- _HT REC i <: ARRAY
@@ -198,11 +196,10 @@ rule Comptype_sub/func:
   -- Resulttype_sub: C |- t_21* <: t_11*
   -- Resulttype_sub: C |- t_12* <: t_22*
 
-;; TODO(tlively): Check descriptor square rules
 rule Desctype_sub:
-  C |- (DESCRIBES tu_11) (DESCRIPTOR tu_12) ct_1 <: (DESCRIBES tu_21) (DESCRIPTOR tu_22) ct_2
-  -- Heaptype_sub: C |- _HT tu_11 <: _HT tu_21
-  -- Heaptype_sub: C |- _HT tu_12 <: _HT tu_22
+  C |- (DESCRIBES tu_11)? (DESCRIPTOR tu_12)? ct_1 <: (DESCRIBES tu_21)? (DESCRIPTOR tu_22)? ct_2
+  -- (Heaptype_sub: C |- _HT tu_11 <: _HT tu_21)?
+  -- (Heaptype_sub: C |- _HT tu_12 <: _HT tu_22)?
   -- Comptype_sub: C |- ct_1 <: ct_2
 
 

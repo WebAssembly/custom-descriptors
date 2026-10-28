@@ -75,8 +75,7 @@ relation Expand: deftype ~~ comptype hint(macro "%expanddt") hint(tabular)
 relation Expand_use: typeuse ~~_context comptype  hint(macro "%expandyy") hint(tabular)
   hint(prose "The :ref:`expansion <aux-expand-typeuse>` of %2 is %3")  ;; TODO(3, ?): avoid hardcoding reST
 
-;; TODO(tlively): Update this to include the optional described and descriptor types.
-rule Expand: deftype ~~ comptype   -- if $unrolldt(deftype) = SUB final? typeuse* comptype
+rule Expand: deftype ~~ comptype   -- if $unrolldt(deftype) = SUB final? typeuse* (dcs? dcr? comptype)
 
 rule Expand_use/deftype: deftype ~~_C comptype       -- Expand: deftype ~~ comptype
 rule Expand_use/typeidx: _IDX typeidx ~~_C comptype  -- Expand: C.TYPES[typeidx] ~~ comptype
@@ -157,18 +156,29 @@ rule Comptype_ok/func:
 rule Desctype_ok:
   C |- (DESCRIBES tu_1)? (DESCRIPTOR tu_2)? ct : OK
   -- (Typeuse_ok: C |- tu_1 : OK)?
+  -- if tu_1? = eps \/ ct = STRUCT ft_1*
+  ----
   -- (Typeuse_ok: C |- tu_2 : OK)?
+  -- if tu_2? = eps \/ ct = STRUCT ft_2*
+  ----
   -- Comptype_ok: C |- ct : OK
 
 
 rule Subtype_ok:
-  C |- SUB FINAL? (_IDX x)* desctype : OK(x_0)
+  C |- SUB final? (_IDX x)* dct : OK(x_0)
   -- if |x*| <= 1
   -- (if x < x_0)*
-  -- (if $unrolldt(C.TYPES[x]) = SUB yy* desctype')*
+  -- (if $unrolldt(C.TYPES[x]) = SUB yy* dct')*
   ----
-  -- Desctype_ok: C |- desctype : OK
-  -- (Desctype_sub: C |- desctype <: desctype')*
+  -- if dct = (DESCRIBES (_IDX x_1))? (DESCRIPTOR (_IDX x_2))? ct
+  -- (if x_1 < x_0)?
+  ----
+  -- (if $unrolldt(C.TYPES[x_1]) = SUB final? yy_1* (dcs_1? (DESCRIPTOR C.TYPES[x_0]) ct_1))?
+  ----
+  -- (if $unrolldt(C.TYPES[x_2]) = SUB final? yy_2* ((DESCRIBES C.TYPES[x_0]) dcr_2? ct_2))?
+  ----
+  -- Desctype_ok: C |- dct : OK
+  -- (Desctype_sub: C |- dct <: dct')*
 
 def $before(typeuse, nat) : bool   hint(show % << %) hint(macro none)
 def $before(REC j, i) = j < i
@@ -181,15 +191,22 @@ def $unrollht_(C, _HT EXACT? _IDX typeidx) = $unrolldt(C.TYPES[typeidx])
 def $unrollht_(C, _HT EXACT? (REC i)) = C.RECS[i]
 
 rule Subtype_ok2:
-  C |- SUB FINAL? typeuse* desctype : OK(i)
-  -- if |typeuse*| <= 1
-  -- (Typeuse_ok: C |- typeuse : OK)*
-  -- (if $before(typeuse, i))*
+  C |- SUB final? tu* dct : OK(i)
+  -- if |tu*| <= 1
+  -- (Typeuse_ok: C |- tu : OK)*
+  -- (if $before(tu, i))*
   ----
-  -- (if $unrollht_(C, _HT typeuse) = SUB typeuse'* desctype')*
+  -- (if $unrollht_(C, _HT tu) = SUB tu'* dct')*
   ----
-  -- Desctype_ok: C |- desctype : OK
-  -- (Desctype_sub: C |- desctype <: desctype')*
+  -- if dct = (DESCRIBES (REC i_1))? (DESCRIPTOR (REC i_2))? ct
+  -- (if i_1 < i)?
+  ----
+  -- (if C.RECS[i_1] = SUB final? tu_1* (dcs_1? (DESCRIPTOR (REC i)) ct_1))?
+  ----
+  -- (if C.RECS[i_2] = SUB final? tu_2* ((DESCRIBES (REC i)) dcr_2? ct_2))?
+  ----
+  -- Desctype_ok: C |- dct : OK
+  -- (Desctype_sub: C |- dct <: dct')*
 
 
 rule Rectype_ok/empty:

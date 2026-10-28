@@ -174,6 +174,7 @@ let remove_empty_arrow_sub e =
 
 let is_iter_var e =
   match e.it, e.note.it with
+  | Ast.VarE id, Ast.IterT (_, Opt) -> String.ends_with ~suffix:"?" id.it
   | Ast.VarE id, Ast.IterT (_, List) -> String.ends_with ~suffix:"*" id.it
   | Ast.VarE id, Ast.IterT (_, List1) -> String.ends_with ~suffix:"+" id.it
   | _ -> false
@@ -281,6 +282,9 @@ let exp_to_expr e = translate_exp e |> transpile_expr
 let exp_to_argexpr es = translate_argexp es |> List.map transpile_expr
 let rec recover_iter n ty region =
   match ty.it with
+  | Ast.IterT (ty', Opt) when String.ends_with ~suffix:"?" n ->
+    let e' = recover_iter (String.sub n 0 (String.length n - 1)) ty' region in
+    Ast.IterE (e', (Ast.Opt, [])) $$ region % ty
   | Ast.IterT (ty', List1) when String.ends_with ~suffix:"+" n ->
     let e' = recover_iter (String.sub n 0 (String.length n - 1)) ty' region in
     Ast.IterE (e', (Ast.List, [])) $$ region % ty
@@ -300,6 +304,10 @@ let rec if_expr_to_instrs e =
   | Ast.CmpE (`EqOp, `BoolT, ({it = LenE e1; _} as e1'), ({it = LenE e2; _ } as e2')) when is_iter_var e1 && is_iter_var e2 ->
     let expr1 = { e1' with it = Ast.LenE (itervar_to_expr e1) } |> exp_to_expr in
     let expr2 = { e2' with it = Ast.LenE (itervar_to_expr e2) } |> exp_to_expr in
+    [ CmpS (expr1, `EqOp, expr2) ]
+  | Ast.CmpE (`EqOp, `BoolT, e1, ({it = OptE None; _} as e2)) when is_iter_var e1 ->
+    let expr1 = itervar_to_expr e1 |> exp_to_expr in
+    let expr2 = exp_to_expr e2 in
     [ CmpS (expr1, `EqOp, expr2) ]
   | Ast.CmpE (`GtOp, _, {it = LenE ({it = DotE _; _} as arr); _}, index)
   | Ast.CmpE (`LtOp, _, index, {it = LenE ({it = DotE _; _} as arr); _}) ->
@@ -410,7 +418,11 @@ let rec prem_to_instrs prem =
     )
   | Ast.IterPr (prem, iter) ->
     (match iter with
-    | Ast.Opt, [(id, _)] -> [ IfS (isDefinedE (varE id.it ~note:no_note) ~note:no_note, prem_to_instrs prem) ]
+    | Ast.Opt, vars when vars <> [] ->
+        let to_cond (id, _) = isDefinedE (varE id.it ~note:no_note) ~note:no_note in
+        let conds = List.map to_cond vars in
+        let cond = List.fold_left (fun e1 e2 -> binE (`AndOp, e1, e2) ~note:boolT) (List.hd conds) (List.tl conds) in
+        [ IfS (cond, prem_to_instrs prem) ]
     | Ast.(List | ListN _), vars ->
         let to_iter (id, _) =
           let name = varE id.it ~note:no_note in

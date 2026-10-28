@@ -133,11 +133,11 @@ rule Exportinst_ok:
   -- Externaddr_ok: s |- xa : xt
 
 
-;; TODO(tlively): Update this to account for struct descriptors.
 rule Structinst_ok:
-  s |- {TYPE dt, FIELDS fv*} : OK
-  -- Expand: dt ~~ STRUCT (mut? zt)*
+  s |- {TYPE dt, FIELDS fv*, DESC a?} : OK
+  -- Expand_desc: dt ~ dcs? dcr? STRUCT (mut? zt)*
   -- (Fieldval_ok: s |- fv : zt)*
+  -- if dcr? = (DESCRIPTOR s.STRUCTS[a].TYPE)?
 
 rule Arrayinst_ok:
   s |- {TYPE dt, FIELDS fv*} : OK
@@ -243,11 +243,14 @@ rule ImmutReachable/trans:
   -- ImmutReachable: fv_1 >>_s fv'
   -- ImmutReachable: fv' >>_s fv_2
 
-;; TODO(tlively): Update this to account for struct descriptors.
-rule ImmutReachable/ref.struct:
+rule ImmutReachable/ref.struct-field:
   (REF.STRUCT_ADDR a) >>_s s.STRUCTS[a].FIELDS[i]
   -- Expand: s.STRUCTS[a].TYPE ~~ STRUCT ft*
   -- if ft*[i] = zt
+
+rule ImmutReachable/ref.struct-desc:
+  (REF.STRUCT_ADDR a) >>_s (REF.STRUCT_ADDR a')
+  -- if s.STRUCTS[a].DESC = a'
 
 rule ImmutReachable/ref.array:
   (REF.ARRAY_ADDR a) >>_s s.ARRAYS[a].FIELDS[i]
@@ -302,9 +305,8 @@ rule Extend_eleminst:
   {TYPE rt, REFS ref*} `<= {TYPE rt, REFS ref'*}
   -- if ref* = ref'* \/ ref'* = eps
 
-;; TODO(tlively): Update this to account for struct descriptors.
 rule Extend_structinst:
-  {TYPE dt, FIELDS fv*} `<= {TYPE dt, FIELDS fv'*}
+  {TYPE dt, FIELDS fv*, DESC a?} `<= {TYPE dt, FIELDS fv'*, DESC a?}
   -- Expand: dt ~~ STRUCT (mut? zt)*
   -- (if mut? = MUT \/ fv = fv')*
 

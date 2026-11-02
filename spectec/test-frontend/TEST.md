@@ -6158,8 +6158,8 @@ syntax fieldval =
 syntax structinst =
 {
   TYPE deftype,
-  FIELDS fieldval*,
-  DESC structaddr?
+  DESC structaddr?,
+  FIELDS fieldval*
 }
 
 ;; ../../../../specification/wasm-latest/4.0-execution.configurations.spectec
@@ -7843,7 +7843,7 @@ relation Step: `%~>%`(config, config)
     `%~>%`(`%;%`_config(z, (val : val <: instr)^n{val <- `val*`} ++ [`STRUCT.NEW`_instr(x)]), `%;%`_config($add_structinst(z, [si]), [`REF.STRUCT_ADDR`_instr(a)]))
     -- Expand: `%~~%`($type(z, x), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)^n{`mut?` <- `mut?*`, zt <- `zt*`},)))
     -- if (a = |$structinst(z)|)
-    -- if (si = {TYPE $type(z, x), FIELDS $packfield_(zt, val)^n{val <- `val*`, zt <- `zt*`}, DESC ?()})
+    -- if (si = {TYPE $type(z, x), DESC ?(), FIELDS $packfield_(zt, val)^n{val <- `val*`, zt <- `zt*`}})
 
   ;; ../../../../specification/wasm-latest/4.3-execution.instructions.spectec:789.1-791.47
   rule `struct.new_desc-null`{z : state, n : n, `val*` : val*, x : idx, `mut?*` : mut?*, `zt*` : storagetype*}:
@@ -7855,7 +7855,7 @@ relation Step: `%~>%`(config, config)
     `%~>%`(`%;%`_config(z, (val : val <: instr)^n{val <- `val*`} ++ [`REF.STRUCT_ADDR`_instr(a') `STRUCT.NEW_DESC`_instr(x)]), `%;%`_config($add_structinst(z, [si]), [`REF.STRUCT_ADDR`_instr(a)]))
     -- Expand: `%~~%`($type(z, x), STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)^n{`mut?` <- `mut?*`, zt <- `zt*`},)))
     -- if (a = |$structinst(z)|)
-    -- if (si = {TYPE $type(z, x), FIELDS $packfield_(zt, val)^n{val <- `val*`, zt <- `zt*`}, DESC ?(a')})
+    -- if (si = {TYPE $type(z, x), DESC ?(a'), FIELDS $packfield_(zt, val)^n{val <- `val*`, zt <- `zt*`}})
 
   ;; ../../../../specification/wasm-latest/4.3-execution.instructions.spectec:814.1-815.55
   rule `struct.set-null`{z : state, val : val, x : idx, i : fieldidx}:
@@ -8654,7 +8654,7 @@ relation Funcinst_ok: `%|-%:%`(store, funcinst, deftype)
 relation Structinst_ok: `%|-%:OK`(store, structinst)
   ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec
   rule _{s : store, dt : deftype, `fv*` : fieldval*, `mut?*` : mut?*, `zt*` : storagetype*}:
-    `%|-%:OK`(s, {TYPE dt, FIELDS fv*{fv <- `fv*`}, DESC ?()})
+    `%|-%:OK`(s, {TYPE dt, DESC ?(), FIELDS fv*{fv <- `fv*`}})
     -- Expand: `%~~%`(dt, STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`},)))
     -- (Fieldval_ok: `%|-%:%`(s, fv, zt))*{fv <- `fv*`, zt <- `zt*`}
 
@@ -8795,7 +8795,7 @@ relation Extend_eleminst: `%<=%`(eleminst, eleminst)
 relation Extend_structinst: `%<=%`(structinst, structinst)
   ;; ../../../../specification/wasm-latest/7.1-soundness.configurations.spectec
   rule _{dt : deftype, `fv*` : fieldval*, `fv'*` : fieldval*, `mut?*` : mut?*, `zt*` : storagetype*}:
-    `%<=%`({TYPE dt, FIELDS fv*{fv <- `fv*`}, DESC ?()}, {TYPE dt, FIELDS fv'*{fv' <- `fv'*`}, DESC ?()})
+    `%<=%`({TYPE dt, DESC ?(), FIELDS fv*{fv <- `fv*`}}, {TYPE dt, DESC ?(), FIELDS fv'*{fv' <- `fv'*`}})
     -- Expand: `%~~%`(dt, STRUCT_comptype(`%`_list(`%%`_fieldtype(mut?{mut <- `mut?`}, zt)*{`mut?` <- `mut?*`, zt <- `zt*`},)))
     -- (if ((mut?{mut <- `mut?`} = ?(MUT_mut)) \/ (fv = fv')))*{fv <- `fv*`, fv' <- `fv'*`, `mut?` <- `mut?*`}
 

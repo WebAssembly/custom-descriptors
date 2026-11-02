@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Values &#8212; WebAssembly 3.0 + Custom Descriptors (2026-10-27)</title>
+    <title>Values &#8212; WebAssembly 3.0 + Custom Descriptors (2026-11-02)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=f1e8fd5b"></script>
+    <script src="../_static/documentation_options.js?v=26d77489"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}, "options": {"menuOptions": {"settings": {"enrich": false}}}}</script>
@@ -142,7 +142,7 @@ s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax
 </section>
 <section id="structure-references">
 <span id="valid-ref-struct"></span><h3>Structure References<a class="headerlink" href="#structure-references" title="Link to this heading">¶</a></h3>
-<p>The <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)\)</span> is <a class="reference internal" href="#valid-ref"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\mathit{dt}})\)</span> if:</p>
+<p>The <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)\)</span> is <a class="reference internal" href="#valid-ref"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~{\mathit{dt}}))\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="runtime.html#syntax-structinst"><span class="std std-ref">structure instance</span></a> <span class="math notranslate nohighlight">\(s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{structs}}{}[a]\)</span> exists.</p></li>
@@ -154,14 +154,14 @@ s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax
 \frac{
 s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{type}} = {\mathit{dt}}
 }{
-s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a : \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\mathit{dt}}
+s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a : \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~{\mathit{dt}})
 }
 \qquad
 \end{array}\]</div>
 </section>
 <section id="array-references">
 <span id="valid-ref-array"></span><h3>Array References<a class="headerlink" href="#array-references" title="Link to this heading">¶</a></h3>
-<p>The <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}array}}~a)\)</span> is <a class="reference internal" href="#valid-ref"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\mathit{dt}})\)</span> if:</p>
+<p>The <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}array}}~a)\)</span> is <a class="reference internal" href="#valid-ref"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~{\mathit{dt}}))\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="runtime.html#syntax-arrayinst"><span class="std std-ref">array instance</span></a> <span class="math notranslate nohighlight">\(s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}{}[a]\)</span> exists.</p></li>
@@ -173,7 +173,7 @@ s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax
 \frac{
 s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}{}[a]{.}\href{../exec/runtime.html#syntax-arrayinst}{\mathsf{type}} = {\mathit{dt}}
 }{
-s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}array}}~a : \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\mathit{dt}}
+s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}array}}~a : \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~{\mathit{dt}})
 }
 \qquad
 \end{array}\]</div>
@@ -198,7 +198,7 @@ s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax
 </section>
 <section id="function-references">
 <h3>Function References<a class="headerlink" href="#function-references" title="Link to this heading">¶</a></h3>
-<p>The <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}func}}~a)\)</span> is <a class="reference internal" href="#valid-ref"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\mathit{dt}})\)</span> if:</p>
+<p>The <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}func}}~a)\)</span> is <a class="reference internal" href="#valid-ref"><span class="std std-ref">valid</span></a> with the <a class="reference internal" href="../syntax/types.html#syntax-reftype"><span class="std std-ref">reference type</span></a> <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~{\mathit{dt}}))\)</span> if:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="runtime.html#syntax-funcinst"><span class="std std-ref">function instance</span></a> <span class="math notranslate nohighlight">\(s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{funcs}}{}[a]\)</span> exists.</p></li>
@@ -210,7 +210,7 @@ s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax
 \frac{
 s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{funcs}}{}[a]{.}\href{../exec/runtime.html#syntax-funcinst}{\mathsf{type}} = {\mathit{dt}}
 }{
-s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}func}}~a : \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\mathit{dt}}
+s \href{../exec/values.html#valid-ref}{\vdash} \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}func}}~a : \href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~{\mathit{dt}})
 }
 \qquad
 \end{array}\]</div>

@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Instructions &#8212; WebAssembly 3.0 + Custom Descriptors (2026-10-27)</title>
+    <title>Instructions &#8212; WebAssembly 3.0 + Custom Descriptors (2026-11-02)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=f1e8fd5b"></script>
+    <script src="../_static/documentation_options.js?v=26d77489"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}, "options": {"menuOptions": {"settings": {"enrich": false}}}}</script>
@@ -387,6 +387,207 @@
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
 &amp; s ; f ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_fail}}~l~{\mathit{rt}}_1~{\mathit{rt}}_2) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} &amp; \quad \mbox{if}~ s \href{../exec/values.html#valid-ref}{\vdash} {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}} : {{\href{../exec/types.html#type-inst}{\mathrm{clos}}}}_{f{.}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}}}({\mathit{rt}}_2) \\
 &amp; s ; f ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_fail}}~l~{\mathit{rt}}_1~{\mathit{rt}}_2) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l) &amp; \quad \mbox{otherwise} \\
+\end{array}\end{split}\]</div>
+</section>
+<section id="xref-syntax-instructions-syntax-instr-control-mathsf-br-on-cast-desc-eq-l-mathit-rt-1-xref-syntax-types-syntax-reftype-mathsf-ref-xref-syntax-types-syntax-reftype-mathsf-null-mathit-ht">
+<span id="exec-br-on-cast-desc-eq"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_desc\_eq}}~l~{\mathit{rt}}_1~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}})\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-control-mathsf-br-on-cast-desc-eq-l-mathit-rt-1-xref-syntax-types-syntax-reftype-mathsf-ref-xref-syntax-types-syntax-reftype-mathsf-null-mathit-ht" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Let <span class="math notranslate nohighlight">\(z\)</span> be the current state.</p></li>
+<li><p>Assert: Due to <a class="reference internal" href="../valid/instructions.html#valid-br-on-cast-desc-eq"><span class="std std-ref">validation</span></a>, a <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> is on the top of the stack.</p></li>
+<li><p>Pop the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span> from the stack.</p></li>
+<li><p>Assert: Due to <a class="reference internal" href="../valid/instructions.html#valid-br-on-cast-desc-eq"><span class="std std-ref">validation</span></a>, a <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> is on the top of the stack.</p></li>
+<li><p>Pop the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> from the stack.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>Trap.</p></li>
+</ol>
+</li>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>If <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?} = \href{../syntax/types.html#syntax-reftype}{\mathsf{null}}\)</span>, then:</p>
+<ol class="arabic simple">
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l)\)</span>.</p></li>
+</ol>
+</li>
+<li><p>Else if <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> is not some <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{\href{../exec/runtime.html#syntax-structaddr}{\mathit{structaddr}}}\)</span>, then:</p>
+<ol class="arabic simple">
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+</ol>
+</li>
+<li><p>Else:</p>
+<ol class="arabic simple">
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span>.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span> is not some <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{\href{../exec/runtime.html#syntax-structaddr}{\mathit{structaddr}}}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+</ol>
+</li>
+<li><p>Else:</p>
+<ol class="loweralpha simple">
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{a'})\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span>.</p></li>
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(a &lt; {|z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}|}\)</span> and <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}} = {a'}\)</span>, then:</p>
+<ol class="arabic simple">
+<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l)\)</span>.</p></li>
+</ol>
+</li>
+<li><p>Else:</p>
+<ol class="arabic simple">
+<li><p>Do nothing.</p></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>Else if <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> is not some <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{\href{../exec/runtime.html#syntax-structaddr}{\mathit{structaddr}}}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+</ol>
+</li>
+<li><p>Else:</p>
+<ol class="loweralpha simple">
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span>.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span> is not some <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{\href{../exec/runtime.html#syntax-structaddr}{\mathit{structaddr}}}\)</span>, then:</p>
+<ol class="arabic simple">
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+</ol>
+</li>
+<li><p>Else:</p>
+<ol class="arabic simple">
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{a'})\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span>.</p></li>
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(a &lt; {|z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}|}\)</span> and <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}} = {a'}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l)\)</span>.</p></li>
+</ol>
+</li>
+<li><p>Else:</p>
+<ol class="loweralpha simple">
+<li><p>Do nothing.</p></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
+&amp; z ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~{\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_desc\_eq}}~l~{\mathit{rt}}_1~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}})) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} &amp; \quad \mbox{if}~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}} \\
+&amp; z ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~{\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_desc\_eq}}~l~{\mathit{rt}}_1~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~{\mathit{ht}})) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l) &amp; \quad \mbox{otherwise, if}~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}} \\
+&amp; z ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~{\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_desc\_eq}}~l~{\mathit{rt}}_1~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}})) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l) &amp; \quad
+\begin{array}[t]{&#64;{}l&#64;{}}
+\mbox{otherwise, if}~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a \\
+{\land}~ z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}} = {a'} \\
+{\land}~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{a'} \\
+\end{array} \\
+&amp; z ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~{\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_desc\_eq}}~l~{\mathit{rt}}_1~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}})) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 &amp; \quad \mbox{otherwise} \\
+\end{array}\end{split}\]</div>
+</section>
+<section id="xref-syntax-instructions-syntax-instr-control-mathsf-br-on-cast-desc-eq-fail-l-mathit-rt-1-xref-syntax-types-syntax-reftype-mathsf-ref-xref-syntax-types-syntax-reftype-mathsf-null-mathit-ht">
+<span id="exec-br-on-cast-desc-eq-fail"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_desc\_eq\_fail}}~l~{\mathit{rt}}_1~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}})\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-control-mathsf-br-on-cast-desc-eq-fail-l-mathit-rt-1-xref-syntax-types-syntax-reftype-mathsf-ref-xref-syntax-types-syntax-reftype-mathsf-null-mathit-ht" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Let <span class="math notranslate nohighlight">\(z\)</span> be the current state.</p></li>
+<li><p>Assert: Due to <a class="reference internal" href="../valid/instructions.html#valid-br-on-cast-desc-eq-fail"><span class="std std-ref">validation</span></a>, a <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> is on the top of the stack.</p></li>
+<li><p>Pop the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span> from the stack.</p></li>
+<li><p>Assert: Due to <a class="reference internal" href="../valid/instructions.html#valid-br-on-cast-desc-eq-fail"><span class="std std-ref">validation</span></a>, a <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> is on the top of the stack.</p></li>
+<li><p>Pop the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> from the stack.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>Trap.</p></li>
+</ol>
+</li>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>If <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?} = \href{../syntax/types.html#syntax-reftype}{\mathsf{null}}\)</span>, then:</p>
+<ol class="arabic simple">
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+</ol>
+</li>
+<li><p>Else if <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> is not some <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{\href{../exec/runtime.html#syntax-structaddr}{\mathit{structaddr}}}\)</span>, then:</p>
+<ol class="arabic simple">
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l)\)</span>.</p></li>
+</ol>
+</li>
+<li><p>Else:</p>
+<ol class="arabic simple">
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span>.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span> is not some <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{\href{../exec/runtime.html#syntax-structaddr}{\mathit{structaddr}}}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l)\)</span>.</p></li>
+</ol>
+</li>
+<li><p>Else:</p>
+<ol class="loweralpha simple">
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{a'})\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span>.</p></li>
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(a &lt; {|z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}|}\)</span> and <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}} = {a'}\)</span>, then:</p>
+<ol class="arabic simple">
+<li><p>Do nothing.</p></li>
+</ol>
+</li>
+<li><p>Else:</p>
+<ol class="arabic simple">
+<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l)\)</span>.</p></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>Else if <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> is not some <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{\href{../exec/runtime.html#syntax-structaddr}{\mathit{structaddr}}}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l)\)</span>.</p></li>
+</ol>
+</li>
+<li><p>Else:</p>
+<ol class="loweralpha simple">
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span>.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span> is not some <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{\href{../exec/runtime.html#syntax-structaddr}{\mathit{structaddr}}}\)</span>, then:</p>
+<ol class="arabic simple">
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l)\)</span>.</p></li>
+</ol>
+</li>
+<li><p>Else:</p>
+<ol class="arabic simple">
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{a'})\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span>.</p></li>
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(a &lt; {|z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}|}\)</span> and <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}} = {a'}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>Do nothing.</p></li>
+</ol>
+</li>
+<li><p>Else:</p>
+<ol class="loweralpha simple">
+<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l)\)</span>.</p></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
+&amp; z ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~{\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_desc\_eq\_fail}}~l~{\mathit{rt}}_1~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}})) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} &amp; \quad \mbox{if}~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}} \\
+&amp; z ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~{\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_desc\_eq\_fail}}~l~{\mathit{rt}}_1~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~{\mathit{ht}})) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 &amp; \quad \mbox{otherwise, if}~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}} \\
+&amp; z ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~{\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_desc\_eq\_fail}}~l~{\mathit{rt}}_1~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}})) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 &amp; \quad
+\begin{array}[t]{&#64;{}l&#64;{}}
+\mbox{otherwise, if}~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a \\
+{\land}~ z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}} = {a'} \\
+{\land}~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{a'} \\
+\end{array} \\
+&amp; z ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~{\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br\_on\_cast\_desc\_eq\_fail}}~l~{\mathit{rt}}_1~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}})) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~(\href{../syntax/instructions.html#syntax-instr-control}{\mathsf{br}}~l) &amp; \quad \mbox{otherwise} \\
 \end{array}\end{split}\]</div>
 </section>
 <section id="xref-syntax-instructions-syntax-instr-control-mathsf-return">
@@ -2057,6 +2258,89 @@ In practice, the choice depends on the <a class="reference internal" href="../ap
 &amp; s ; f ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast}}~{\mathit{rt}}) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} &amp; \quad \mbox{otherwise} \\
 \end{array}\end{split}\]</div>
 </section>
+<section id="xref-syntax-instructions-syntax-instr-ref-mathsf-ref-get-desc-x">
+<span id="exec-ref-get-desc"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}get\_desc}}~x\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-ref-mathsf-ref-get-desc-x" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Let <span class="math notranslate nohighlight">\(z\)</span> be the current state.</p></li>
+<li><p>Assert: Due to validation, a value is on the top of the stack.</p></li>
+<li><p>Pop the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}\)</span> from the stack.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-val}{\mathit{val}}} = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>Trap.</p></li>
+</ol>
+</li>
+<li><p>Assert: Due to validation, <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}\)</span> is some <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{\href{../exec/runtime.html#syntax-structaddr}{\mathit{structaddr}}}\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}\)</span>.</p></li>
+<li><p>Assert: Due to validation, <span class="math notranslate nohighlight">\(a &lt; {|z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}|}\)</span>.</p></li>
+<li><p>Assert: Due to validation, <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}}\)</span> is defined.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({a'}\)</span> be <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}}\)</span>.</p></li>
+<li><p>Push the value <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{a'})\)</span> to the stack.</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
+&amp; z ; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}})~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}get\_desc}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} \\
+&amp; z ; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}get\_desc}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{a'}) &amp; \quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}} = {a'} \\
+\end{array}\end{split}\]</div>
+</section>
+<section id="xref-syntax-instructions-syntax-instr-ref-mathsf-ref-cast-desc-eq-xref-syntax-types-syntax-reftype-mathsf-ref-xref-syntax-types-syntax-reftype-mathsf-null-mathit-ht">
+<span id="exec-ref-cast-desc-eq"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast\_desc\_eq}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}})\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-ref-mathsf-ref-cast-desc-eq-xref-syntax-types-syntax-reftype-mathsf-ref-xref-syntax-types-syntax-reftype-mathsf-null-mathit-ht" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Let <span class="math notranslate nohighlight">\(z\)</span> be the current state.</p></li>
+<li><p>Assert: Due to validation, a <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> is on the top of the stack.</p></li>
+<li><p>Pop the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span> from the stack.</p></li>
+<li><p>Assert: Due to validation, a <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> is on the top of the stack.</p></li>
+<li><p>Pop the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> from the stack.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>Trap.</p></li>
+</ol>
+</li>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}}\)</span> and <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?} = \href{../syntax/types.html#syntax-reftype}{\mathsf{null}}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>Do nothing.</p></li>
+</ol>
+</li>
+<li><p>Else:</p>
+<ol class="loweralpha simple">
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> is not some <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{\href{../exec/runtime.html#syntax-structaddr}{\mathit{structaddr}}}\)</span>, then:</p>
+<ol class="arabic simple">
+<li><p>Trap.</p></li>
+</ol>
+</li>
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span>.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span> is not some <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{\href{../exec/runtime.html#syntax-structaddr}{\mathit{structaddr}}}\)</span>, then:</p>
+<ol class="arabic simple">
+<li><p>Trap.</p></li>
+</ol>
+</li>
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{a'})\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2\)</span>.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(a \geq {|z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}|}\)</span>, then:</p>
+<ol class="arabic simple">
+<li><p>Trap.</p></li>
+</ol>
+</li>
+<li><p>If <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}} \neq {a'}\)</span>, then:</p>
+<ol class="arabic simple">
+<li><p>Trap.</p></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1\)</span> to the stack.</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
+&amp; z ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~{\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast\_desc\_eq}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}})) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} &amp; \quad \mbox{if}~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}} \\
+&amp; z ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~{\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast\_desc\_eq}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}~{\mathit{ht}})) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 &amp; \quad \mbox{otherwise, if}~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}} \\
+&amp; z ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~{\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast\_desc\_eq}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}})) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 &amp; \quad
+\begin{array}[t]{&#64;{}l&#64;{}}
+\mbox{otherwise, if}~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a \\
+{\land}~ z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}{}[a]{.}\href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}} = {a'} \\
+{\land}~ {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2 = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{a'} \\
+\end{array} \\
+&amp; z ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_1~{\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}_2~(\href{../syntax/instructions.html#syntax-instr-ref}{\mathsf{ref{.}cast\_desc\_eq}}~(\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~{\href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^?}~{\mathit{ht}})) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} &amp; \quad \mbox{otherwise} \\
+\end{array}\end{split}\]</div>
+</section>
 <section id="xref-syntax-instructions-syntax-instr-i31-mathsf-ref-i-scriptstyle31">
 <span id="exec-ref-i31"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-i31}{\mathsf{ref{.}i\scriptstyle31}}\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-i31-mathsf-ref-i-scriptstyle31" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
@@ -2099,7 +2383,7 @@ In practice, the choice depends on the <a class="reference internal" href="../ap
 <li><p>Let <span class="math notranslate nohighlight">\(a\)</span> be the length of <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}\)</span>.</p></li>
 <li><p>Assert: Due to validation, there are at least <span class="math notranslate nohighlight">\(n\)</span> values on the top of the stack.</p></li>
 <li><p>Pop the values <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}\)</span> from the stack.</p></li>
-<li><p>Let <span class="math notranslate nohighlight">\({\mathit{si}}\)</span> be the <a class="reference internal" href="runtime.html#syntax-structinst"><span class="std std-ref">structure instance</span></a> <span class="math notranslate nohighlight">\(\{ \href{../exec/runtime.html#syntax-structinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x],\;\allowbreak \href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}~{{{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}})^{n}} \}\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({\mathit{si}}\)</span> be the <a class="reference internal" href="runtime.html#syntax-structinst"><span class="std std-ref">structure instance</span></a> <span class="math notranslate nohighlight">\(\{ \href{../exec/runtime.html#syntax-structinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x],\;\allowbreak \href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}}~\epsilon,\;\allowbreak \href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}~{{{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}})^{n}} \}\)</span>.</p></li>
 <li><p>Push the value <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)\)</span> to the stack.</p></li>
 <li><p>Append <span class="math notranslate nohighlight">\({\mathit{si}}\)</span> to <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}\)</span>.</p></li>
 </ol>
@@ -2109,7 +2393,7 @@ In practice, the choice depends on the <a class="reference internal" href="../ap
 \begin{array}[t]{&#64;{}l&#64;{}}
 \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^{n}} \\
 {\land}~ a = {|z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}|} \\
-{\land}~ {\mathit{si}} = \{ \href{../exec/runtime.html#syntax-structinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x],\;\allowbreak \href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}~{({{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}))^{n}} \} \\
+{\land}~ {\mathit{si}} = \{ \href{../exec/runtime.html#syntax-structinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x],\;\allowbreak \href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}}~\epsilon,\;\allowbreak \href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}~{({{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}))^{n}} \} \\
 \end{array} \\
 \end{array}\end{split}\]</div>
 </section>
@@ -2135,6 +2419,71 @@ In practice, the choice depends on the <a class="reference internal" href="../ap
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
 &amp; z ; (\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_default}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}~(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new}}~x) &amp; \quad
+\begin{array}[t]{&#64;{}l&#64;{}}
+\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast} \\
+{\land}~ ({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})} = {\href{../exec/runtime.html#syntax-val}{\mathit{val}}})^\ast \\
+\end{array} \\
+\end{array}\end{split}\]</div>
+</section>
+<section id="xref-syntax-instructions-syntax-instr-struct-mathsf-struct-new-desc-x">
+<span id="exec-struct-new-desc"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_desc}}~x\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-struct-mathsf-struct-new-desc-x" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Let <span class="math notranslate nohighlight">\(z\)</span> be the current state.</p></li>
+<li><p>Assert: Due to validation, a value is on the top of the stack.</p></li>
+<li><p>Pop the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-val}{\mathit{val}}'}\)</span> from the stack.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-val}{\mathit{val}}'} = \href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}}\)</span>, then:</p>
+<ol class="loweralpha simple">
+<li><p>Trap.</p></li>
+</ol>
+</li>
+<li><p>Assert: Due to validation, <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-val}{\mathit{val}}'}\)</span> is some <span class="math notranslate nohighlight">\(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{\href{../exec/runtime.html#syntax-structaddr}{\mathit{structaddr}}}\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{a'})\)</span> be the destructuring of <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-val}{\mathit{val}}'}\)</span>.</p></li>
+<li><p>Assert: Due to validation, the <a class="reference internal" href="../valid/conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x]\)</span> is some <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{\href{../syntax/conventions.html#syntax-list}{\mathit{list}}}({\href{../syntax/types.html#syntax-fieldtype}{\mathit{fieldtype}}})\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{\href{../syntax/conventions.html#syntax-list}{\mathit{list}}}_0)\)</span> be the destructuring of the <a class="reference internal" href="../valid/conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x]\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^{n}}\)</span> be <span class="math notranslate nohighlight">\({\href{../syntax/conventions.html#syntax-list}{\mathit{list}}}_0\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\(a\)</span> be the length of <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}\)</span>.</p></li>
+<li><p>Assert: Due to validation, there are at least <span class="math notranslate nohighlight">\(n\)</span> values on the top of the stack.</p></li>
+<li><p>Pop the values <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}\)</span> from the stack.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({\mathit{si}}\)</span> be the <a class="reference internal" href="runtime.html#syntax-structinst"><span class="std std-ref">structure instance</span></a> <span class="math notranslate nohighlight">\(\{ \href{../exec/runtime.html#syntax-structinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x],\;\allowbreak \href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}}~{a'},\;\allowbreak \href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}~{{{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}})^{n}} \}\)</span>.</p></li>
+<li><p>Push the value <span class="math notranslate nohighlight">\((\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a)\)</span> to the stack.</p></li>
+<li><p>Append <span class="math notranslate nohighlight">\({\mathit{si}}\)</span> to <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}\)</span>.</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
+&amp; z ; {{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}~(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}null}})~(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_desc}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; z ; \href{../exec/runtime.html#syntax-trap}{\mathsf{trap}} &amp; \quad \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^{n}} \\
+&amp; z ; {{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^{n}}~(\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~{a'})~(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_desc}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; z{}[{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}} \mathrel{{=}{\oplus}} {\mathit{si}}] ; (\href{../exec/runtime.html#syntax-ref}{\mathsf{ref{.}struct}}~a) &amp; \quad
+\begin{array}[t]{&#64;{}l&#64;{}}
+\mbox{if}~ z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^{n}} \\
+{\land}~ a = {|z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}|} \\
+{\land}~ {\mathit{si}} = \{ \href{../exec/runtime.html#syntax-structinst}{\mathsf{type}}~z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x],\;\allowbreak \href{../exec/runtime.html#syntax-structinst}{\mathsf{desc}}~{a'},\;\allowbreak \href{../exec/runtime.html#syntax-structinst}{\mathsf{fields}}~{({{\href{../exec/runtime.html#aux-packfield}{\mathrm{pack}}}}_{{\mathit{zt}}}({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}))^{n}} \} \\
+\end{array} \\
+\end{array}\end{split}\]</div>
+</section>
+<section id="xref-syntax-instructions-syntax-instr-struct-mathsf-struct-new-default-desc-x">
+<span id="exec-struct-new-default-desc"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_default\_desc}}~x\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-struct-mathsf-struct-new-default-desc-x" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Let <span class="math notranslate nohighlight">\(z\)</span> be the current state.</p></li>
+<li><p>Assert: Due to validation, a <a class="reference internal" href="runtime.html#syntax-ref"><span class="std std-ref">reference value</span></a> is on the top of the stack.</p></li>
+<li><p>Pop the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}\)</span> from the stack.</p></li>
+<li><p>Assert: Due to validation, the <a class="reference internal" href="../valid/conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x]\)</span> is some <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{\href{../syntax/conventions.html#syntax-list}{\mathit{list}}}({\href{../syntax/types.html#syntax-fieldtype}{\mathit{fieldtype}}})\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{\href{../syntax/conventions.html#syntax-list}{\mathit{list}}}_0)\)</span> be the destructuring of the <a class="reference internal" href="../valid/conventions.html#aux-expand-deftype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x]\)</span>.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}\)</span> be <span class="math notranslate nohighlight">\({\href{../syntax/conventions.html#syntax-list}{\mathit{list}}}_0\)</span>.</p></li>
+<li><p>Assert: Due to validation, for all <span class="math notranslate nohighlight">\({\mathit{zt}}\)</span> in <span class="math notranslate nohighlight">\({{\mathit{zt}}^\ast}\)</span>, <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})}\)</span> is defined.</p></li>
+<li><p>Let <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}\)</span> be the value sequence <span class="math notranslate nohighlight">\(\epsilon\)</span>.</p></li>
+<li><p>For each <span class="math notranslate nohighlight">\({\mathit{zt}}\)</span> in <span class="math notranslate nohighlight">\({{\mathit{zt}}^\ast}\)</span>, do:</p>
+<ol class="loweralpha simple">
+<li><p>Let <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}\)</span> be <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})}\)</span>.</p></li>
+<li><p>Append <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-val}{\mathit{val}}}\)</span> to <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}\)</span>.</p></li>
+</ol>
+</li>
+<li><p>Assert: Due to validation, <span class="math notranslate nohighlight">\({|{{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}|} = {|{{\mathit{zt}}^\ast}|}\)</span>.</p></li>
+<li><p>Push the values <span class="math notranslate nohighlight">\({{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}\)</span> to the stack.</p></li>
+<li><p>Push the value <span class="math notranslate nohighlight">\({\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}\)</span> to the stack.</p></li>
+<li><p>Execute the instruction <span class="math notranslate nohighlight">\((\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_desc}}~x)\)</span>.</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}[t]{&#64;{}l&#64;{}rcl&#64;{}l&#64;{}}
+&amp; z ; {\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_default\_desc}}~x) &amp; \href{../exec/conventions.html#exec-notation}{\hookrightarrow} &amp; {{\href{../exec/runtime.html#syntax-val}{\mathit{val}}}^\ast}~{\href{../exec/runtime.html#syntax-ref}{\mathit{ref}}}~(\href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new\_desc}}~x) &amp; \quad
 \begin{array}[t]{&#64;{}l&#64;{}}
 \mbox{if}~ z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype}{\approx}} \href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast} \\
 {\land}~ ({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})} = {\href{../exec/runtime.html#syntax-val}{\mathit{val}}})^\ast \\

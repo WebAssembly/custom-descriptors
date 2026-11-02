@@ -240,11 +240,11 @@ Module instances are classified by *module contexts*, which are regular :ref:`co
 
 * Each :ref:`exception instance <syntax-exninst>` :math:`\exninst_i` in :math:`S.\SEXNS` must be :ref:`valid <valid-exninst>`.
 
-* No :ref:`reference <syntax-ref>` to a bound :ref:`structure address <syntax-structaddr>` must be reachable from itself through a path consisting only of indirections through immutable structure, or array :ref:`fields <syntax-fieldtype>` or fields of :ref:`exception instances <syntax-exninst>`.
+* No :ref:`reference <syntax-ref>` to a bound :ref:`structure address <syntax-structaddr>` must be reachable from itself through a path consisting only of indirections through immutable structure or array :ref:`fields <syntax-fieldtype>`, :ref:`descriptors <syntax-desctype>`, or fields of :ref:`exception instances <syntax-exninst>`.
 
-* No :ref:`reference <syntax-ref>` to a bound :ref:`array address <syntax-arrayaddr>` must be reachable from itself through a path consisting only of indirections through immutable structure or array :ref:`fields <syntax-fieldtype>` or fields of :ref:`exception instances <syntax-exninst>`.
+* No :ref:`reference <syntax-ref>` to a bound :ref:`array address <syntax-arrayaddr>` must be reachable from itself through a path consisting only of indirections through immutable structure or array :ref:`fields <syntax-fieldtype>`, :ref:`descriptors <syntax-desctype>`, or fields of :ref:`exception instances <syntax-exninst>`.
 
-* No :ref:`reference <syntax-ref>` to a bound :ref:`exception address <syntax-exnaddr>` must be reachable from itself through a path consisting only of indirections through immutable structure or array :ref:`fields <syntax-fieldtype>` or fields of :ref:`exception instances <syntax-exninst>`.
+* No :ref:`reference <syntax-ref>` to a bound :ref:`exception address <syntax-exnaddr>` must be reachable from itself through a path consisting only of indirections through immutable structure or array :ref:`fields <syntax-fieldtype>`, :ref:`descriptors <syntax-desctype>`, or fields of :ref:`exception instances <syntax-exninst>`.
 
 * Then the store is valid.
 
@@ -310,6 +310,8 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
    \begin{array}{@{}lcll@{}}
    (\REFSTRUCTADDR~a) &\gg_S& S.\SSTRUCTS[a].\SIFIELDS[i]
      & \iff \expanddt(S.\SSTRUCTS[a].\SITYPE) = \TSTRUCT~\X{ft}_1^i~\X{st}~\X{ft}_2^\ast \\
+   (\REFSTRUCTADDR~a) &\gg_S& (\REFSTRUCTADDR~a')
+     & \iff S.\SSTRUCTS[a].\SIDESC = a' \\
    (\REFARRAYADDR~a) &\gg_S& S.\SARRAYS[a].\AIFIELDS[i]
      & \iff \expanddt(S.\SARRAYS[a].\AITYPE) = \TARRAY~\X{st} \\
    (\REFEXNADDR~a) &\gg_S& S.\SEXNS[a].\EIFIELDS[i] \\
@@ -560,12 +562,14 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
 .. index:: structure instance, field value, field type, storage type, defined type
 .. _valid-structinst:
 
-:ref:`Structure Instances <syntax-structinst>` :math:`\{ \SITYPE~\deftype, \SIFIELDS~\fieldval^\ast \}`
-.......................................................................................................
+:ref:`Structure Instances <syntax-structinst>` :math:`\{ \SITYPE~\deftype, \SIDESC~a^?, \SIFIELDS~\fieldval^\ast \}`
+.....................................................................................................................
 
 * The :ref:`defined type <syntax-deftype>` :math:`\deftype` must be :ref:`valid <valid-deftype>` under the empty :ref:`context <context>`.
 
-* The :ref:`expansion <aux-expand-deftype>` of :math:`\deftype` must be a :ref:`structure type <syntax-structtype>` :math:`\TSTRUCT~\fieldtype^\ast`.
+* The :ref:`expansion <aux-expand-deftype-to-desctype>` of :math:`\deftype` must be a :ref:`descriptor type <syntax-desctype>` :math:`\describes^?~\descriptor^?~\TSTRUCT~\fieldtype^\ast`.
+
+* The optional :ref:`descriptor <syntax-desctype>` :math:`\descriptor^?` must be :math:`(\TDESCRIPTOR~S.\SSTRUCTS[a].\SITYPE)^?`.
 
 * The length of the sequence of :ref:`field values <syntax-fieldval>` :math:`\fieldval^\ast` must be the same as the length of the sequence of :ref:`field types <syntax-fieldtype>` :math:`\fieldtype^\ast`.
 
@@ -581,11 +585,13 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
    \frac{
      \vdashdeftype \X{dt} : \OKdeftype
      \qquad
-     \expanddt(\X{dt}) = \TSTRUCT~(\mut~\X{st})^\ast
+     \X{dt} \simexpanddesc \X{dcs}^?~\X{dcr}^?~\TSTRUCT~(\mut~\X{st})^\ast
+     \qquad
+     \X{dcr}^? = (\TDESCRIPTOR~S.\SSTRUCTS[a].\SITYPE)^?
      \qquad
      (S \vdashfieldval \X{fv} : \X{st})^\ast
    }{
-     S \vdashstructinst \{ \SITYPE~\X{dt}, \SIFIELDS~\X{fv}^\ast \} : \OKstructinst
+     S \vdashstructinst \{ \SITYPE~\X{dt}, \SIDESC~a^?, \SIFIELDS~\X{fv}^\ast \} : \OKstructinst
    }
 
 
@@ -1324,6 +1330,8 @@ a store state :math:`S'` extends state :math:`S`, written :math:`S \extendsto S'
 
 * Assert: due to :ref:`store well-formedness <valid-structinst>`, the length of :math:`\structinst.\SIFIELDS` is the same as the length of :math:`\fieldtype^\ast`.
 
+* The optional :ref:`structure address <syntax-structaddr>` :math:`\structinst.\SIDESC` must remain unchanged.
+
 * For each :ref:`field value <syntax-fieldval>` :math:`\fieldval_i` in :math:`\structinst.\SIFIELDS` and corresponding :ref:`field type <syntax-fieldtype>` :math:`\fieldtype_i` in :math:`\fieldtype^\ast`:
 
   * Let :math:`\mut_i~\X{st}_i` be the structure of :math:`\fieldtype_i`.
@@ -1334,7 +1342,7 @@ a store state :math:`S'` extends state :math:`S`, written :math:`S \extendsto S'
    \frac{
      (\mut = \TMUT \vee \fieldval_1 = \fieldval_2)^\ast
    }{
-     \vdashstructinstextends \{\SITYPE~(\mut~\X{st})^\ast, \SIFIELDS~\fieldval_1^\ast\} \extendsto \{\SITYPE~(\mut~\X{st})^\ast, \SIFIELDS~\fieldval_2^\ast\}
+     \vdashstructinstextends \{\SITYPE~(\mut~\X{st})^\ast, \SIDESC~a^?, \SIFIELDS~\fieldval_1^\ast\} \extendsto \{\SITYPE~(\mut~\X{st})^\ast, \SIDESC~a^?, \SIFIELDS~\fieldval_2^\ast\}
    }
 
 

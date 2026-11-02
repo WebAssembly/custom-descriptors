@@ -3414,12 +3414,12 @@ relation Comptype_ok: `%|-%:OK`(context, comptype)
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:100.1-100.103
 relation Desctype_ok: `%|-%:OK`(context, desctype)
   ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:156.1-164.31
-  rule _{C : context, `tu_1?` : typeuse?, `tu_2?` : typeuse?, ct : comptype, `ft_1*` : fieldtype*, `ft_2*` : fieldtype*}:
+  rule _{C : context, `tu_1?` : typeuse?, `tu_2?` : typeuse?, ct : comptype, `ft*` : fieldtype*}:
     `%|-%:OK`(C, `%%%`_desctype(DESCRIBES_describes(tu_1)?{tu_1 <- `tu_1?`}, DESCRIPTOR_descriptor(tu_2)?{tu_2 <- `tu_2?`}, ct))
     -- (Typeuse_ok: `%|-%:OK`(C, tu_1))?{tu_1 <- `tu_1?`}
-    -- if ((tu_1?{tu_1 <- `tu_1?`} = ?()) \/ (ct = STRUCT_comptype(`%`_list(ft_1*{ft_1 <- `ft_1*`},))))
+    -- if ((tu_1?{tu_1 <- `tu_1?`} = ?()) \/ (ct = STRUCT_comptype(`%`_list(ft*{ft <- `ft*`},))))
     -- (Typeuse_ok: `%|-%:OK`(C, tu_2))?{tu_2 <- `tu_2?`}
-    -- if ((tu_2?{tu_2 <- `tu_2?`} = ?()) \/ (ct = STRUCT_comptype(`%`_list(ft_2*{ft_2 <- `ft_2*`},))))
+    -- if ((tu_2?{tu_2 <- `tu_2?`} = ?()) \/ (ct = STRUCT_comptype(`%`_list(ft*{ft <- `ft*`},))))
     -- Comptype_ok: `%|-%:OK`(C, ct)
 
 ;; ../../../../specification/wasm-latest/2.1-validation.types.spectec:103.1-103.126

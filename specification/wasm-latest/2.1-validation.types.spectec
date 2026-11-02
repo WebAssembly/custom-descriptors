@@ -156,10 +156,10 @@ rule Comptype_ok/func:
 rule Desctype_ok:
   C |- (DESCRIBES tu_1)? (DESCRIPTOR tu_2)? ct : OK
   -- (Typeuse_ok: C |- tu_1 : OK)?
-  -- if tu_1? = eps \/ ct = STRUCT ft_1*
+  -- if tu_1? = eps \/ ct = STRUCT ft*
   ----
   -- (Typeuse_ok: C |- tu_2 : OK)?
-  -- if tu_2? = eps \/ ct = STRUCT ft_2*
+  -- if tu_2? = eps \/ ct = STRUCT ft*
   ----
   -- Comptype_ok: C |- ct : OK
 

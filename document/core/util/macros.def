@@ -1440,6 +1440,7 @@
 .. |MIEXPORTS| mathdef:: \xref{exec/runtime}{syntax-moduleinst}{\K{exports}}
 
 .. |SITYPE| mathdef:: \xref{exec/runtime}{syntax-structinst}{\K{type}}
+.. |SIDESC| mathdef:: \xref{exec/runtime}{syntax-structinst}{\K{desc}}
 .. |SIFIELDS| mathdef:: \xref{exec/runtime}{syntax-structinst}{\K{fields}}
 
 .. |AITYPE| mathdef:: \xref{exec/runtime}{syntax-arrayinst}{\K{type}}
@@ -1479,6 +1480,7 @@
 .. |ZDDATAS| mathdef:: \ZDATAS
 .. |ZDBYTES| mathdef:: \DIBYTES
 .. |ZSSTRUCTS| mathdef:: \ZSTRUCTS
+.. |ZSDESC| mathdef:: \SIDESC
 .. |ZSFIELDS| mathdef:: \SIFIELDS
 .. |ZAARRAYS| mathdef:: \ZARRAYS
 .. |ZAFIELDS| mathdef:: \AIFIELDS

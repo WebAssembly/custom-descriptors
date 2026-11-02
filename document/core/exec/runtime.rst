@@ -432,6 +432,7 @@ Aggregate Instances
 A *structure instance* is the runtime representation of a heap object allocated from a :ref:`structure type <syntax-structtype>`.
 Likewise, an *array instance* is the runtime representation of a heap object allocated from an :ref:`array type <syntax-arraytype>`.
 Both record their respective :ref:`defined type <syntax-deftype>` and hold a list of the values of their *fields*.
+A structure instance additionally holds an optional :ref:`structure address <syntax-structaddr>` for its :ref:`descriptor <syntax-descriptor>`.
 
 $${syntax: {structinst arrayinst fieldval packval}}
 

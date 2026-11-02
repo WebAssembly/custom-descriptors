@@ -125,6 +125,20 @@ $${rule-prose: Step_read/br_on_cast_fail}
 $${rule: {Step_read/br_on_cast_fail-*}}
 
 
+.. _exec-br_on_cast_desc_eq:
+
+$${rule-prose: Step_read/br_on_cast_desc_eq}
+
+$${rule: {Step_read/br_on_cast_desc_eq-*}}
+
+
+.. _exec-br_on_cast_desc_eq_fail:
+
+$${rule-prose: Step_read/br_on_cast_desc_eq_fail}
+
+$${rule: {Step_read/br_on_cast_desc_eq_fail-*}}
+
+
 .. _exec-return:
 
 $${rule-prose: Step_pure/return}
@@ -730,6 +744,20 @@ $${rule-prose: Step_read/ref.cast}
 $${rule: {Step_read/ref.cast-*}}
 
 
+.. _exec-ref.get_desc:
+
+$${rule-prose: Step_read/ref.get_desc}
+
+$${rule: {Step_read/ref.get_desc-*}}
+
+
+.. _exec-ref.cast_desc_eq:
+
+$${rule-prose: Step_read/ref.cast_desc_eq}
+
+$${rule: {Step_read/ref.cast_desc_eq-*}}
+
+
 .. _exec-ref.i31:
 
 $${rule-prose: Step_pure/ref.i31}
@@ -756,6 +784,20 @@ $${rule: {Step/struct.new}}
 $${rule-prose: Step_read/struct.new_default}
 
 $${rule: {Step_read/struct.new_default}}
+
+
+.. _exec-struct.new_desc:
+
+$${rule-prose: Step/struct.new_desc}
+
+$${rule: {Step/struct.new_desc-*}}
+
+
+.. _exec-struct.new_default_desc:
+
+$${rule-prose: Step_read/struct.new_default_desc}
+
+$${rule: {Step_read/struct.new_default_desc}}
 
 
 .. _exec-struct.get:

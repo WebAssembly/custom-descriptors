@@ -134,10 +134,10 @@ rule Exportinst_ok:
 
 
 rule Structinst_ok:
-  s |- {TYPE dt, FIELDS fv*, DESC a?} : OK
+  s |- {TYPE dt, DESC a?, FIELDS fv*} : OK
   -- Expand_desc: dt ~ dcs? dcr? STRUCT (mut? zt)*
-  -- (Fieldval_ok: s |- fv : zt)*
   -- if dcr? = (DESCRIPTOR s.STRUCTS[a].TYPE)?
+  -- (Fieldval_ok: s |- fv : zt)*
 
 rule Arrayinst_ok:
   s |- {TYPE dt, FIELDS fv*} : OK
@@ -306,7 +306,7 @@ rule Extend_eleminst:
   -- if ref* = ref'* \/ ref'* = eps
 
 rule Extend_structinst:
-  {TYPE dt, FIELDS fv*, DESC a?} `<= {TYPE dt, FIELDS fv'*, DESC a?}
+  {TYPE dt, DESC a?, FIELDS fv*} `<= {TYPE dt, DESC a?, FIELDS fv'*}
   -- Expand: dt ~~ STRUCT (mut? zt)*
   -- (if mut? = MUT \/ fv = fv')*
 

@@ -562,12 +562,14 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
 .. index:: structure instance, field value, field type, storage type, defined type
 .. _valid-structinst:
 
-:ref:`Structure Instances <syntax-structinst>` :math:`\{ \SITYPE~\deftype, \SIFIELDS~\fieldval^\ast, \SIDESC~a^? \}`
+:ref:`Structure Instances <syntax-structinst>` :math:`\{ \SITYPE~\deftype, \SIDESC~a^?, \SIFIELDS~\fieldval^\ast \}`
 .....................................................................................................................
 
 * The :ref:`defined type <syntax-deftype>` :math:`\deftype` must be :ref:`valid <valid-deftype>` under the empty :ref:`context <context>`.
 
 * The :ref:`expansion <aux-expand-deftype-to-desctype>` of :math:`\deftype` must be a :ref:`descriptor type <syntax-desctype>` :math:`\describes^?~\descriptor^?~\TSTRUCT~\fieldtype^\ast`.
+
+* The optional :ref:`descriptor <syntax-desctype>` :math:`\descriptor^?` must be :math:`(\TDESCRIPTOR~S.\SSTRUCTS[a].\SITYPE)^?`.
 
 * The length of the sequence of :ref:`field values <syntax-fieldval>` :math:`\fieldval^\ast` must be the same as the length of the sequence of :ref:`field types <syntax-fieldtype>` :math:`\fieldtype^\ast`.
 
@@ -577,8 +579,6 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
 
   - The :ref:`field value <syntax-fieldval>` :math:`\fieldval_i` must be :ref:`valid <valid-fieldval>` with :ref:`storage type <syntax-storagetype>` :math:`\storagetype_i`.
 
-* The optional :ref:`descriptor <syntax-desctype>` :math:`\descriptor^?` must be :math:`(\TDESCRIPTOR~S.\SSTRUCTS[a].\SITYPE)^?`.
-
 * Then the structure instance is valid.
 
 .. math::
@@ -587,11 +587,11 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
      \qquad
      \X{dt} \simexpanddesc \X{dcs}^?~\X{dcr}^?~\TSTRUCT~(\mut~\X{st})^\ast
      \qquad
-     (S \vdashfieldval \X{fv} : \X{st})^\ast
-     \qquad
      \X{dcr}^? = (\TDESCRIPTOR~S.\SSTRUCTS[a].\SITYPE)^?
+     \qquad
+     (S \vdashfieldval \X{fv} : \X{st})^\ast
    }{
-     S \vdashstructinst \{ \SITYPE~\X{dt}, \SIFIELDS~\X{fv}^\ast, \SIDESC~a^? \} : \OKstructinst
+     S \vdashstructinst \{ \SITYPE~\X{dt}, \SIDESC~a^?, \SIFIELDS~\X{fv}^\ast \} : \OKstructinst
    }
 
 
@@ -1330,19 +1330,19 @@ a store state :math:`S'` extends state :math:`S`, written :math:`S \extendsto S'
 
 * Assert: due to :ref:`store well-formedness <valid-structinst>`, the length of :math:`\structinst.\SIFIELDS` is the same as the length of :math:`\fieldtype^\ast`.
 
+* The optional :ref:`structure address <syntax-structaddr>` :math:`\structinst.\SIDESC` must remain unchanged.
+
 * For each :ref:`field value <syntax-fieldval>` :math:`\fieldval_i` in :math:`\structinst.\SIFIELDS` and corresponding :ref:`field type <syntax-fieldtype>` :math:`\fieldtype_i` in :math:`\fieldtype^\ast`:
 
   * Let :math:`\mut_i~\X{st}_i` be the structure of :math:`\fieldtype_i`.
 
   * If :math:`\mut_i` is empty, then the :ref:`field value <syntax-fieldval>` :math:`\fieldval_i` must remain unchanged.
 
-* The optional :ref:`structure address <syntax-structaddr>` :math:`\structinst.\SIDESC` must remain unchanged.
-
 .. math::
    \frac{
      (\mut = \TMUT \vee \fieldval_1 = \fieldval_2)^\ast
    }{
-     \vdashstructinstextends \{\SITYPE~(\mut~\X{st})^\ast, \SIFIELDS~\fieldval_1^\ast, \SIDESC~a^?\} \extendsto \{\SITYPE~(\mut~\X{st})^\ast, \SIFIELDS~\fieldval_2^\ast, \SIDESC~a^?\}
+     \vdashstructinstextends \{\SITYPE~(\mut~\X{st})^\ast, \SIDESC~a^?, \SIFIELDS~\fieldval_1^\ast\} \extendsto \{\SITYPE~(\mut~\X{st})^\ast, \SIDESC~a^?, \SIFIELDS~\fieldval_2^\ast\}
    }
 
 

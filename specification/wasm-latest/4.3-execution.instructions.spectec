@@ -779,7 +779,7 @@ rule Step/struct.new:
   z; val^n (STRUCT.NEW x)  ~>  $add_structinst(z, si); (REF.STRUCT_ADDR a)
   -- Expand: $type(z, x) ~~ STRUCT (mut? zt)^n
   -- if a = |$structinst(z)|
-  -- if si = {TYPE $type(z, x), FIELDS ($packfield_(zt, val))^n, DESC eps}
+  -- if si = {TYPE $type(z, x), DESC eps, FIELDS ($packfield_(zt, val))^n}
 
 rule Step_read/struct.new_default:
   z; (STRUCT.NEW_DEFAULT x)  ~>  val* (STRUCT.NEW x)
@@ -794,7 +794,7 @@ rule Step/struct.new_desc-struct:
   z; val^n (REF.STRUCT_ADDR a') (STRUCT.NEW_DESC x)  ~>  $add_structinst(z, si); (REF.STRUCT_ADDR a)
   -- Expand: $type(z, x) ~~ STRUCT (mut? zt)^n
   -- if a = |$structinst(z)|
-  -- if si = {TYPE $type(z, x), FIELDS ($packfield_(zt, val))^n, DESC a'}
+  -- if si = {TYPE $type(z, x), DESC a', FIELDS ($packfield_(zt, val))^n}
 
 rule Step_read/struct.new_default_desc:
   z; ref (STRUCT.NEW_DEFAULT_DESC x)  ~>  val* ref (STRUCT.NEW_DESC x)

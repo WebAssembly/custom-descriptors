@@ -16,7 +16,7 @@ struct
   include Print
 end
 
-let version = ref 3
+let version = ref 4
 
 
 (* Errors *)

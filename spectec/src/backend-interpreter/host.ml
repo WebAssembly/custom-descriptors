@@ -23,10 +23,14 @@ let spectest () =
     let ptype = Array.map nullary type_tags in
     let arrow = CaseV ("->", [ listV ptype; listV [||] ]) in
     let ftype = CaseV ("->", [ listV ptype; listV [||] ]) in
+    let desctype =
+      if !Construct.version <= 3 then ftype
+      else CaseV ("", [ none "DESCRIBES"; none "DESCRIPTOR"; ftype ])
+    in
     let dtype =
       CaseV ("_DEF", [
         CaseV ("REC", [
-          [| CaseV ("SUB", [some "FINAL"; listV [||]; ftype]) |] |> listV
+          [| CaseV ("SUB", [some "FINAL"; listV [||]; desctype]) |] |> listV
         ]); natV Z.zero
       ]) in
     let tidx = CaseV ("", [ natV Z.zero ]) in

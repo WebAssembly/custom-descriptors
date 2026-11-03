@@ -755,7 +755,7 @@ let rec step (c : config) : config =
       | StructGet (x, i, exto), Ref NullRef :: vs' ->
         vs', [Trapping "null structure reference" @@ e.at]
 
-      | StructGet (x, i, exto), Ref Aggr.(StructRef (Struct (_, fs, _))) :: vs' ->
+      | StructGet (x, i, exto), Ref Aggr.(StructRef (Struct (_, _, fs))) :: vs' ->
         let f =
           try Lib.List32.nth fs i
           with Failure _ -> Crash.error e.at "undefined field"
@@ -766,7 +766,7 @@ let rec step (c : config) : config =
       | StructSet (x, i), v :: Ref NullRef :: vs' ->
         vs', [Trapping "null structure reference" @@ e.at]
 
-      | StructSet (x, i), v :: Ref Aggr.(StructRef (Struct (_, fs, _))) :: vs' ->
+      | StructSet (x, i), v :: Ref Aggr.(StructRef (Struct (_, _, fs))) :: vs' ->
         let f =
           try Lib.List32.nth fs i
           with Failure _ -> Crash.error e.at "undefined field"

@@ -29,6 +29,8 @@ $${grammar: Tvectype}
    pair: text format; heap type
 .. _text-heaptype:
 .. _text-absheaptype:
+.. _text-exacttypeuse:
+.. _text-exact:
 
 Heap Types
 ~~~~~~~~~~

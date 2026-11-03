@@ -348,7 +348,7 @@
 .. |approxexpanddt| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype}{\approx}}
 .. |approxexpandyy| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-typeuse}{\approx}}
 .. |simexpanddesc| mathdef:: \mathrel{\xref{valid/conventions}{aux-expand-deftype-to-desctype}{\sim}}
-.. |unrollht| mathdef:: \xref{appendix/properties}{aux-unroll-heaptype}{\F{unroll}}
+.. |unrolltu| mathdef:: \xref{appendix/properties}{aux-unroll-typeuse}{\F{unroll}}
 
 .. |unpack| mathdef:: \xref{syntax/types}{aux-unpack}{\F{unpack}}
 

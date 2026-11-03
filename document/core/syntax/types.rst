@@ -81,7 +81,7 @@ Type Uses
 
 A *type use* is the use site of a :ref:`type index <syntax-typeidx>` referencing a :ref:`composite type <syntax-comptype>` :ref:`defined <syntax-type>` in a :ref:`module <syntax-module>`.
 It classifies objects of the respective type.
-In some contexts, a type use may be annotated with :ref:`exactness <syntax-exact>`.
+In some contexts, a type use may be annotated with :ref:`exactness <syntax-exact>`, forming an *exact type use*.
 
 $${syntax: {typeuse/syn exacttypeuse}}
 
@@ -318,13 +318,15 @@ $${definition: unpack}
 .. _syntax-subtype:
 .. _syntax-final:
 .. _syntax-desctype:
+.. _syntax-describes:
+.. _syntax-descriptor:
 
 Recursive Types
 ~~~~~~~~~~~~~~~
 
-*Recursive types* denote a group of mutually recursive :ref:`composite types <syntax-comptype>`, each of which can optionally declare a list of :ref:`type uses <syntax-typeuse>` of supertypes that it :ref:`matches <match-comptype>`.
+*Recursive types* denote a group of mutually recursive :ref:`composite types <syntax-comptype>`, each of which can optionally declare a list of :ref:`type uses <syntax-typeuse>` of supertypes that it :ref:`matches <match-desctype>`.
 Each type can also be declared *final*, preventing further subtyping.
-Each composite type can also optionally have a :ref:`described <syntax-desctype>` :ref:`type use <syntax-typeuse>` and a :ref:`descriptor <syntax-desctype>` :ref:`type use <syntax-typeuse>`.
+Each composite type can also optionally have a :ref:`described <syntax-describes>` :ref:`type use <syntax-typeuse>` and a :ref:`descriptor <syntax-descriptor>` :ref:`type use <syntax-typeuse>`, forming a *descriptor type*.
 
 $${syntax: {rectype subtype describes descriptor desctype}}
 

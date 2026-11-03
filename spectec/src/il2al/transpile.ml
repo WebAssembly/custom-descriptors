@@ -906,7 +906,7 @@ let flatten_if instrs =
   let flatten_if' instr =
     let at1 = instr.at in
     match instr.it with
-    | IfI (e1, [ { it = IfI (e2, il1, il2); at = at2; _ }], []) ->
+    | IfI (e1, [ { it = IfI (e2, il1, il2); at = at2; _ }], il3) when il3 = [] || Eq.eq_instrs il2 il3 ->
       let at = over_region [ at1; at2 ] in
       ifI (binE (`AndOp, e1, e2) ~at:at ~note:boolT, il1, il2) ~at:at1
     | _ -> instr

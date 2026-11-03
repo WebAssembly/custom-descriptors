@@ -148,8 +148,6 @@ $${rule: Packtype_sub}
 Descriptor Types
 ~~~~~~~~~~~~~~~~
 
-.. note:: TODO: Complete these rules.
-
 $${rule-prose: Desctype_sub}
 
 $${rule: Desctype_sub}

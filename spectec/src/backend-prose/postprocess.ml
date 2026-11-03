@@ -326,6 +326,56 @@ let restructure_forall def =
     RuleD (a, s, sl3)
   | AlgoD _ -> def
 
+let restructure_if def =
+  match def with
+  | RuleD (a, s, sl) ->
+    let frees = free_stmt s in
+    let extract_opt_var e =
+      match e.it with
+      | IterE ({it = VarE x; _}, (Opt, _)) -> Some (x ^ "?")
+      | IterE (e', (Opt, [_, {it = VarE x; _}])) ->
+        let _ = e' in Some x
+      | _ -> None
+    in
+    let rec filter_known_cond frees e =
+      match e.it with
+      | BinE (`AndOp, e1, e2) ->
+        (match filter_known_cond frees e1, filter_known_cond frees e2 with
+        | Some e1', Some e2' -> Some {e with it = BinE (`AndOp, e1', e2')}
+        | Some e1', None -> Some e1'
+        | None, Some e2' -> Some e2'
+        | None, None -> None)
+      | IsDefinedE {it = VarE x; _} ->
+        if IdSet.mem (x ^ "?") frees then Some e else None
+      | _ -> Some e
+    in
+    let sl1 = walk_stmt_acc_lift (fun frees s ->
+      let ss' =
+        match s with
+        | BinS (CmpS (e1, `EqOp, {it = OptE None; _}), `EquivOp, CmpS (e2, `EqOp, {it = OptE None; _})) ->
+          (match extract_opt_var e1, extract_opt_var e2 with
+          | Some x1, Some x2 when IdSet.mem x1 frees && IdSet.mem x2 frees -> [s]
+          | _ -> [])
+        | IfS (e, ss) ->
+          (match filter_known_cond frees e with
+          | Some e' -> [IfS (e', ss)]
+          | None -> [IfS (e, ss)])
+        | _ -> [s]
+      in
+      List.fold_left (fun acc s' -> acc ++ free_stmt s') frees ss', ss'
+    ) frees sl in
+    let sl2 = fold_stmt (fun acc s ->
+      match (List.rev acc), s with
+      | IfS (e1, ss1) :: tl, IfS (e2, ss2) when Al.Eq.eq_expr e1 e2 ->
+        List.rev (IfS (e1, ss1 @ ss2) :: tl)
+      | (IsDefinedS _ as s_def) :: IfS (e1, ss1) :: tl, IfS (e2, ss2) when Al.Eq.eq_expr e1 e2 ->
+        List.rev (IfS (e1, ss1 @ ss2) :: s_def :: tl)
+      | _ ->
+        acc @ [s]
+    ) sl1 in
+    RuleD (a, s, sl2)
+  | AlgoD _ -> def
+
 let remove_dead_binding def =
   match def with
   | RuleD (anchor, s, (_ :: _ as sl)) ->
@@ -535,6 +585,7 @@ let postprocess_prose defs =
     |> rename_param
     |> remove_same_len_check
     |> restructure_forall
+    |> restructure_if
     |> remove_dead_binding
     |> prioritize_length_check
     (* handle exec prose *)

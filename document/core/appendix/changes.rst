@@ -661,6 +661,54 @@ mirroring the role of custom sections in the binary format. [#proposal-annot]_
 * Defined :ref:`custom annotation <text-customannot>` :math:`\text{(@custom~"\dots")}` to represent arbitrary :ref:`custom sections <binary-customsec>` in the text format
 
 
+.. index:: descriptor type, describes, descriptor, exact, exact type use, exact defined type, structure type, reference type, heap type, external type, function, import, instruction
+.. _extension-custom-descriptors:
+
+Custom Descriptors
+..................
+
+Added custom descriptors for :ref:`structure types <syntax-structtype>` and :ref:`exact <syntax-exact>` concrete :ref:`heap types <syntax-heaptype>`. [#proposal-custom-descriptors]_
+
+* Extended :ref:`sub types <syntax-subtype>` with :ref:`descriptor types <syntax-desctype>` (:math:`\TDESCRIBES~\typeuse` and :math:`\TDESCRIPTOR~\typeuse` clauses) associating :ref:`structure types <syntax-structtype>` with custom descriptor types
+
+* Extended concrete :ref:`heap types <syntax-heaptype>` with :ref:`exact <syntax-exact>` :ref:`type uses <syntax-exacttypeuse>` :math:`\EXACT~\typeuse` and corresponding :ref:`subtyping <match-heaptype>` rules
+
+* Extended function :ref:`external types <syntax-externtype>` with optional exactness (:math:`\XTFUNC~\EXACT^?~\typeuse`) and refined :ref:`function validation <valid-func>` to classify defined functions with :ref:`exact defined types <syntax-exactdeftype>`
+
+* Refined result types of :ref:`reference <syntax-instr-ref>`, :ref:`structure <syntax-instr-struct>`, and :ref:`array <syntax-instr-array>` allocation instructions to produce :ref:`exact <syntax-exact>` references:
+
+  - |REFFUNC| (for defined functions and exact function imports)
+  - |STRUCTNEW|
+  - |STRUCTNEWDEFAULT|
+  - |ARRAYNEW|
+  - |ARRAYNEWDEFAULT|
+  - |ARRAYNEWFIXED|
+  - |ARRAYNEWDATA|
+  - |ARRAYNEWELEM|
+
+* Relaxed :ref:`validation <valid-instr-control>` of :ref:`branch-on-cast instructions <syntax-instr-control>` so the target type need not be a subtype of the operand type:
+
+  - |BRONCAST|
+  - |BRONCASTFAIL|
+
+* New :ref:`structure instructions <syntax-instr-struct>`:
+
+  - |STRUCTNEWDESC|
+  - |STRUCTNEWDEFAULTDESC|
+
+* New :ref:`reference <syntax-instr-ref>` and :ref:`control <syntax-instr-control>` instructions:
+
+  - |REFGETDESC|
+  - |REFCASTDESCEQ|
+  - |BRONCASTDESCEQ|
+  - |BRONCASTDESCEQFAIL|
+
+* Extended set of :ref:`constant instructions <valid-constant>` with:
+
+  - |STRUCTNEWDESC|
+  - |STRUCTNEWDEFAULTDESC|
+
+
 .. [#proposal-extconst]
    https://github.com/WebAssembly/spec/tree/main/proposals/extended-const/
 
@@ -687,3 +735,6 @@ mirroring the role of custom sections in the binary format. [#proposal-annot]_
 
 .. [#proposal-annot]
    https://github.com/WebAssembly/spec/tree/main/proposals/annotations/
+
+.. [#proposal-custom-descriptors]
+   https://github.com/WebAssembly/spec/tree/main/proposals/custom-descriptors/

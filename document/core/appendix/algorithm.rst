@@ -16,7 +16,7 @@ Consequently, it can be integrated directly into a decoder.
 The algorithm is expressed in typed pseudo code whose semantics is intended to be self-explanatory.
 
 
-.. index:: value type, reference type, vector type, number type, packed type, field type, structure type, array type, function type, composite type, sub type, recursive type, defined type, stack, label, frame, instruction
+.. index:: value type, reference type, vector type, number type, packed type, field type, structure type, array type, function type, composite type, descriptor type, sub type, recursive type, defined type, exact, stack, label, frame, instruction
 
 Data Structures
 ~~~~~~~~~~~~~~~
@@ -33,7 +33,7 @@ Value types are representable as sets of enumerations:
    type heap_type =
      Any | Eq | I31 | Struct | Array | None |
      Func | Nofunc | Exn | Noexn | Extern | Noextern | Bot |
-     Def(def : def_type)
+     Def(def : def_type, exact : bool)
    type ref_type = Ref(heap : heap_type, null : bool)
    type val_type = num_type | vec_type | ref_type | Bot
 
@@ -58,7 +58,9 @@ Similarly, :ref:`defined types <syntax-deftype>` :code:`def_type` can be represe
    type func_type = Func(params : list(val_type), results : list(val_type))
    type comp_type = struct_type | array_type | func_type
 
-   type sub_type = Sub(super : list(def_type), body : comp_type, final : bool)
+   type desc_type =
+     Desc(describes : opt(def_type), descriptor : opt(def_type), body : comp_type)
+   type sub_type = Sub(super : list(def_type), body : desc_type, final : bool)
    type rec_type = Rec(types : list(sub_type))
 
    type def_type = Def(rec : rec_type, proj : int32)
@@ -67,10 +69,13 @@ Similarly, :ref:`defined types <syntax-deftype>` :code:`def_type` can be represe
      if (it = I8 || t = I16) return I32
      return t
 
-   func expand_def(t : def_type) : comp_type =
+   func expand_desc(t : def_type) : desc_type =
      return t.rec.types[t.proj].body
 
-These representations assume that all types have been :ref:`closed <type-closed>` by :ref:`substituting <type-subst>` all :ref:`type indices <syntax-typeidx>` (in :ref:`concrete heap types <syntax-heaptype>` and in :ref:`sub types <syntax-subtype>`) with their respective :ref:`defined types <syntax-deftype>`.
+   func expand_def(t : def_type) : comp_type =
+     return expand_desc(t).body
+
+These representations assume that all types have been :ref:`closed <type-closed>` by :ref:`substituting <type-subst>` all :ref:`type indices <syntax-typeidx>` (in :ref:`concrete heap types <syntax-heaptype>`, :ref:`descriptor types <syntax-desctype>`, and in :ref:`sub types <syntax-subtype>`) with their respective :ref:`defined types <syntax-deftype>`.
 This includes *recursive* references to enclosing :ref:`defined types <syntax-deftype>`,
 such that type representations form graphs and may be *cyclic* for :ref:`recursive types <syntax-rectype>`.
 
@@ -81,7 +86,7 @@ We assume that all types have been *canonicalized*, such that equality on two ty
    However, this distinction does not otherwise affect validation, so is ignored here.
    In the graph representation, all recursive types are effectively infinitely :ref:`unrolled <aux-unroll-rectype>`.
 
-We further assume that :ref:`validation <valid-valtype>` and :ref:`subtyping <match-valtype>` checks are defined on value types, as well as a few auxiliary functions on composite types:
+We further assume that :ref:`validation <valid-valtype>` and :ref:`subtyping <match-valtype>` checks are defined on value types, as well as a few auxiliary functions on heap and composite types:
 
 .. code-block:: pseudo
 
@@ -90,6 +95,8 @@ We further assume that :ref:`validation <valid-valtype>` and :ref:`subtyping <ma
 
    func matches_val(t1 : val_type, t2 : val_type) : bool
    func matches_ref(t1 : val_type, t2 : val_type) : bool
+
+   func is_def(t : heap_type) : bool
 
    func is_func(t : comp_type) : bool
    func is_struct(t : comp_type) : bool
@@ -107,8 +114,8 @@ Finally, the following function computes the least precise supertype of a given 
          return Func
        case (Extern | Noextern)
          return Extern
-       case (Def(dt))
-         switch (dt.rec.types[dt.proj].body)
+       case (Def(dt, _))
+         switch (expand_def(dt))
            case (Struct(_) | Array(_))
              return Any
            case (Func(_))
@@ -130,13 +137,15 @@ For the purpose of presenting the algorithm, it is maintained in a set of global
    var locals : array(val_type)
    var locals_init : array(bool)
    var globals : array(global_type)
-   var funcs : array(func_type)
+   var funcs : array(def_type)
+   var funcs_exact : array(bool)
    var tables : array(table_type)
    var mems : array(mem_type)
 
 This assumes suitable representations for the various :ref:`types <syntax-type>` besides :code:`val_type`, which are omitted here.
 
 For locals, there is an additional array recording the initialization status of each local.
+For functions, there is an additional array recording whether each function type is exact.
 
 Stacks
 ......
@@ -326,6 +335,9 @@ Other instructions are checked in a similar manner.
          pop_val(t)
          push_val(t)
 
+       case (ref.func x)
+         push_val(Ref(Def(funcs[x], funcs_exact[x]), false))
+
        case (ref.is_null)
          pop_ref()
          push_val(I32)
@@ -334,10 +346,26 @@ Other instructions are checked in a similar manner.
          let rt = pop_ref()
          push_val(Ref(rt.heap, false))
 
+       case (ref.get_desc x)
+         let dt = expand_desc(types[x])
+         error_if(dt.descriptor = None)
+         let rt = pop_val(Ref(Def(types[x], false), true))
+         let exact = matches_val(rt, Ref(Def(types[x], true), true))
+         push_val(Ref(Def(dt.descriptor, exact), false))
+
        case (ref.test rt)
          validate_ref_type(rt)
-         pop_val(Ref(top_heap_type(rt), true))
+         pop_val(Ref(top_heap_type(rt.heap), true))
          push_val(I32)
+
+       case (ref.cast_desc_eq rt)
+         validate_ref_type(rt)
+         error_if(not is_def(rt.heap))
+         let dt = expand_desc(rt.heap.def)
+         error_if(dt.descriptor = None)
+         pop_val(Ref(Def(dt.descriptor, rt.heap.exact), true))
+         pop_val(Ref(top_heap_type(rt.heap), true))
+         push_val(rt)
 
        case (local.get x)
          get_local(x)
@@ -404,6 +432,22 @@ Other instructions are checked in a similar manner.
        case (br_on_cast n rt1 rt2)
          validate_ref_type(rt1)
          validate_ref_type(rt2)
+         error_if(top_heap_type(rt1.heap) =/= top_heap_type(rt2.heap))
+         pop_val(rt1)
+         push_val(rt2)
+         pop_vals(label_types(ctrls[n]))
+         push_vals(label_types(ctrls[n]))
+         pop_val(rt2)
+         push_val(diff_ref_type(rt2, rt1))
+
+       case (br_on_cast_desc_eq n rt1 rt2)
+         validate_ref_type(rt1)
+         validate_ref_type(rt2)
+         error_if(top_heap_type(rt1.heap) =/= top_heap_type(rt2.heap))
+         error_if(not is_def(rt2.heap))
+         let dt = expand_desc(rt2.heap.def)
+         error_if(dt.descriptor = None)
+         pop_val(Ref(Def(dt.descriptor, rt2.heap.exact), true))
          pop_val(rt1)
          push_val(rt2)
          pop_vals(label_types(ctrls[n]))
@@ -419,30 +463,38 @@ Other instructions are checked in a similar manner.
          let t = expand_def(types[x])
          error_if(not is_func(t))
          pop_vals(t.params)
-         pop_val(Ref(Def(types[x])))
+         pop_val(Ref(Def(types[x], false), true))
          push_vals(t.results)
 
        case (return_call_ref x)
          let t = expand_def(types[x])
          error_if(not is_func(t))
          pop_vals(t.params)
-         pop_val(Ref(Def(types[x])))
+         pop_val(Ref(Def(types[x], false), true))
          error_if(t.results.len() =/= return_types.len())
          push_vals(t.results)
          pop_vals(return_types)
          unreachable()
 
        case (struct.new x)
-         let t = expand_def(types[x])
-         error_if(not is_struct(t))
-         for (ti in reverse(t.fields))
+         let dt = expand_desc(types[x])
+         error_if(not is_struct(dt.body) || dt.descriptor =/= None)
+         for (ti in reverse(dt.body.fields))
            pop_val(unpack_field(ti))
-         push_val(Ref(Def(types[x])))
+         push_val(Ref(Def(types[x], true), false))
+
+       case (struct.new_desc x)
+         let dt = expand_desc(types[x])
+         error_if(not is_struct(dt.body) || dt.descriptor = None)
+         pop_val(Ref(Def(dt.descriptor, true), true))
+         for (ti in reverse(dt.body.fields))
+           pop_val(unpack_field(ti))
+         push_val(Ref(Def(types[x], true), false))
 
        case (struct.set x n)
          let t = expand_def(types[x])
          error_if(not is_struct(t) || n >= t.fields.len())
-         pop_val(Ref(Def(types[x])))
+         pop_val(Ref(Def(types[x], false), true))
          pop_val(unpack_field(st.fields[n]))
 
        case (throw x)

@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Matching &#8212; WebAssembly 3.0 + Custom Descriptors (2026-11-02)</title>
+    <title>Matching &#8212; WebAssembly 3.0 + Custom Descriptors (2026-11-03)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=26d77489"></script>
+    <script src="../_static/documentation_options.js?v=57023ed0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}, "options": {"menuOptions": {"settings": {"enrich": false}}}}</script>
@@ -231,7 +231,7 @@ C \href{../valid/matching.html#match-vectype}{\vdash} {\href{../syntax/types.htm
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-heaptype}{\mathit{heaptype}}}_1\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-heaptype}{\mathsf{rec}} {.} i)\)</span>.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\({\href{../syntax/types.html#syntax-heaptype}{\mathit{heaptype}}}_2\)</span> is of the form <span class="math notranslate nohighlight">\(\href{../syntax/types.html#syntax-heaptype}{\mathsf{struct}}\)</span>.</p></li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-subtype"><span class="std std-ref">recursive type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../appendix/properties.html#context-ext}{\mathsf{recs}}{}[i]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-subtype"><span class="std std-ref">recursive type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../appendix/properties.html#context-ext}{\mathsf{recs}}{}[i]\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}^?}~(\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{{\href{../syntax/types.html#syntax-fieldtype}{\mathit{fieldtype}}}^\ast}))\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="../syntax/types.html#syntax-subtype"><span class="std std-ref">recursive type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../appendix/properties.html#context-ext}{\mathsf{recs}}{}[i]\)</span> is of the form <span class="math notranslate nohighlight">\((\href{../syntax/types.html#syntax-subtype}{\mathsf{sub}}~{\href{../syntax/types.html#syntax-subtype}{\mathsf{final}}^?}~({{\mathit{dcs}}^?}~{{\mathit{dcr}}^?}~(\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{{\href{../syntax/types.html#syntax-fieldtype}{\mathit{fieldtype}}}^\ast})))\)</span>.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -715,28 +715,38 @@ C \href{../valid/matching.html#match-packtype}{\vdash} {\href{../syntax/types.ht
 </section>
 <section id="descriptor-types">
 <span id="match-desctype"></span><span id="index-10"></span><h2>Descriptor Types<a class="headerlink" href="#descriptor-types" title="Link to this heading">¶</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>TODO: Complete these rules.</p>
-</div>
-<p>The <a class="reference internal" href="../syntax/types.html#syntax-desctype"><span class="std std-ref">descriptor type</span></a> <span class="math notranslate nohighlight">\(((\href{../syntax/types.html#syntax-desctype}{\mathsf{describes}}~{\mathit{tu}}_{11})~(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~{\mathit{tu}}_{12})~{\mathit{ct}}_1)\)</span> <a class="reference internal" href="#match-desctype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-desctype"><span class="std std-ref">descriptor type</span></a> <span class="math notranslate nohighlight">\(((\href{../syntax/types.html#syntax-desctype}{\mathsf{describes}}~{\mathit{tu}}_{21})~(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~{\mathit{tu}}_{22})~{\mathit{ct}}_2)\)</span> if:</p>
+<p>The <a class="reference internal" href="../syntax/types.html#syntax-desctype"><span class="std std-ref">descriptor type</span></a> <span class="math notranslate nohighlight">\(({(\href{../syntax/types.html#syntax-desctype}{\mathsf{describes}}~{\mathit{tu}}_{11})^?}~{(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~{\mathit{tu}}_{12})^?}~{\mathit{ct}}_1)\)</span> <a class="reference internal" href="#match-desctype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-desctype"><span class="std std-ref">descriptor type</span></a> <span class="math notranslate nohighlight">\(({(\href{../syntax/types.html#syntax-desctype}{\mathsf{describes}}~{\mathit{tu}}_{21})^?}~{(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~{\mathit{tu}}_{22})^?}~{\mathit{ct}}_2)\)</span> if:</p>
+<blockquote>
+<div><ul>
+<li><p>The type use <span class="math notranslate nohighlight">\({{\mathit{tu}}_{11}^?}\)</span> is absent if and only if the type use <span class="math notranslate nohighlight">\({{\mathit{tu}}_{21}^?}\)</span> is absent.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\({\mathit{tu}}_{11}\)</span> is defined and <span class="math notranslate nohighlight">\({\mathit{tu}}_{21}\)</span> is defined, then:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\({\mathit{tu}}_{11}\)</span> <a class="reference internal" href="#match-heaptype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\({\mathit{tu}}_{21}\)</span>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>The type use <span class="math notranslate nohighlight">\({{\mathit{tu}}_{12}^?}\)</span> is absent if and only if the type use <span class="math notranslate nohighlight">\({{\mathit{tu}}_{22}^?}\)</span> is absent.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\({\mathit{tu}}_{12}\)</span> is defined and <span class="math notranslate nohighlight">\({\mathit{tu}}_{22}\)</span> is defined, then:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\({\mathit{tu}}_{12}\)</span> <a class="reference internal" href="#match-heaptype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-heaptype"><span class="std std-ref">heap type</span></a> <span class="math notranslate nohighlight">\({\mathit{tu}}_{22}\)</span>.</p></li>
+</ul>
+</div></blockquote>
+</li>
 <li><p>The <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\({\mathit{ct}}_1\)</span> <a class="reference internal" href="#match-comptype"><span class="std std-ref">matches</span></a> the <a class="reference internal" href="../syntax/types.html#syntax-comptype"><span class="std std-ref">composite type</span></a> <span class="math notranslate nohighlight">\({\mathit{ct}}_2\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C \href{../valid/matching.html#match-heaptype}{\vdash} {\mathit{tu}}_{11} \href{../valid/matching.html#match-heaptype}{\leq} {\mathit{tu}}_{21}
+(C \href{../valid/matching.html#match-heaptype}{\vdash} {\mathit{tu}}_{11} \href{../valid/matching.html#match-heaptype}{\leq} {\mathit{tu}}_{21})^?
  \qquad
-C \href{../valid/matching.html#match-heaptype}{\vdash} {\mathit{tu}}_{12} \href{../valid/matching.html#match-heaptype}{\leq} {\mathit{tu}}_{22}
+(C \href{../valid/matching.html#match-heaptype}{\vdash} {\mathit{tu}}_{12} \href{../valid/matching.html#match-heaptype}{\leq} {\mathit{tu}}_{22})^?
  \qquad
 C \href{../valid/matching.html#match-comptype}{\vdash} {\mathit{ct}}_1 \href{../valid/matching.html#match-comptype}{\leq} {\mathit{ct}}_2
 }{
-C \href{../valid/matching.html#match-desctype}{\vdash} (\href{../syntax/types.html#syntax-desctype}{\mathsf{describes}}~{\mathit{tu}}_{11})~(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~{\mathit{tu}}_{12})~{\mathit{ct}}_1 \href{../valid/matching.html#match-desctype}{\leq} (\href{../syntax/types.html#syntax-desctype}{\mathsf{describes}}~{\mathit{tu}}_{21})~(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~{\mathit{tu}}_{22})~{\mathit{ct}}_2
+C \href{../valid/matching.html#match-desctype}{\vdash} {(\href{../syntax/types.html#syntax-desctype}{\mathsf{describes}}~{\mathit{tu}}_{11})^?}~{(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~{\mathit{tu}}_{12})^?}~{\mathit{ct}}_1 \href{../valid/matching.html#match-desctype}{\leq} {(\href{../syntax/types.html#syntax-desctype}{\mathsf{describes}}~{\mathit{tu}}_{21})^?}~{(\href{../syntax/types.html#syntax-desctype}{\mathsf{descriptor}}~{\mathit{tu}}_{22})^?}~{\mathit{ct}}_2
 }
 \qquad
 \end{array}\]</div>

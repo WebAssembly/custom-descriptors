@@ -47,7 +47,7 @@ $$
 \mbox{(table type)} & {\mathit{tabletype}} & ::= & {\mathit{addrtype}}~{\mathit{limits}}~{\mathit{reftype}} \\
 \mbox{(memory type)} & {\mathit{memtype}} & ::= & {\mathit{addrtype}}~{\mathit{limits}}~\mathsf{page} \\[0.8ex]
 {} \\[-2ex]
-\mbox{(external type)} & {\mathit{externtype}} & ::= & \mathsf{tag}~{\mathit{tagtype}} ~~|~~ \mathsf{global}~{\mathit{globaltype}} ~~|~~ \mathsf{mem}~{\mathit{memtype}} ~~|~~ \mathsf{table}~{\mathit{tabletype}} ~~|~~ \mathsf{func}~{\mathit{typeuse}} \\
+\mbox{(external type)} & {\mathit{externtype}} & ::= & \mathsf{tag}~{\mathit{tagtype}} ~~|~~ \mathsf{global}~{\mathit{globaltype}} ~~|~~ \mathsf{mem}~{\mathit{memtype}} ~~|~~ \mathsf{table}~{\mathit{tabletype}} ~~|~~ \mathsf{func}~{\mathit{exacttypeuse}} \\
 \end{array}
 $$
 
@@ -323,6 +323,9 @@ warning: syntax `datamode` was never spliced
 warning: syntax `datatype` was never spliced
 warning: syntax `decl` was never spliced
 warning: syntax `deftype` was never spliced
+warning: syntax `describes` was never spliced
+warning: syntax `descriptor` was never spliced
+warning: syntax `desctype` was never spliced
 warning: syntax `dim` was never spliced
 warning: syntax `elem` was never spliced
 warning: syntax `elemaddr` was never spliced
@@ -330,6 +333,9 @@ warning: syntax `elemidx` was never spliced
 warning: syntax `eleminst` was never spliced
 warning: syntax `elemmode` was never spliced
 warning: syntax `elemtype` was never spliced
+warning: syntax `exact` was never spliced
+warning: syntax `exactdeftype` was never spliced
+warning: syntax `exacttypeuse` was never spliced
 warning: syntax `exnaddr` was never spliced
 warning: syntax `exninst` was never spliced
 warning: syntax `exp` was never spliced
@@ -528,6 +534,9 @@ warning: grammar `Bdatacnt` was never spliced
 warning: grammar `Bdatacntsec` was never spliced
 warning: grammar `Bdataidx` was never spliced
 warning: grammar `Bdatasec` was never spliced
+warning: grammar `Bdescribes` was never spliced
+warning: grammar `Bdescriptor` was never spliced
+warning: grammar `Bdesctype` was never spliced
 warning: grammar `Belem` was never spliced
 warning: grammar `Belemidx` was never spliced
 warning: grammar `Belemkind` was never spliced
@@ -709,6 +718,9 @@ warning: grammar `Tdatamem_/abbrev` was never spliced
 warning: grammar `Tdatastring` was never spliced
 warning: grammar `Tdecl_` was never spliced
 warning: grammar `Tdecldots_` was never spliced
+warning: grammar `Tdescribes_` was never spliced
+warning: grammar `Tdescriptor_` was never spliced
+warning: grammar `Tdesctype_` was never spliced
 warning: grammar `Tdigit` was never spliced
 warning: grammar `Telem_/plain` was never spliced
 warning: grammar `Telem_/abbrev` was never spliced
@@ -973,6 +985,8 @@ warning: rule `Defaultable` was never spliced
 warning: rule `Deftype_ok` was never spliced
 warning: rule `Deftype_sub/refl` was never spliced
 warning: rule `Deftype_sub/super` was never spliced
+warning: rule `Desctype_ok` was never spliced
+warning: rule `Desctype_sub` was never spliced
 warning: rule `Elem_ok` was never spliced
 warning: rule `Eleminst_ok` was never spliced
 warning: rule `Elemmode_ok/passive` was never spliced
@@ -981,6 +995,7 @@ warning: rule `Elemmode_ok/active` was never spliced
 warning: rule `Eval_expr` was never spliced
 warning: rule `Exninst_ok` was never spliced
 warning: rule `Expand` was never spliced
+warning: rule `Expand_desc` was never spliced
 warning: rule `Expand_use/deftype` was never spliced
 warning: rule `Expand_use/typeidx` was never spliced
 warning: rule `Export_ok` was never spliced
@@ -1040,6 +1055,7 @@ warning: rule `Heaptype_ok/abs` was never spliced
 warning: rule `Heaptype_ok/typeuse` was never spliced
 warning: rule `Heaptype_ok/bot` was never spliced
 warning: rule `Heaptype_sub/refl` was never spliced
+warning: rule `Heaptype_sub/exact-l` was never spliced
 warning: rule `Heaptype_sub/trans` was never spliced
 warning: rule `Heaptype_sub/eq-any` was never spliced
 warning: rule `Heaptype_sub/i31-eq` was never spliced
@@ -1062,7 +1078,8 @@ warning: rule `Heaptype_sub/noextern` was never spliced
 warning: rule `Heaptype_sub/bot` was never spliced
 warning: rule `Idctxt_ok` was never spliced
 warning: rule `ImmutReachable/trans` was never spliced
-warning: rule `ImmutReachable/ref.struct` was never spliced
+warning: rule `ImmutReachable/ref.struct-field` was never spliced
+warning: rule `ImmutReachable/ref.struct-desc` was never spliced
 warning: rule `ImmutReachable/ref.array` was never spliced
 warning: rule `ImmutReachable/ref.exn` was never spliced
 warning: rule `ImmutReachable/ref.extern` was never spliced
@@ -1074,6 +1091,8 @@ warning: rule `Instr_const/ref.i31` was never spliced
 warning: rule `Instr_const/ref.func` was never spliced
 warning: rule `Instr_const/struct.new` was never spliced
 warning: rule `Instr_const/struct.new_default` was never spliced
+warning: rule `Instr_const/struct.new_desc` was never spliced
+warning: rule `Instr_const/struct.new_default_desc` was never spliced
 warning: rule `Instr_const/array.new` was never spliced
 warning: rule `Instr_const/array.new_default` was never spliced
 warning: rule `Instr_const/array.new_fixed` was never spliced
@@ -1090,6 +1109,8 @@ warning: rule `Instr_ok/br_on_null` was never spliced
 warning: rule `Instr_ok/br_on_non_null` was never spliced
 warning: rule `Instr_ok/br_on_cast` was never spliced
 warning: rule `Instr_ok/br_on_cast_fail` was never spliced
+warning: rule `Instr_ok/br_on_cast_desc_eq` was never spliced
+warning: rule `Instr_ok/br_on_cast_desc_eq_fail` was never spliced
 warning: rule `Instr_ok/call` was never spliced
 warning: rule `Instr_ok/call_ref` was never spliced
 warning: rule `Instr_ok/call_indirect` was never spliced
@@ -1106,11 +1127,15 @@ warning: rule `Instr_ok/ref.i31` was never spliced
 warning: rule `Instr_ok/ref.is_null` was never spliced
 warning: rule `Instr_ok/ref.as_non_null` was never spliced
 warning: rule `Instr_ok/ref.eq` was never spliced
+warning: rule `Instr_ok/ref.get_desc` was never spliced
 warning: rule `Instr_ok/ref.test` was never spliced
 warning: rule `Instr_ok/ref.cast` was never spliced
+warning: rule `Instr_ok/ref.cast_desc_eq` was never spliced
 warning: rule `Instr_ok/i31.get` was never spliced
 warning: rule `Instr_ok/struct.new` was never spliced
 warning: rule `Instr_ok/struct.new_default` was never spliced
+warning: rule `Instr_ok/struct.new_desc` was never spliced
+warning: rule `Instr_ok/struct.new_default_desc` was never spliced
 warning: rule `Instr_ok/struct.get` was never spliced
 warning: rule `Instr_ok/struct.set` was never spliced
 warning: rule `Instr_ok/array.new` was never spliced
@@ -1280,6 +1305,8 @@ warning: rule `Step/memory.grow-succeed` was never spliced
 warning: rule `Step/memory.grow-fail` was never spliced
 warning: rule `Step/data.drop` was never spliced
 warning: rule `Step/struct.new` was never spliced
+warning: rule `Step/struct.new_desc-null` was never spliced
+warning: rule `Step/struct.new_desc-struct` was never spliced
 warning: rule `Step/struct.set-null` was never spliced
 warning: rule `Step/struct.set-struct` was never spliced
 warning: rule `Step/array.new_fixed` was never spliced
@@ -1369,6 +1396,14 @@ warning: rule `Step_read/br_on_cast-succeed` was never spliced
 warning: rule `Step_read/br_on_cast-fail` was never spliced
 warning: rule `Step_read/br_on_cast_fail-succeed` was never spliced
 warning: rule `Step_read/br_on_cast_fail-fail` was never spliced
+warning: rule `Step_read/br_on_cast_desc_eq-null` was never spliced
+warning: rule `Step_read/br_on_cast_desc_eq-succeed-null` was never spliced
+warning: rule `Step_read/br_on_cast_desc_eq-succeed-addr` was never spliced
+warning: rule `Step_read/br_on_cast_desc_eq-fail` was never spliced
+warning: rule `Step_read/br_on_cast_desc_eq_fail-null` was never spliced
+warning: rule `Step_read/br_on_cast_desc_eq_fail-succeed-null` was never spliced
+warning: rule `Step_read/br_on_cast_desc_eq_fail-succeed-addr` was never spliced
+warning: rule `Step_read/br_on_cast_desc_eq_fail-fail` was never spliced
 warning: rule `Step_read/call` was never spliced
 warning: rule `Step_read/return_call` was never spliced
 warning: rule `Step_read/return_call_ref-label` was never spliced
@@ -1432,7 +1467,14 @@ warning: rule `Step_read/ref.test-true` was never spliced
 warning: rule `Step_read/ref.test-false` was never spliced
 warning: rule `Step_read/ref.cast-succeed` was never spliced
 warning: rule `Step_read/ref.cast-fail` was never spliced
+warning: rule `Step_read/ref.get_desc-null` was never spliced
+warning: rule `Step_read/ref.get_desc-struct` was never spliced
+warning: rule `Step_read/ref.cast_desc_eq-null` was never spliced
+warning: rule `Step_read/ref.cast_desc_eq-succeed-null` was never spliced
+warning: rule `Step_read/ref.cast_desc_eq-succeed-addr` was never spliced
+warning: rule `Step_read/ref.cast_desc_eq-fail` was never spliced
 warning: rule `Step_read/struct.new_default` was never spliced
+warning: rule `Step_read/struct.new_default_desc` was never spliced
 warning: rule `Step_read/struct.get-null` was never spliced
 warning: rule `Step_read/struct.get-struct` was never spliced
 warning: rule `Step_read/array.new_default` was never spliced
@@ -1638,6 +1680,9 @@ warning: definition `free_dataidx` was never spliced
 warning: definition `free_datamode` was never spliced
 warning: definition `free_datatype` was never spliced
 warning: definition `free_deftype` was never spliced
+warning: definition `free_describes` was never spliced
+warning: definition `free_descriptor` was never spliced
+warning: definition `free_desctype` was never spliced
 warning: definition `free_elem` was never spliced
 warning: definition `free_elemidx` was never spliced
 warning: definition `free_elemmode` was never spliced
@@ -1881,6 +1926,9 @@ warning: definition `subst_all_tagtype` was never spliced
 warning: definition `subst_all_valtype` was never spliced
 warning: definition `subst_comptype` was never spliced
 warning: definition `subst_deftype` was never spliced
+warning: definition `subst_describes` was never spliced
+warning: definition `subst_descriptor` was never spliced
+warning: definition `subst_desctype` was never spliced
 warning: definition `subst_externtype` was never spliced
 warning: definition `subst_fieldtype` was never spliced
 warning: definition `subst_globaltype` was never spliced
@@ -1993,6 +2041,8 @@ warning: rule prose `Deftype_ok` was never spliced
 warning: rule prose `Deftype_sub` was never spliced
 warning: rule prose `Deftype_sub/refl` was never spliced
 warning: rule prose `Deftype_sub/super` was never spliced
+warning: rule prose `Desctype_ok` was never spliced
+warning: rule prose `Desctype_sub` was never spliced
 warning: rule prose `Elem_ok` was never spliced
 warning: rule prose `Eleminst_ok` was never spliced
 warning: rule prose `Elemmode_ok` was never spliced
@@ -2002,6 +2052,7 @@ warning: rule prose `Elemmode_ok/passive` was never spliced
 warning: rule prose `Eval_expr` was never spliced
 warning: rule prose `Exninst_ok` was never spliced
 warning: rule prose `Expand` was never spliced
+warning: rule prose `Expand_desc` was never spliced
 warning: rule prose `Expand_use` was never spliced
 warning: rule prose `Expand_use/deftype` was never spliced
 warning: rule prose `Expand_use/typeidx` was never spliced
@@ -2063,6 +2114,7 @@ warning: rule prose `Heaptype_sub/array` was never spliced
 warning: rule prose `Heaptype_sub/bot` was never spliced
 warning: rule prose `Heaptype_sub/def` was never spliced
 warning: rule prose `Heaptype_sub/eq` was never spliced
+warning: rule prose `Heaptype_sub/exact` was never spliced
 warning: rule prose `Heaptype_sub/func` was never spliced
 warning: rule prose `Heaptype_sub/i31` was never spliced
 warning: rule prose `Heaptype_sub/noexn` was never spliced
@@ -2090,6 +2142,8 @@ warning: rule prose `Instr_const/ref.i31` was never spliced
 warning: rule prose `Instr_const/ref.null` was never spliced
 warning: rule prose `Instr_const/struct.new` was never spliced
 warning: rule prose `Instr_const/struct.new_default` was never spliced
+warning: rule prose `Instr_const/struct.new_default_desc` was never spliced
+warning: rule prose `Instr_const/struct.new_desc` was never spliced
 warning: rule prose `Instr_const/vconst` was never spliced
 warning: rule prose `Instr_ok/any.convert_extern` was never spliced
 warning: rule prose `Instr_ok/array.copy` was never spliced
@@ -2109,6 +2163,8 @@ warning: rule prose `Instr_ok/block` was never spliced
 warning: rule prose `Instr_ok/br` was never spliced
 warning: rule prose `Instr_ok/br_if` was never spliced
 warning: rule prose `Instr_ok/br_on_cast` was never spliced
+warning: rule prose `Instr_ok/br_on_cast_desc_eq` was never spliced
+warning: rule prose `Instr_ok/br_on_cast_desc_eq_fail` was never spliced
 warning: rule prose `Instr_ok/br_on_cast_fail` was never spliced
 warning: rule prose `Instr_ok/br_on_non_null` was never spliced
 warning: rule prose `Instr_ok/br_on_null` was never spliced
@@ -2141,8 +2197,10 @@ warning: rule prose `Instr_ok/memory.size` was never spliced
 warning: rule prose `Instr_ok/nop` was never spliced
 warning: rule prose `Instr_ok/ref.as_non_null` was never spliced
 warning: rule prose `Instr_ok/ref.cast` was never spliced
+warning: rule prose `Instr_ok/ref.cast_desc_eq` was never spliced
 warning: rule prose `Instr_ok/ref.eq` was never spliced
 warning: rule prose `Instr_ok/ref.func` was never spliced
+warning: rule prose `Instr_ok/ref.get_desc` was never spliced
 warning: rule prose `Instr_ok/ref.i31` was never spliced
 warning: rule prose `Instr_ok/ref.is_null` was never spliced
 warning: rule prose `Instr_ok/ref.null` was never spliced
@@ -2161,6 +2219,8 @@ warning: rule prose `Instr_ok/store-pack` was never spliced
 warning: rule prose `Instr_ok/struct.get` was never spliced
 warning: rule prose `Instr_ok/struct.new` was never spliced
 warning: rule prose `Instr_ok/struct.new_default` was never spliced
+warning: rule prose `Instr_ok/struct.new_default_desc` was never spliced
+warning: rule prose `Instr_ok/struct.new_desc` was never spliced
 warning: rule prose `Instr_ok/struct.set` was never spliced
 warning: rule prose `Instr_ok/table.copy` was never spliced
 warning: rule prose `Instr_ok/table.fill` was never spliced
@@ -2294,6 +2354,7 @@ warning: rule prose `Step/store` was never spliced
 warning: rule prose `Step/store-num-*` was never spliced
 warning: rule prose `Step/store-pack-*` was never spliced
 warning: rule prose `Step/struct.new` was never spliced
+warning: rule prose `Step/struct.new_desc` was never spliced
 warning: rule prose `Step/struct.set` was never spliced
 warning: rule prose `Step/table.grow` was never spliced
 warning: rule prose `Step/table.set` was never spliced
@@ -2363,6 +2424,10 @@ warning: rule prose `Step_read/array.new_default` was never spliced
 warning: rule prose `Step_read/array.new_elem` was never spliced
 warning: rule prose `Step_read/block` was never spliced
 warning: rule prose `Step_read/br_on_cast` was never spliced
+warning: rule prose `Step_read/br_on_cast_desc_eq` was never spliced
+warning: rule prose `Step_read/br_on_cast_desc_eq-succeed-*` was never spliced
+warning: rule prose `Step_read/br_on_cast_desc_eq_fail` was never spliced
+warning: rule prose `Step_read/br_on_cast_desc_eq_fail-succeed-*` was never spliced
 warning: rule prose `Step_read/br_on_cast_fail` was never spliced
 warning: rule prose `Step_read/call` was never spliced
 warning: rule prose `Step_read/global.get` was never spliced
@@ -2378,7 +2443,10 @@ warning: rule prose `Step_read/memory.init` was never spliced
 warning: rule prose `Step_read/memory.init-oob-*` was never spliced
 warning: rule prose `Step_read/memory.size` was never spliced
 warning: rule prose `Step_read/ref.cast` was never spliced
+warning: rule prose `Step_read/ref.cast_desc_eq` was never spliced
+warning: rule prose `Step_read/ref.cast_desc_eq-succeed-*` was never spliced
 warning: rule prose `Step_read/ref.func` was never spliced
+warning: rule prose `Step_read/ref.get_desc` was never spliced
 warning: rule prose `Step_read/ref.null` was never spliced
 warning: rule prose `Step_read/ref.test` was never spliced
 warning: rule prose `Step_read/return_call` was never spliced
@@ -2386,6 +2454,7 @@ warning: rule prose `Step_read/return_call_ref` was never spliced
 warning: rule prose `Step_read/return_call_ref-frame-*` was never spliced
 warning: rule prose `Step_read/struct.get` was never spliced
 warning: rule prose `Step_read/struct.new_default` was never spliced
+warning: rule prose `Step_read/struct.new_default_desc` was never spliced
 warning: rule prose `Step_read/table.copy` was never spliced
 warning: rule prose `Step_read/table.copy-oob-*` was never spliced
 warning: rule prose `Step_read/table.fill` was never spliced
@@ -2543,6 +2612,9 @@ warning: definition prose `free_dataidx` was never spliced
 warning: definition prose `free_datamode` was never spliced
 warning: definition prose `free_datatype` was never spliced
 warning: definition prose `free_deftype` was never spliced
+warning: definition prose `free_describes` was never spliced
+warning: definition prose `free_descriptor` was never spliced
+warning: definition prose `free_desctype` was never spliced
 warning: definition prose `free_elem` was never spliced
 warning: definition prose `free_elemidx` was never spliced
 warning: definition prose `free_elemmode` was never spliced
@@ -2741,6 +2813,9 @@ warning: definition prose `subst_all_tagtype` was never spliced
 warning: definition prose `subst_all_valtype` was never spliced
 warning: definition prose `subst_comptype` was never spliced
 warning: definition prose `subst_deftype` was never spliced
+warning: definition prose `subst_describes` was never spliced
+warning: definition prose `subst_descriptor` was never spliced
+warning: definition prose `subst_desctype` was never spliced
 warning: definition prose `subst_externtype` was never spliced
 warning: definition prose `subst_fieldtype` was never spliced
 warning: definition prose `subst_globaltype` was never spliced

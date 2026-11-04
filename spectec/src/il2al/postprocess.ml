@@ -93,9 +93,16 @@ let split_iter s =
   String.sub s 0 last, String.sub s last (len - last)
 
 let replace_name old_name new_name algo =
-  let replace_name' walker e =
+  let replace_name' (walker: Walk.walker) e =
     match e.it with
     | VarE x when x = old_name -> {e with it = VarE new_name}
+    | IterE (inner_e, (iter, xes)) ->
+      let xes' =
+        List.map
+          (fun (x, e) -> (if x = old_name then new_name else x), walker.walk_expr walker e)
+          xes
+      in
+      {e with it = IterE (walker.walk_expr walker inner_e, (walker.walk_iter walker iter, xes'))}
     | _ -> Walk.base_walker.walk_expr walker e
   in
   let walker = {Walk.base_walker with walk_expr = replace_name'} in

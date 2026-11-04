@@ -27,7 +27,11 @@ let ref_ok =
       let field_name = String.sub name 4 (String.length name - 9) in
       let object_ = listv_nth (Ds.Store.access (field_name ^ "S")) (Z.to_int i) in
       let dt = strv_access "TYPE" object_ in
-      CaseV ("REF", [ nonull; dt])
+      let ht =
+        if !Construct.version <= 3 then dt
+        else CaseV ("_HT", [ CaseV ("", [ some "EXACT"; dt ]) ])
+      in
+      CaseV ("REF", [ nonull; ht ])
     (* extern *)
     (* TODO: check null *)
     | CaseV ("REF.EXTERN", [ _ ]) -> CaseV ("REF", [ nonull; nullary "EXTERN"])
@@ -44,7 +48,7 @@ let ref_ok =
   | vs -> Numerics.error_values "$Ref_ok" vs
 
 let module_ok v =
-  if !Construct.version <> 3 then failwith "This hardcoded function ($Module_ok) should be only called with test version 3.0";
+  if !Construct.version < 3 then failwith "This hardcoded function ($Module_ok) should be only called with test version >= 3.0";
   match v with
   | [ m ] ->
     (try
@@ -68,7 +72,13 @@ let externaddr_ok = function
         |> unwrap_listv_to_array
         |> fun arr -> Array.get arr addr
         |> strv_access "TYPE"
-        |> fun type_ -> CaseV (name, [type_])
+        |> fun type_ ->
+          let arg =
+            if name = "FUNC" && !Construct.version > 3 then
+              CaseV ("", [ some "EXACT"; type_ ])
+            else type_
+          in
+          CaseV (name, [ arg ])
         |> Construct.al_to_externtype
       in
       let externtype = Construct.al_to_externtype t in

@@ -192,6 +192,9 @@ and check_type ty v expr =
   (* absheaptype *)
   | CaseV (aht, []) when List.mem aht abs_heaptypes ->
     boolV (ty = "absheaptype" || ty = "heaptype")
+  (* concrete heaptype *)
+  | CaseV ("_HT", [ _ ]) ->
+    boolV (ty = "heaptype")
   (* deftype *)
   | CaseV ("_DEF", [ _; _ ]) ->
     boolV (ty = "heaptype" || ty = "typeuse" || ty = "deftype")
@@ -201,6 +204,11 @@ and check_type ty v expr =
   (* heaptype *)
   | CaseV ("REC", [ _ ]) ->
     boolV (ty = "heaptype" || ty = "typeuse" || ty = "typevar")
+  (* exactdeftype / exacttypeuse *)
+  | CaseV ("", [ OptV _; CaseV ("_DEF", [ _; _ ]) ]) ->
+    boolV (ty = "exactdeftype" || ty = "exacttypeuse")
+  | CaseV ("", [ OptV _; CaseV (("_IDX" | "REC"), [ _ ]) ]) ->
+    boolV (ty = "exacttypeuse")
   (* packval *)
   | CaseV ("PACK", CaseV (pt, [])::_) when List.mem pt pnn_types ->
     boolV (ty = "val")

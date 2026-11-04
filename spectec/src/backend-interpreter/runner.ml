@@ -200,14 +200,14 @@ let test_assertion assertion =
     | exception Exception.Throw -> success
     | _ -> Assert.error assertion.at "expected exception"
     )
-  | AssertInvalid (def, re) when !Construct.version = 3 ->
+  | AssertInvalid (def, re) when !Construct.version >= 3 ->
     (match def |> module_of_def |> instantiate |> ignore with
     | exception Exception.Invalid _ -> success
     | _ ->
       Run.assert_message assertion.at "validation" "module instance" re;
       fail
     )
-  | AssertInvalidCustom (def, re) when !Construct.version = 3 ->
+  | AssertInvalidCustom (def, re) when !Construct.version >= 3 ->
     (match def |> module_of_def |> instantiate |> ignore with
     | exception Exception.Invalid _ -> success
     | _ ->
@@ -371,6 +371,7 @@ and run_dir path =
   path
   |> Sys.readdir
   |> Array.to_list
+  |> List.filter (fun filename -> not (!Construct.version <= 3 && filename = "custom-descriptors"))
   |> List.sort compare
   |> List.map (fun filename -> run_file (Filename.concat path filename) [])
   |> sum_results_with_time

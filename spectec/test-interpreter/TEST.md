@@ -40,7 +40,9 @@ spectec 0.5 generator
 $ for v in 1 2 3; do ( \
 >   echo "Running test for Wasm $v.0..." && \
 >   ../src/exe-spectec/main.exe ../../../_specification/wasm-$v.0/*.spectec -v -l --test-version $v --interpreter ../test-interpreter/spec-test-$v \
-> ) done 2>&1
+> ) done 2>&1 && \
+> echo "Running test for Wasm latest..." && \
+> ../src/exe-spectec/main.exe ../../../_specification/wasm-latest/*.spectec -v -l --interpreter ../test-interpreter/spec-test-3 2>&1
 Running test for Wasm 1.0...
 spectec 0.5 generator
 == Parsing...
@@ -106,6 +108,36 @@ spectec 0.5 generator
 - print: ()
 == Complete.
 Running test for Wasm 3.0...
+spectec 0.5 generator
+== Parsing...
+== Elaboration...
+== IL Validation...
+== Running pass sideconditions...
+== IL Validation after pass sideconditions...
+== Translating to AL...
+== Initializing interpreter...
+== Interpreting...
+- print_i32: 83
+- print_i32: 13
+- print_i32_f32: 14 42
+- print_i32: 13
+- print_i32: 13
+- print_f32: 13
+- print_i32: 13
+- print_i64: 24
+- print_f64_f64: 25 53
+- print_i64: 24
+- print_f64: 24
+- print_f64: 24
+- print_f64: 24
+- print_i32: 13
+- print_i32: 42
+- print_i32: 123
+- print_i32: 1
+- print_i32: 2
+- print: ()
+== Complete.
+Running test for Wasm latest...
 spectec 0.5 generator
 == Parsing...
 == Elaboration...

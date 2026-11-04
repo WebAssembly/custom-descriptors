@@ -5,7 +5,7 @@ type field =
   | ValField of value ref
   | PackField of packtype * int ref
 
-type struct_ = Struct of deftype * field list * ref_ option
+type struct_ = Struct of deftype * ref_ option * field list
 type array = Array of deftype * field list
 
 type ref_ += StructRef of struct_

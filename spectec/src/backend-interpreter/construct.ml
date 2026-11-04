@@ -25,7 +25,7 @@ let error_instr category instr' =
 
 (* Constant *)
 
-let version = ref 3
+let version = ref 4
 
 
 (* Destruct *)
@@ -109,6 +109,11 @@ let al_to_mut: value -> mut = function
   | OptV _ -> Var
   | v -> error_value "mut" v
 
+let al_to_exact: value -> exact = function
+  | OptV None -> Inexact
+  | OptV _ -> Exact
+  | v -> error_value "exact" v
+
 let rec al_to_storagetype: value -> storagetype = function
   | CaseV ("I8", []) -> PackStorageT I8T
   | CaseV ("I16", []) -> PackStorageT I16T
@@ -127,8 +132,23 @@ and al_to_comptype: value -> comptype = function
   | CaseV ("->", [ rt1; rt2 ]) -> FuncT (al_to_resulttype rt1, (al_to_resulttype rt2))
   | v -> error_value "comptype" v
 
-and al_to_desctype: value-> desctype = function
-  | v -> DescT (None, None, al_to_comptype v) (* TODO *)
+and al_to_describes: value -> typeuse = function
+  | CaseV ("DESCRIBES", [ tu ]) -> al_to_typeuse tu
+  | v -> error_value "describes" v
+
+and al_to_descriptor: value -> typeuse = function
+  | CaseV ("DESCRIPTOR", [ tu ]) -> al_to_typeuse tu
+  | v -> error_value "descriptor" v
+
+and al_to_desctype: value -> desctype = function
+  | v when !version <= 3 -> DescT (None, None, al_to_comptype v)
+  | CaseV ("", [ dcs; dcr; ct ]) | TupV [ dcs; dcr; ct ] ->
+    DescT (
+      al_to_opt al_to_describes dcs,
+      al_to_opt al_to_descriptor dcr,
+      al_to_comptype ct
+    )
+  | v -> error_value "desctype" v
 
 and al_to_subtype: value -> subtype = function
   | CaseV ("SUB", [ fin; tul; st ]) ->
@@ -172,7 +192,10 @@ and al_to_heaptype: value -> heaptype = function
     | "EXTERN" | "EXTERNREF" -> ExternHT
     | "NOEXTERN" -> NoExternHT
     | _ -> error_value "absheaptype" v)
-  | CaseV (("_IDX" | "REC" | "_DEF"), _) as v -> UseHT (Inexact, al_to_typeuse v) (* TODO: exactness *)
+  | CaseV ("_HT", [ CaseV ("", [ ex; tu ]) | TupV [ ex; tu ] ]) ->
+    UseHT (al_to_exact ex, al_to_typeuse tu)
+  | CaseV (("_IDX" | "REC" | "_DEF"), _) as v when !version <= 3 ->
+    UseHT (Inexact, al_to_typeuse v)
   | v -> error_value "heaptype" v
 
 and al_to_reftype: value -> reftype = function
@@ -792,6 +815,10 @@ and al_to_instr': value -> Ast.instr' = function
     BrOnCast (al_to_idx idx, al_to_reftype rt1, al_to_reftype rt2)
   | CaseV ("BR_ON_CAST_FAIL", [ idx; rt1; rt2 ]) ->
     BrOnCastFail (al_to_idx idx, al_to_reftype rt1, al_to_reftype rt2)
+  | CaseV ("BR_ON_CAST_DESC_EQ", [ idx; rt1; rt2 ]) ->
+    BrOnCastDescEq (al_to_idx idx, al_to_reftype rt1, al_to_reftype rt2)
+  | CaseV ("BR_ON_CAST_DESC_EQ_FAIL", [ idx; rt1; rt2 ]) ->
+    BrOnCastDescEqFail (al_to_idx idx, al_to_reftype rt1, al_to_reftype rt2)
   | CaseV ("RETURN", []) -> Return
   | CaseV ("CALL", [ idx ]) -> Call (al_to_idx idx)
   | CaseV ("CALL_REF", [ typeuse ]) -> CallRef (al_to_idx_of_typeuse typeuse)
@@ -822,6 +849,8 @@ and al_to_instr': value -> Ast.instr' = function
   | CaseV ("REF.AS_NON_NULL", []) -> RefAsNonNull
   | CaseV ("REF.TEST", [ rt ]) -> RefTest (al_to_reftype rt)
   | CaseV ("REF.CAST", [ rt ]) -> RefCast (al_to_reftype rt)
+  | CaseV ("REF.CAST_DESC_EQ", [ rt ]) -> RefCastDescEq (al_to_reftype rt)
+  | CaseV ("REF.GET_DESC", [ idx ]) -> RefGetDesc (al_to_idx idx)
   | CaseV ("REF.EQ", []) -> RefEq
   | CaseV ("REF.I31", []) -> RefI31
   | CaseV ("I31.GET", [ sx ]) -> I31Get (al_to_sx sx)
@@ -916,7 +945,10 @@ let al_to_data': value -> data' = function
 let al_to_data: value -> data = al_to_phrase al_to_data'
 
 let al_to_externtype = function
-  | CaseV ("FUNC", [typeuse]) -> ExternFuncT (Inexact, al_to_typeuse typeuse) (* TODO: exactness *)
+  | CaseV ("FUNC", [ typeuse ]) when !version <= 3 ->
+    ExternFuncT (Inexact, al_to_typeuse typeuse)
+  | CaseV ("FUNC", [ CaseV ("", [ ex; tu ]) | TupV [ ex; tu ] ]) ->
+    ExternFuncT (al_to_exact ex, al_to_typeuse tu)
   | CaseV ("GLOBAL", [globaltype]) -> ExternGlobalT (al_to_globaltype globaltype)
   | CaseV ("TABLE", [tabletype]) -> ExternTableT (al_to_tabletype tabletype)
   | CaseV ("MEM", [memtype]) -> ExternMemoryT (al_to_memorytype memtype)
@@ -990,10 +1022,15 @@ and al_to_array: value -> Aggr.array = function
 
 and al_to_struct: value -> Aggr.struct_ = function
   | StrV r when Record.mem "TYPE" r && Record.mem "FIELDS" r ->
+    let desc =
+      if Record.mem "DESC" r then
+        al_to_opt (fun a -> al_to_ref (CaseV ("REF.STRUCT_ADDR", [ a ]))) (Record.find "DESC" r)
+      else None
+    in
     Aggr.Struct (
       al_to_deftype (Record.find "TYPE" r),
-      al_to_list al_to_field (Record.find "FIELDS" r),
-      None (* TODO: descriptors *)
+      desc,
+      al_to_list al_to_field (Record.find "FIELDS" r)
     )
   | v -> error_value "struct" v
 
@@ -1131,6 +1168,10 @@ let al_of_mut = function
   | Cons -> none "MUT"
   | Var -> some "MUT"
 
+let al_of_exact = function
+  | Inexact -> none "EXACT"
+  | Exact -> some "EXACT"
+
 let rec al_of_storagetype = function
   | ValStorageT vt -> al_of_valtype vt
   | PackStorageT _ as st -> nullary (string_of_storagetype st)
@@ -1145,8 +1186,18 @@ and al_of_comptype = function
   | ArrayT ft -> CaseV ("ARRAY", [ al_of_fieldtype ft ])
   | FuncT (rt1, rt2) -> CaseV ("->", [ al_of_resulttype rt1; al_of_resulttype rt2 ])
 
+and al_of_describes tu = CaseV ("DESCRIBES", [ al_of_typeuse tu ])
+
+and al_of_descriptor tu = CaseV ("DESCRIPTOR", [ al_of_typeuse tu ])
+
 and al_of_desctype = function
-  | DescT (_, _, ct) -> al_of_comptype ct (* TODO *)
+  | DescT (_, _, ct) when !version <= 3 -> al_of_comptype ct
+  | DescT (dcs, dcr, ct) ->
+    CaseV ("", [
+      al_of_opt al_of_describes dcs;
+      al_of_opt al_of_descriptor dcr;
+      al_of_comptype ct;
+    ])
 
 and al_of_subtype = function
   | SubT (fin, tul, st) ->
@@ -1169,7 +1220,9 @@ and al_of_typeuse_of_idx = function
   | idx -> CaseV ("_IDX", [ al_of_idx idx ])
 
 and al_of_heaptype = function
-  | UseHT (_, tu) -> al_of_typeuse tu (* TODO: exactness *)
+  | UseHT (_, tu) when !version <= 3 -> al_of_typeuse tu
+  | UseHT (ex, tu) ->
+    CaseV ("_HT", [ CaseV ("", [ al_of_exact ex; al_of_typeuse tu ]) ])
   | BotHT -> nullary "BOT"
   | FuncHT | ExternHT as ht when !version <= 2 ->
     string_of_heaptype ht ^ "REF" |> nullary
@@ -1833,7 +1886,7 @@ let rec al_of_instr instr =
     let args = (if !version = 1 then [] else [ al_of_idx idx1 ]) @ [ al_of_typeuse_of_idx idx2 ] in
     CaseV ("CALL_INDIRECT", args)
   | ReturnCall idx -> CaseV ("RETURN_CALL", [ al_of_idx idx ])
-  | ReturnCallRef idx -> CaseV ("RETURN_CALL_REF", [ al_of_idx idx ])
+  | ReturnCallRef idx -> CaseV ("RETURN_CALL_REF", [ al_of_typeuse_of_idx idx ])
   | ReturnCallIndirect (idx1, idx2) ->
     CaseV ("RETURN_CALL_INDIRECT", [ al_of_idx idx1; al_of_typeuse_of_idx idx2 ])
   | Throw idx -> CaseV ("THROW", [ al_of_idx idx ])
@@ -1864,8 +1917,10 @@ let rec al_of_instr instr =
   | RefEq -> nullary "REF.EQ"
   | RefI31 -> nullary "REF.I31"
   | I31Get sx -> CaseV ("I31.GET", [ al_of_sx sx ])
-  | StructNew (idx, Explicit, _) -> CaseV ("STRUCT.NEW", [ al_of_idx idx ]) (* TODO(tlively): descriptors *)
-  | StructNew (idx, Implicit, _) -> CaseV ("STRUCT.NEW_DEFAULT", [ al_of_idx idx ]) (* TODO(tlively): descriptors *)
+  | StructNew (idx, Explicit, NoDesc) -> CaseV ("STRUCT.NEW", [ al_of_idx idx ])
+  | StructNew (idx, Implicit, NoDesc) -> CaseV ("STRUCT.NEW_DEFAULT", [ al_of_idx idx ])
+  | StructNew (idx, Explicit, Desc) -> CaseV ("STRUCT.NEW_DESC", [ al_of_idx idx ])
+  | StructNew (idx, Implicit, Desc) -> CaseV ("STRUCT.NEW_DEFAULT_DESC", [ al_of_idx idx ])
   | StructGet (idx1, idx2, sx_opt) ->
     CaseV ("STRUCT.GET", [
       al_of_opt al_of_sx sx_opt;
@@ -1988,7 +2043,10 @@ let al_of_data data =
 
 
 let al_of_externtype = function
-  | ExternFuncT (_, typeuse) -> CaseV ("FUNC", [al_of_typeuse typeuse]) (* TODO: exactness *)
+  | ExternFuncT (_, typeuse) when !version <= 3 ->
+    CaseV ("FUNC", [ al_of_typeuse typeuse ])
+  | ExternFuncT (ex, typeuse) ->
+    CaseV ("FUNC", [ CaseV ("", [ al_of_exact ex; al_of_typeuse typeuse ]) ])
   | ExternGlobalT (globaltype) -> CaseV ("GLOBAL", [al_of_globaltype globaltype])
   | ExternTableT (tabletype) -> CaseV ("TABLE", [al_of_tabletype tabletype])
   | ExternMemoryT (memtype) -> CaseV ("MEM", [al_of_memorytype memtype])

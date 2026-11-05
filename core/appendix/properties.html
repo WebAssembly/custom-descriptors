@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Type Soundness &#8212; WebAssembly 3.0 + Custom Descriptors (2026-11-04)</title>
+    <title>Type Soundness &#8212; WebAssembly 3.0 + Custom Descriptors (2026-11-05)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=d959cf1e"></script>
+    <script src="../_static/documentation_options.js?v=a88c8547"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}, "options": {"menuOptions": {"settings": {"enrich": false}}}}</script>
@@ -1340,6 +1340,10 @@ but it does not need to perform backtracking or record any non-syntactic constra
 \[\begin{split}\begin{array}{llll}
 \def\mathdef1478#1{{}}\mathdef1478{nullability} &amp; \mathit{null} &amp;::=&amp;
   \href{../syntax/types.html#syntax-reftype}{\mathsf{null}}^? ~|~ \alpha_{\mathit{null}} \\
+\def\mathdef1478#1{{}}\mathdef1478{exactness} &amp; \mathit{exact} &amp;::=&amp;
+  \href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}^? ~|~ \alpha_{\mathit{exact}} \\
+\def\mathdef1478#1{{}}\mathdef1478{exact type use} &amp; \href{../syntax/types.html#syntax-exacttypeuse}{\mathit{exacttypeuse}} &amp;::=&amp;
+  \mathit{exact}~\href{../syntax/types.html#syntax-typeuse}{\mathit{typeuse}} \\
 \def\mathdef1478#1{{}}\mathdef1478{heap type} &amp; \href{../syntax/types.html#syntax-heaptype}{\mathit{heaptype}} &amp;::=&amp;
   \dots ~|~ \alpha_{\href{../syntax/types.html#syntax-heaptype}{\mathit{heaptype}}} \\
 \def\mathdef1478#1{{}}\mathdef1478{reference type} &amp; \href{../syntax/types.html#syntax-reftype}{\mathit{reftype}} &amp;::=&amp;

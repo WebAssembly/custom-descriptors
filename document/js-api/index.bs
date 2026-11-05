@@ -79,7 +79,6 @@ urlPrefix: https://tc39.es/ecma262/; spec: ECMASCRIPT
         text: IterableToList; url: sec-iterabletolist
         text: ToBigInt64; url: #sec-tobigint64
         text: BigInt; url: #sec-ecmascript-language-types-bigint-type
-        text: MakeBasicObject; url: #sec-makebasicobject
         text: ℝ; url: #ℝ
         text: 𝔽; url: #𝔽
         text: ℤ; url: #ℤ
@@ -1581,81 +1580,10 @@ The <dfn constructor for="Tag" lt="Tag(type)">new Tag(|type|)</dfn> constructor 
 <h3 id="gc-exotic-objects">Garbage Collected Objects</h3>
 
 A WebAssembly struct or array is made available in JavaScript as an <dfn>Exported GC Object</dfn>.
-An [=Exported GC Object=] is an exotic object that wraps a garbage collected WebAssembly reference value.
-Most JavaScript operations on an [=Exported GC Object=] will throw an exception or return undefined.
-
-Note: These operations may be refined in the future to allow richer interactions in JavaScript with WebAssembly structs and arrays.
+An [=Exported GC Object=] is an ordinary object that wraps a garbage collected WebAssembly reference value.
 
 An [=Exported GC Object=] contains an \[[ObjectAddress]] internal slot, which holds a [=object address=] relative to the [=surrounding agent=]'s [=associated store=],
 and an \[[ObjectKind]] internal slot, which holds the string value "struct" or "array".
-
-The internal methods of an [=Exported GC Object=] use the following implementations.
-
-<div algorithm>
-  The <dfn>\[[GetPrototypeOf]] internal method of an Exported GC Object</dfn> <var ignore>O</var> takes no arguments and returns null. It performs the following steps when called:
-
-    1. Return null.
-</div>
-
-<div algorithm>
-  The <dfn>\[[SetPrototypeOf]] internal method of an Exported GC Object</dfn> <var ignore>O</var> takes argument <var ignore>V</var> (an Object or null) and returns a boolean. It performs the following steps when called:
-
-    1. Return false.
-</div>
-
-<div algorithm>
-  The <dfn>\[[IsExtensible]] internal method of an Exported GC Object</dfn> <var ignore>O</var> takes no arguments and returns a boolean. It performs the following steps when called:
-
-    1. Return false.
-</div>
-
-<div algorithm>
-  The <dfn>\[[PreventExtensions]] internal method of an Exported GC Object</dfn> <var ignore>O</var> takes no arguments and returns a boolean. It performs the following steps when called:
-
-    1. Return false.
-</div>
-
-<div algorithm>
-  The <dfn>\[[GetOwnProperty]] internal method of an Exported GC Object</dfn> <var ignore>O</var> takes argument <var ignore>P</var> (a property key) and returns undefined. It performs the following steps when called:
-
-    1. Return undefined.
-</div>
-
-<div algorithm>
-  The <dfn>\[[DefineOwnProperty]] internal method of an Exported GC Object</dfn> <var ignore>O</var> takes arguments <var ignore>P</var> (a property key) and <var ignore>Desc</var> (a property descriptor) and returns a boolean. It performs the following steps when called:
-
-    1. Return false.
-</div>
-
-<div algorithm>
-  The <dfn>\[[HasProperty]] internal method of an Exported GC Object</dfn> <var ignore>O</var> takes argument <var ignore>P</var> (a property key) and returns a boolean. It performs the following steps when called:
-
-    1. Return false.
-</div>
-
-<div algorithm>
-  The <dfn>\[[Get]] internal method of an Exported GC Object</dfn> <var ignore>O</var> takes arguments <var ignore>P</var> (a property key) and <var ignore>Receiver</var> (an ECMAScript language value) and returns undefined. It performs the following steps when called:
-
-    1. Return undefined.
-</div>
-
-<div algorithm>
-  The <dfn>\[[Set]] internal method of an Exported GC Object</dfn> <var ignore>O</var> takes arguments <var ignore>P</var> (a property key), <var ignore>V</var> (an ECMAScript language value), and <var ignore>Receiver</var> (an ECMAScript language value) and throws an exception. It performs the following steps when called:
-
-    1. Throw a {{TypeError}}.
-</div>
-
-<div algorithm>
-  The <dfn>\[[Delete]] internal method of an Exported GC Object</dfn> <var ignore>O</var> takes argument <var ignore>P</var> (a property key) and throws an exception. It performs the following steps when called:
-
-    1. Throw a {{TypeError}}.
-</div>
-
-<div algorithm>
-  The <dfn>\[[OwnPropertyKeys]] internal method of an Exported GC Object</dfn> <var ignore>O</var> takes no arguments and returns a list. It performs the following steps when called:
-
-    1. Return « ».
-</div>
 
 <div algorithm>
   To create <dfn>a new Exported GC Object</dfn> from a WebAssembly [=object address=] |objectaddr| and a string |objectkind|, perform the following steps:
@@ -1664,20 +1592,10 @@ The internal methods of an [=Exported GC Object=] use the following implementati
     1. Let |map| be the [=surrounding agent=]'s associated [=exported GC object cache=].
     1. If |map|[|objectaddr|] [=map/exists=],
         1. Return |map|[|objectaddr|].
-    1. Let |object| be [=MakeBasicObject=](« \[[ObjectAddress]], \[[ObjectKind]] »).
+    1. Let |object| be [$OrdinaryObjectCreate$](null, « \[[ObjectAddress]], \[[ObjectKind]] »).
     1. Set |object|.\[[ObjectAddress]] to |objectaddr|.
     1. Set |object|.\[[ObjectKind]] to |objectkind|.
-    1. Set |object|.\[[GetPrototypeOf]] as specified in [=[[GetPrototypeOf]] internal method of an Exported GC Object=].
-    1. Set |object|.\[[SetPrototypeOf]] as specified in [=[[SetPrototypeOf]] internal method of an Exported GC Object=].
-    1. Set |object|.\[[IsExtensible]] as specified in [=[[IsExtensible]] internal method of an Exported GC Object=].
-    1. Set |object|.\[[PreventExtensions]] as specified in [=[[PreventExtensions]] internal method of an Exported GC Object=].
-    1. Set |object|.\[[GetOwnProperty]] as specified in [=[[GetOwnProperty]] internal method of an Exported GC Object=].
-    1. Set |object|.\[[DefineOwnProperty]] as specified in [=[[DefineOwnProperty]] internal method of an Exported GC Object=].
-    1. Set |object|.\[[HasProperty]] as specified in [=[[HasProperty]] internal method of an Exported GC Object=].
-    1. Set |object|.\[[Get]] as specified in [=[[Get]] internal method of an Exported GC Object=].
-    1. Set |object|.\[[Set]] as specified in [=[[Set]] internal method of an Exported GC Object=].
-    1. Set |object|.\[[Delete]] as specified in [=[[Delete]] internal method of an Exported GC Object=].
-    1. Set |object|.\[[OwnPropertyKeys]] as specified in [=[[OwnPropertyKeys]] internal method of an Exported GC Object=].
+    1. Perform [=!=] [$SetIntegrityLevel$](|object|, "frozen").
     1. [=map/Set=] |map|[|objectaddr|] to |object|.
     1. Return |object|.
 </div>

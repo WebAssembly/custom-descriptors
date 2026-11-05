@@ -1472,6 +1472,10 @@ Technically, the :ref:`syntax <syntax-type>` of :ref:`heap <syntax-heaptype>`, :
    \begin{array}{llll}
    \production{nullability} & \X{null} &::=&
      \NULL^? ~|~ \alpha_{\X{null}} \\
+   \production{exactness} & \X{exact} &::=&
+     \EXACT^? ~|~ \alpha_{\X{exact}} \\
+   \production{exact type use} & \exacttypeuse &::=&
+     \X{exact}~\typeuse \\
    \production{heap type} & \heaptype &::=&
      \dots ~|~ \alpha_{\heaptype} \\
    \production{reference type} & \reftype &::=&

@@ -184,11 +184,10 @@ def $before(typeuse, nat) : bool   hint(show % << %) hint(macro none)
 def $before(REC j, i) = j < i
 def $before(typeuse, i) = true  -- otherwise
 
-;; TODO(tlively): Take a typeuse instead of a heaptype here so that EXACT? is not rendered in the appendix.
-def $unrollht_(context, heaptype) : subtype
-def $unrollht_(C, _HT EXACT? deftype) = $unrolldt(deftype)
-def $unrollht_(C, _HT EXACT? _IDX typeidx) = $unrolldt(C.TYPES[typeidx])
-def $unrollht_(C, _HT EXACT? (REC i)) = C.RECS[i]
+def $unrolltu_(context, typeuse) : subtype
+def $unrolltu_(C, deftype) = $unrolldt(deftype)
+def $unrolltu_(C, _IDX typeidx) = $unrolldt(C.TYPES[typeidx])
+def $unrolltu_(C, REC i) = C.RECS[i]
 
 rule Subtype_ok2:
   C |- SUB final? tu* dct : OK(i)
@@ -196,7 +195,7 @@ rule Subtype_ok2:
   -- (Typeuse_ok: C |- tu : OK)*
   -- (if $before(tu, i))*
   ----
-  -- (if $unrollht_(C, _HT tu) = SUB tu'* dct')*
+  -- (if $unrolltu_(C, tu) = SUB tu'* dct')*
   ----
   -- if dct = (DESCRIBES (REC i_1))? (DESCRIPTOR (REC i_2))? ct
   -- (if i_1 < i)?

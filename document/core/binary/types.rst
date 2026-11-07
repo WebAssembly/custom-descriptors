@@ -33,7 +33,7 @@ Vector Types
 $${grammar: Bvectype}
 
 
-.. index:: heap type
+.. index:: heap type, exact type use, exact
    pair: binary format; heap type
 .. _binary-heaptype:
 .. _binary-absheaptype:
@@ -118,7 +118,7 @@ Composite Types
 $${grammar: Bmut Bcomptype Bfieldtype Bstoragetype Bpacktype}
 
 
-.. index:: recursive type, sub type, descriptor type, composite type
+.. index:: recursive type, sub type, descriptor type, describes, descriptor, composite type
    pair: binary format; recursive type
    pair: binary format; sub type
    pair: binary format; descriptor type
@@ -203,7 +203,7 @@ Table Types
 $${grammar: Btabletype}
 
 
-.. index:: external type
+.. index:: external type, exact type use, exact
    pair: binary format; external type
 .. _binary-externtype:
 

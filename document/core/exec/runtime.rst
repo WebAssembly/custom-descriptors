@@ -413,7 +413,7 @@ They extract addresses of a specific kind in an order-preserving fashion:
 $${definition-ignore: funcsxa tablesxa memsxa globalsxa tagsxa}
 
 
-.. index:: ! structure instance, ! array instance, structure type, array type, defined type, ! field value, ! packed value
+.. index:: ! structure instance, ! array instance, structure type, array type, defined type, descriptor, ! field value, ! packed value
    pair: abstract syntax; field value
    pair: abstract syntax; packed value
    pair: abstract syntax; structure instance

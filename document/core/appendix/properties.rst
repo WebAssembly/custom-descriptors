@@ -559,7 +559,7 @@ where :math:`\val_1 \gg^+_S \val_2` denotes the transitive closure of the follow
    }
 
 
-.. index:: structure instance, field value, field type, storage type, defined type
+.. index:: structure instance, field value, field type, storage type, defined type, descriptor, descriptor type
 .. _valid-structinst:
 
 :ref:`Structure Instances <syntax-structinst>` :math:`\{ \SITYPE~\deftype, \SIDESC~a^?, \SIFIELDS~\fieldval^\ast \}`

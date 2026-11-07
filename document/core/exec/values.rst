@@ -4,7 +4,7 @@
 Values
 ------
 
-.. index:: value, value type, validation, structure, structure type, structure instance, array, array type, array instance, function, function type, function instance, null reference, scalar reference, store
+.. index:: value, value type, validation, structure, structure type, structure instance, array, array type, array instance, function, function type, function instance, exact, exact defined type, null reference, scalar reference, store
 .. _valid-val:
 
 Value Typing

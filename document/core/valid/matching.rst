@@ -30,7 +30,7 @@ $${rule-prose: Vectype_sub}
 $${rule: Vectype_sub}
 
 
-.. index:: heap type, defined type, structure type, array type, function type, unboxed scalar type
+.. index:: heap type, exact type use, exact, defined type, structure type, array type, function type, unboxed scalar type
 .. _match-heaptype:
 
 Heap Types
@@ -231,7 +231,7 @@ $${rule-prose: Tabletype_sub}
 $${rule: Tabletype_sub}
 
 
-.. index:: external type, tag type, global type, memory type, table type, function type
+.. index:: external type, exact type use, exact defined type, exact, tag type, global type, memory type, table type, function type
 .. _match-externtype:
 
 External Types

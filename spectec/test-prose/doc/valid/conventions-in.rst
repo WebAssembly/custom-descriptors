@@ -256,9 +256,9 @@ $${definition-prose: unrolldt}
 
 $${definition: unrolldt}
 
-.. _def-unrollht:
+.. _def-unrolltu:
 
-$${definition: unrollht_}
+$${definition: unrolltu_}
 
 $${rule: Expand}
 

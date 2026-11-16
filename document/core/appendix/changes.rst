@@ -661,6 +661,37 @@ mirroring the role of custom sections in the binary format. [#proposal-annot]_
 * Defined :ref:`custom annotation <text-customannot>` :math:`\text{(@custom~"\dots")}` to represent arbitrary :ref:`custom sections <binary-customsec>` in the text format
 
 
+.. [#proposal-extconst]
+   https://github.com/WebAssembly/spec/tree/main/proposals/extended-const/
+
+.. [#proposal-tailcall]
+   https://github.com/WebAssembly/spec/tree/main/proposals/tail-call/
+
+.. [#proposal-exn]
+   https://github.com/WebAssembly/spec/tree/main/proposals/exception-handling/
+
+.. [#proposal-multimem]
+   https://github.com/WebAssembly/spec/tree/main/proposals/multi-memory/
+
+.. [#proposal-addr64]
+   https://github.com/WebAssembly/spec/tree/main/proposals/memory64/
+
+.. [#proposal-typedref]
+   https://github.com/WebAssembly/spec/tree/main/proposals/function-references/
+
+.. [#proposal-gc]
+   https://github.com/WebAssembly/spec/tree/main/proposals/gc/
+
+.. [#proposal-relaxed]
+   https://github.com/WebAssembly/spec/tree/main/proposals/relaxed-simd/
+
+.. [#proposal-annot]
+   https://github.com/WebAssembly/spec/tree/main/proposals/annotations/
+
+
+Release 3.X
+~~~~~~~~~~~
+
 .. index:: descriptor type, describes, descriptor, exact, exact type use, exact defined type, structure type, reference type, heap type, external type, function, import, instruction
 .. _extension-custom-descriptors:
 
@@ -708,33 +739,6 @@ Added custom descriptors for :ref:`structure types <syntax-structtype>` and :ref
   - |STRUCTNEWDESC|
   - |STRUCTNEWDEFAULTDESC|
 
-
-.. [#proposal-extconst]
-   https://github.com/WebAssembly/spec/tree/main/proposals/extended-const/
-
-.. [#proposal-tailcall]
-   https://github.com/WebAssembly/spec/tree/main/proposals/tail-call/
-
-.. [#proposal-exn]
-   https://github.com/WebAssembly/spec/tree/main/proposals/exception-handling/
-
-.. [#proposal-multimem]
-   https://github.com/WebAssembly/spec/tree/main/proposals/multi-memory/
-
-.. [#proposal-addr64]
-   https://github.com/WebAssembly/spec/tree/main/proposals/memory64/
-
-.. [#proposal-typedref]
-   https://github.com/WebAssembly/spec/tree/main/proposals/function-references/
-
-.. [#proposal-gc]
-   https://github.com/WebAssembly/spec/tree/main/proposals/gc/
-
-.. [#proposal-relaxed]
-   https://github.com/WebAssembly/spec/tree/main/proposals/relaxed-simd/
-
-.. [#proposal-annot]
-   https://github.com/WebAssembly/spec/tree/main/proposals/annotations/
 
 .. [#proposal-custom-descriptors]
    https://github.com/WebAssembly/spec/tree/main/proposals/custom-descriptors/

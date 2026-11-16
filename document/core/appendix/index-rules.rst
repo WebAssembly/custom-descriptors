@@ -24,6 +24,7 @@ Construct                                        Judgement
 :ref:`Result type <valid-resulttype>`            :math:`C \vdashresulttype \resulttype : \OKresulttype`
 :ref:`Instruction type <valid-instrtype>`        :math:`C \vdashinstrtype \instrtype : \OKinstrtype`
 :ref:`Composite type <valid-comptype>`           :math:`C \vdashcomptype \comptype : \OKcomptype`
+:ref:`Descriptor type <valid-desctype>`          :math:`C \vdashdesctype \desctype : \OKdesctype`
 :ref:`Sub type <valid-subtype>`                  :math:`C \vdashsubtype \subtype : \OKsubtype`
 :ref:`Recursive type <valid-rectype>`            :math:`C \vdashrectype \rectype : \OKrectype`
 :ref:`Defined type <valid-deftype>`              :math:`C \vdashdeftype \deftype : \OKdeftype`
@@ -124,6 +125,7 @@ Construct                                        Judgement
 :ref:`Result type <match-resulttype>`            :math:`C \vdashresulttypematch \resulttype_1 \subresulttypematch \resulttype_2`
 :ref:`Instruction type <match-instrtype>`        :math:`C \vdashinstrtypematch \instrtype_1 \subinstrtypematch \instrtype_2`
 :ref:`Composite type <match-comptype>`           :math:`C \vdashcomptypematch \comptype_1 \subcomptypematch \comptype_2`
+:ref:`Descriptor type <match-desctype>`          :math:`C \vdashdesctypematch \desctype_1 \subdesctypematch \desctype_2`
 :ref:`Defined type <match-deftype>`              :math:`C \vdashdeftypematch \deftype_1 \subdeftypematch \deftype_2`
 :ref:`Limits <match-limits>`                     :math:`C \vdashlimitsmatch \limits_1 \sublimitsmatch \limits_2`
 :ref:`Tag type <match-tagtype>`                  :math:`C \vdashtagtypematch \tagtype_1 \subtagtypematch \tagtype_2`

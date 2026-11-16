@@ -46,8 +46,9 @@ $${rule-prose: Typeuse_ok/typeidx}
 $${rule: Typeuse_ok/typeidx}
 
 
-.. index:: heap type, type use
+.. index:: heap type, type use, exact type use, exact
    pair: validation; heap type
+   pair: validation; exact type use
    single: abstract syntax; heap type
 .. _valid-heaptype:
 
@@ -202,9 +203,11 @@ $${rule-prose: Desctype_ok}
 $${rule: Desctype_ok}
 
 
-.. index:: recursive type, sub type,final, subtyping
-   pair: abstract syntax; recursive type
-   pair: abstract syntax; sub type
+.. index:: recursive type, sub type, descriptor type, final, subtyping
+   pair: validation; recursive type
+   pair: validation; sub type
+   single: abstract syntax; recursive type
+   single: abstract syntax; sub type
 .. _valid-rectype:
 .. _valid-subtype:
 
@@ -295,7 +298,7 @@ $${rule-prose: Tabletype_ok}
 $${rule: Tabletype_ok}
 
 
-.. index:: external type, function type, table type, memory type, global type
+.. index:: external type, exact type use, exact, function type, table type, memory type, global type
    pair: validation; external type
    single: abstract syntax; external type
 .. _valid-externtype:

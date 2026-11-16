@@ -70,8 +70,9 @@ Conventions
 $${definition-ignore: vsize}
 
 
-.. index:: ! type use, type index
+.. index:: ! type use, ! exact type use, ! exact, type index
    pair: abstract syntax; type use
+   pair: abstract syntax; exact type use
 .. _syntax-typeuse:
 .. _syntax-exacttypeuse:
 
@@ -87,7 +88,7 @@ $${syntax: {typeuse/syn exacttypeuse}}
 The syntax of type uses is :ref:`extended <syntax-typeuse-ext>` with additional forms for the purpose of specifying :ref:`validation <valid>` and :ref:`execution <exec>`.
 
 
-.. index:: ! heap type, store, type use, ! abstract type, ! concrete type, ! unboxed scalar
+.. index:: ! heap type, store, type use, exact type use, exact, ! abstract type, ! concrete type, ! unboxed scalar
    pair: abstract syntax; heap type
 .. _type-abstract:
 .. _type-concrete:
@@ -309,7 +310,7 @@ $${definition-ignore: psize}
 $${definition: unpack}
 
 
-.. index:: ! recursive type, ! sub type, composite type, ! final, subtyping, ! roll, ! unroll, recursive type index
+.. index:: ! recursive type, ! sub type, ! descriptor type, ! describes, ! descriptor, composite type, ! final, subtyping, ! roll, ! unroll, recursive type index
    pair: abstract syntax; recursive type
    pair: abstract syntax; sub type
    pair: abstract syntax; descriptor type
@@ -463,7 +464,7 @@ Element Types
 $${syntax: elemtype}
 
 
-.. index:: ! external type, defined type, function type, table type, memory type, global type, tag type, import, external address
+.. index:: ! external type, defined type, exact type use, exact, function type, table type, memory type, global type, tag type, import, external address
    pair: abstract syntax; external type
    pair: external; type
 .. _syntax-externtype:

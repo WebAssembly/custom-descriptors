@@ -25,7 +25,7 @@ Vector Types
 $${grammar: Tvectype}
 
 
-.. index:: heap type
+.. index:: heap type, exact type use, exact
    pair: text format; heap type
 .. _text-heaptype:
 .. _text-absheaptype:
@@ -110,7 +110,7 @@ Multiple anonymous structure fields or parameters or multiple results may be com
 $${grammar: {Tfield_/abbrev Tparam_/abbrev Tresult_/abbrev}}
 
 
-.. index:: recursive type, sub type, descriptor type, composite type
+.. index:: recursive type, sub type, descriptor type, describes, descriptor, composite type
    pair: text format; recursive type
    pair: text format; sub type
    pair: text format; descriptor type
@@ -211,7 +211,7 @@ Table Types
 $${grammar: Ttabletype_}
 
 
-.. index:: external type, tag type, global type, memory type, table type, function type
+.. index:: external type, exact type use, exact, tag type, global type, memory type, table type, function type
    pair: text format; external type
 .. _text-externtype:
 
@@ -221,7 +221,7 @@ External Types
 $${grammar: Texterntype_}
 
 
-.. index:: type use
+.. index:: type use, exact type use, exact
    pair: text format; type use
 .. _text-typeuse:
 

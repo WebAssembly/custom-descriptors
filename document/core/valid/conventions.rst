@@ -91,8 +91,9 @@ Convention
    the definition only affects the presence of null and cannot express the absence of other values.
 
 
-.. index:: ! defined type, recursive type
+.. index:: ! defined type, ! exact defined type, exact, recursive type
    pair: abstract syntax; defined type
+   pair: abstract syntax; exact defined type
 .. _syntax-deftype:
 .. _syntax-exactdeftype:
 
@@ -134,7 +135,7 @@ Conventions
    such that name capture of recursive type indices cannot occur.
 
 
-.. index:: recursive type, defined type, sub type, ! rolling, ! unrolling, ! expansion, type equivalence
+.. index:: recursive type, defined type, sub type, descriptor type, ! rolling, ! unrolling, ! expansion, type equivalence
 .. _aux-roll-rectype:
 .. _aux-unroll-rectype:
 .. _aux-roll-deftype:

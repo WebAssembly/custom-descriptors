@@ -76,9 +76,9 @@ $${rule: Subtype_ok2}
 
 where:
 
-.. _aux-unroll-heaptype:
+.. _aux-unroll-typeuse:
 
-$${definition: unrollht_ before}
+$${definition: unrolltu_ before}
 
 .. note::
    The new rules for :ref:`recursive types <syntax-rectype>` and :ref:`sub types <syntax-subtype>` complement the ones :ref:`previously given <valid-subtype>`,

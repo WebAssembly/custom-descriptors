@@ -37,6 +37,8 @@ $${grammar: Bvectype}
    pair: binary format; heap type
 .. _binary-heaptype:
 .. _binary-absheaptype:
+.. _binary-exacttypeuse:
+.. _binary-exact:
 
 Heap Types
 ~~~~~~~~~~
@@ -133,7 +135,7 @@ Recursive Types
 
 :ref:`Recursive types <syntax-rectype>` are encoded by the byte ${:0x4E} followed by a :ref:`list <binary-list>` of :ref:`sub types <syntax-subtype>`.
 Additional shorthands are recognized for unary recursions and sub types without super types.
-Each :ref:`composite type <binary-comptype>` may be preceded by a :ref:`describes <syntax-desctype>` clause encoded by the byte ${:0x4C} and a :ref:`type index <binary-typeidx>`, and a :ref:`descriptor <syntax-desctype>` clause encoded by the byte ${:0x4D} and a :ref:`type index <binary-typeidx>`.
+Each :ref:`composite type <binary-comptype>` may be preceded by a :ref:`describes <syntax-describes>` clause encoded by the byte ${:0x4C} and a :ref:`type index <binary-typeidx>`, and a :ref:`descriptor <syntax-descriptor>` clause encoded by the byte ${:0x4D} and a :ref:`type index <binary-typeidx>`.
 
 $${grammar: Brectype Bsubtype Bdesctype Bdescribes Bdescriptor}
 

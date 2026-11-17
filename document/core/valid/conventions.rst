@@ -102,7 +102,7 @@ Defined Types
 
 *Defined types* denote the individual types defined in a :ref:`module <syntax-module>`.
 Each such type is represented as a projection from the :ref:`recursive type <syntax-rectype>` group it originates from, indexed by its position in that group.
-For the purpose of typing :ref:`functions <syntax-func>`, a defined type may be annotated with :ref:`exactness <syntax-exact>`.
+For the purpose of typing :ref:`functions <syntax-func>`, a defined type may be annotated with :ref:`exactness <syntax-exact>`, forming an *exact defined type*.
 
 $${syntax: {deftype exactdeftype}}
 

@@ -5159,9 +5159,9 @@ $$
 
 $$
 \begin{array}[t]{@{}lcl@{}l@{}}
-{{\mathrm{unrollht}}}_{C}({\mathsf{exact}^?}~{\mathit{deftype}}) & = & {\mathrm{unroll}}({\mathit{deftype}}) \\
-{{\mathrm{unrollht}}}_{C}({\mathsf{exact}^?}~{\mathit{typeidx}}) & = & {\mathrm{unroll}}(C{.}\mathsf{types}{}[{\mathit{typeidx}}]) \\
-{{\mathrm{unrollht}}}_{C}({\mathsf{exact}^?}~(\mathsf{rec} {.} i)) & = & C{.}\mathsf{recs}{}[i] \\
+{{\mathrm{unrolltu}}}_{C}({\mathit{deftype}}) & = & {\mathrm{unroll}}({\mathit{deftype}}) \\
+{{\mathrm{unrolltu}}}_{C}({\mathit{typeidx}}) & = & {\mathrm{unroll}}(C{.}\mathsf{types}{}[{\mathit{typeidx}}]) \\
+{{\mathrm{unrolltu}}}_{C}(\mathsf{rec} {.} i) & = & C{.}\mathsf{recs}{}[i] \\
 \end{array}
 $$
 
@@ -5175,7 +5175,7 @@ $$
  \qquad
 ({\mathit{tu}} \prec i)^\ast
  \\
-({{\mathrm{unrollht}}}_{C}({\mathit{tu}}) = \mathsf{sub}~{{\mathit{tu}'}^\ast}~{\mathit{dct}'})^\ast
+({{\mathrm{unrolltu}}}_{C}({\mathit{tu}}) = \mathsf{sub}~{{\mathit{tu}'}^\ast}~{\mathit{dct}'})^\ast
  \\
 {\mathit{dct}} = {(\mathsf{describes}~(\mathsf{rec} {.} i_1))^?}~{(\mathsf{descriptor}~(\mathsf{rec} {.} i_2))^?}~{\mathit{ct}}
  \qquad
@@ -6751,7 +6751,9 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
-C{.}\mathsf{types}{}[x] \sim {{\mathit{dcs}}^?}~\epsilon~\mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}
+C{.}\mathsf{types}{}[x] \sim {{\mathit{dcs}}^?}~{{\mathit{dcr}}^?}~\mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}
+ \qquad
+{{\mathit{dcr}}^?} = \epsilon
 }{
 C \vdash \mathsf{struct{.}new}~x : {{\mathrm{unpack}}({\mathit{zt}})^\ast} \rightarrow (\mathsf{ref}~(\mathsf{exact}~x))
 } \, {[\textsc{\scriptsize T{-}instr{-}struct.new}]}
@@ -6762,7 +6764,9 @@ $$
 $$
 \begin{array}{@{}c@{}}\displaystyle
 \frac{
-C{.}\mathsf{types}{}[x] \sim {{\mathit{dcs}}^?}~\epsilon~\mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}
+C{.}\mathsf{types}{}[x] \sim {{\mathit{dcs}}^?}~{{\mathit{dcr}}^?}~\mathsf{struct}~{({\mathsf{mut}^?}~{\mathit{zt}})^\ast}
+ \qquad
+{{\mathit{dcr}}^?} = \epsilon
  \qquad
 ({{\mathrm{default}}}_{{\mathrm{unpack}}({\mathit{zt}})} \neq \epsilon)^\ast
 }{

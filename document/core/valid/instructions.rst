@@ -874,6 +874,9 @@ $${rule-prose: Instr_ok/ref.cast_desc_eq}
 
 $${rule: Instr_ok/ref.cast_desc_eq}
 
+.. note::
+   The liberty to pick a supertype ${:ht} allows typing the instruction with the least precise super type of the target reference type as input, that is, the top type in the corresponding heap subtyping hierarchy.
+
 
 .. index:: aggregate reference
 

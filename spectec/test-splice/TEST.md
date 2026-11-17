@@ -1972,8 +1972,8 @@ warning: definition `unpack` was never spliced
 warning: definition `unpackfield_` was never spliced
 warning: definition `unpackshape` was never spliced
 warning: definition `unrolldt` was never spliced
-warning: definition `unrollht_` was never spliced
 warning: definition `unrollrt` was never spliced
+warning: definition `unrolltu_` was never spliced
 warning: definition `utf8` was never spliced
 warning: definition `var` was never spliced
 warning: definition `vbinop_` was never spliced
@@ -2857,8 +2857,8 @@ warning: definition prose `unpack` was never spliced
 warning: definition prose `unpackfield_` was never spliced
 warning: definition prose `unpackshape` was never spliced
 warning: definition prose `unrolldt` was never spliced
-warning: definition prose `unrollht_` was never spliced
 warning: definition prose `unrollrt` was never spliced
+warning: definition prose `unrolltu_` was never spliced
 warning: definition prose `var` was never spliced
 warning: definition prose `vbinop_` was never spliced
 warning: definition prose `vbitmaskop_` was never spliced

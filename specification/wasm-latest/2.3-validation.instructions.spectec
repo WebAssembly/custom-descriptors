@@ -289,11 +289,13 @@ rule Instr_ok/i31.get:
 
 rule Instr_ok/struct.new:
   C |- STRUCT.NEW x : $unpack(zt)* -> (REF (_HT EXACT _IDX x))
-  -- Expand_desc: C.TYPES[x] ~ dcs? eps STRUCT (mut? zt)*
+  -- Expand_desc: C.TYPES[x] ~ dcs? dcr? STRUCT (mut? zt)*
+  -- if dcr? = eps
 
 rule Instr_ok/struct.new_default:
   C |- STRUCT.NEW_DEFAULT x : eps -> (REF (_HT EXACT _IDX x))
-  -- Expand_desc: C.TYPES[x] ~ dcs? eps STRUCT (mut? zt)*
+  -- Expand_desc: C.TYPES[x] ~ dcs? dcr? STRUCT (mut? zt)*
+  -- if dcr? = eps
   -- (Defaultable: |- $unpack(zt) DEFAULTABLE)*
 
 rule Instr_ok/struct.new_desc:

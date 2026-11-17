@@ -100,12 +100,11 @@ let rec sN n s =
   then (if b land 0x40 = 0 then x else Int64.(logor x (logxor (-1L) 0x7fL)))
   else Int64.(logor x (shift_left (sN (n - 7) s) 7))
 
-let u8 s = I8.of_int_u (I64.to_int_u (uN 8 s))
 let u32 s = I32.of_int_u (I64.to_int_u (uN 32 s))
 let u64 s = uN 64 s
 let s7 s = I64.to_int_s (sN 7 s)
 let s32 s = I32.of_int_s (I64.to_int_s (sN 32 s))
-let s33 s = Convert.I32_.wrap_i64 (sN 33 s)
+let s33 s = sN 33 s
 let s64 s = sN 64 s
 let f32 s = F32.of_bits (word32 s)
 let f64 s = F64.of_bits (word64 s)
@@ -149,7 +148,8 @@ open Types
 
 let zero s = expect 0x00 s "zero byte expected"
 let idx s = u32 s
-let laneidx s = u8 s
+let idx32 s = Convert.I64_.extend_i32_u (idx s)
+let laneidx s = I8.of_int_u (byte s)
 
 let mutability s =
   match byte s with
@@ -160,7 +160,7 @@ let mutability s =
 let typeuse idx s =
   let pos = pos s in
   match idx s with
-  | i when i >= 0l -> Idx i
+  | i when i >= 0L -> Idx (Convert.I32_.wrap_i64 i)
   | _ -> error s pos "malformed type index"
 
 let numtype s =
@@ -194,7 +194,7 @@ let heaptype s =
       | -0x15 -> StructHT
       | -0x16 -> ArrayHT
       | -0x17 -> ExnHT
-      | -0x1e -> UseHT (Exact, typeuse s32 s)
+      | -0x1e -> UseHT (Exact, typeuse (sN 32) s)
       | _ -> error s pos "malformed heap type"
     )
   ] s
@@ -263,12 +263,12 @@ let desctype s =
   let ut1 = match peek s with
     | Some i when i = -0x34 land 0x7f ->
       skip 1 s;
-      Some ((typeuse u32) s)
+      Some ((typeuse idx32) s)
     | _ -> None
   and ut2 = match peek s with
     | Some i when i = -0x33 land 0x7f ->
       skip 1 s;
-      Some ((typeuse u32) s)
+      Some ((typeuse idx32) s)
     | _ -> None
   in
   DescT (ut1, ut2, comptype s)
@@ -277,11 +277,11 @@ let subtype s =
   match peek s with
   | Some i when i = -0x30 land 0x7f ->
     skip 1 s;
-    let uts = vec (typeuse u32) s in
+    let uts = vec (typeuse idx32) s in
     SubT (NoFinal, uts, desctype s)
   | Some i when i = -0x31 land 0x7f ->
     skip 1 s;
-    let uts = vec (typeuse u32) s in
+    let uts = vec (typeuse idx32) s in
     SubT (Final, uts, desctype s)
   | _ -> SubT (Final, [], desctype s)
 
@@ -302,7 +302,7 @@ let limits uN s =
 
 let tagtype s =
   zero s;
-  TagT (typeuse idx s)
+  TagT (typeuse idx32 s)
 
 let globaltype s =
   let t = valtype s in
@@ -320,12 +320,12 @@ let tabletype s =
 
 let externtype s =
   match byte s with
-  | 0x00 -> ExternFuncT (Inexact, typeuse idx s)
+  | 0x00 -> ExternFuncT (Inexact, typeuse idx32 s)
   | 0x01 -> ExternTableT (tabletype s)
   | 0x02 -> ExternMemoryT (memorytype s)
   | 0x03 -> ExternGlobalT (globaltype s)
   | 0x04 -> ExternTagT (tagtype s)
-  | 0x20 -> ExternFuncT (Exact, typeuse idx s)
+  | 0x20 -> ExternFuncT (Exact, typeuse idx32 s)
   | _ -> error s (pos s - 1) "malformed import kind"
 
 

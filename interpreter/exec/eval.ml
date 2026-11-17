@@ -1238,6 +1238,7 @@ let eval_const (inst : moduleinst) (const : const) : value =
   | [v] -> v
   | vs -> Crash.error const.at "wrong number of results on stack"
 
+
 (* Modules *)
 
 let init_type (inst : moduleinst) (type_ : type_) : moduleinst =

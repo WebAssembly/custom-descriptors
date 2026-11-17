@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Instructions &#8212; WebAssembly 3.0 + Custom Descriptors (2026-11-06)</title>
+    <title>Instructions &#8212; WebAssembly 3.0 + Custom Descriptors (2026-11-17)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=3af35bac"></script>
+    <script src="../_static/documentation_options.js?v=59e02def"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}, "options": {"menuOptions": {"settings": {"enrich": false}}}}</script>
@@ -1851,6 +1851,10 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 }
 \qquad
 \end{array}\end{split}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The liberty to pick a supertype <span class="math notranslate nohighlight">\({\mathit{ht}}\)</span> allows typing the instruction with the least precise super type of the target reference type as input, that is, the top type in the corresponding heap subtyping hierarchy.</p>
+</div>
 </section>
 </section>
 <section id="aggregate-reference-instructions">
@@ -1861,14 +1865,17 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <blockquote>
 <div><ul class="simple">
 <li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype-to-desctype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> is <span class="math notranslate nohighlight">\(({{\mathit{dcs}}^?}~(\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}))\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype-to-desctype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> is <span class="math notranslate nohighlight">\(({{\mathit{dcs}}^?}~{{\mathit{dcr}}^?}~(\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}))\)</span>.</p></li>
+<li><p>The descriptor clause <span class="math notranslate nohighlight">\({{\mathit{dcr}}^?}\)</span> is absent.</p></li>
 <li><p>The value type sequence <span class="math notranslate nohighlight">\({t^\ast}\)</span> is <span class="math notranslate nohighlight">\({{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})^\ast}\)</span>.</p></li>
 </ul>
 </div></blockquote>
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype-to-desctype}{\sim}} {{\mathit{dcs}}^?}~\epsilon~\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype-to-desctype}{\sim}} {{\mathit{dcs}}^?}~{{\mathit{dcr}}^?}~\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
+ \qquad
+{{\mathit{dcr}}^?} = \epsilon
 }{
 C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instructions.html#syntax-instr-struct}{\mathsf{struct{.}new}}~x : {{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})^\ast} \rightarrow (\href{../syntax/types.html#syntax-reftype}{\mathsf{ref}}~(\href{../syntax/types.html#syntax-heaptype}{\mathsf{exact}}~x))
 }
@@ -1881,7 +1888,8 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <blockquote>
 <div><ul>
 <li><p>The <a class="reference internal" href="conventions.html#syntax-deftype"><span class="std std-ref">type</span></a> <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> exists.</p></li>
-<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype-to-desctype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> is <span class="math notranslate nohighlight">\(({{\mathit{dcs}}^?}~(\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}))\)</span>.</p></li>
+<li><p>The <a class="reference internal" href="conventions.html#aux-expand-deftype-to-desctype"><span class="std std-ref">expansion</span></a> of <span class="math notranslate nohighlight">\(C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x]\)</span> is <span class="math notranslate nohighlight">\(({{\mathit{dcs}}^?}~{{\mathit{dcr}}^?}~(\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}))\)</span>.</p></li>
+<li><p>The descriptor clause <span class="math notranslate nohighlight">\({{\mathit{dcr}}^?}\)</span> is absent.</p></li>
 <li><p>For all <span class="math notranslate nohighlight">\({\mathit{zt}}\)</span> in <span class="math notranslate nohighlight">\({{\mathit{zt}}^\ast}\)</span>:</p>
 <blockquote>
 <div><ul class="simple">
@@ -1894,7 +1902,9 @@ C \href{../valid/instructions.html#valid-instr}{\vdash} \href{../syntax/instruct
 <div class="math notranslate nohighlight">
 \[\begin{array}{&#64;{}c&#64;{}}\displaystyle
 \frac{
-C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype-to-desctype}{\sim}} {{\mathit{dcs}}^?}~\epsilon~\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
+C{.}\href{../valid/conventions.html#context}{\mathsf{types}}{}[x] \mathrel{\href{../valid/conventions.html#aux-expand-deftype-to-desctype}{\sim}} {{\mathit{dcs}}^?}~{{\mathit{dcr}}^?}~\href{../syntax/types.html#syntax-comptype}{\mathsf{struct}}~{({\href{../syntax/types.html#syntax-mut}{\mathsf{mut}}^?}~{\mathit{zt}})^\ast}
+ \qquad
+{{\mathit{dcr}}^?} = \epsilon
  \qquad
 ({{\href{../exec/runtime.html#aux-default}{\mathrm{default}}}}_{{\href{../syntax/types.html#aux-unpack}{\mathrm{unpack}}}({\mathit{zt}})} \neq \epsilon)^\ast
 }{

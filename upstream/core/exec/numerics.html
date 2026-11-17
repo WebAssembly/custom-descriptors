@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Numerics &#8212; WebAssembly 3.0 (2026-10-13)</title>
+    <title>Numerics &#8212; WebAssembly 3.0 (2026-11-17)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=e67e0c0e"></script>
+    <script src="../_static/documentation_options.js?v=6518b7b1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}, "options": {"menuOptions": {"settings": {"enrich": false}}}}</script>
@@ -124,7 +124,7 @@ op(c_1^n, \dots, c_k^n) &amp;=&amp; op(c_1^n[0], \dots, c_k^n[0])~\dots~op(c_1^n
 <p>For example, the unary operator <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#op-fabs}{\mathrm{fabs}}\)</span>, when given a sequence of floating-point values, return a sequence of floating-point results:</p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{lll&#64;{\qquad}l}
-\href{../exec/numerics.html#op-fabs}{\mathrm{fabs}}_N(z^n) &amp;=&amp; \href{../exec/numerics.html#op-fabs}{\mathrm{fabs}}_N(z[0])~\dots~\href{../exec/numerics.html#op-fabs}{\mathrm{fabs}}_N(z[n])
+\href{../exec/numerics.html#op-fabs}{\mathrm{fabs}}_N(z^n) &amp;=&amp; \href{../exec/numerics.html#op-fabs}{\mathrm{fabs}}_N(z[0])~\dots~\href{../exec/numerics.html#op-fabs}{\mathrm{fabs}}_N(z[n-1])
 \end{array}\]</div>
 <p>The binary operator <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#op-iadd}{\mathrm{iadd}}\)</span>, when given two sequences of integers of the same length, <span class="math notranslate nohighlight">\(n\)</span>, return a sequence of integer results:</p>
 <div class="math notranslate nohighlight">
@@ -979,6 +979,8 @@ then its sign is non-deterministic and the <a class="reference internal" href=".
 <li><p>Else if both <span class="math notranslate nohighlight">\(z_1\)</span> and <span class="math notranslate nohighlight">\(z_2\)</span> are infinities of opposite sign, then return negative infinity.</p></li>
 <li><p>Else if either <span class="math notranslate nohighlight">\(z_1\)</span> or <span class="math notranslate nohighlight">\(z_2\)</span> is an infinity and the other a value with equal sign, then return positive infinity.</p></li>
 <li><p>Else if either <span class="math notranslate nohighlight">\(z_1\)</span> or <span class="math notranslate nohighlight">\(z_2\)</span> is an infinity and the other a value with opposite sign, then return negative infinity.</p></li>
+<li><p>Else if either <span class="math notranslate nohighlight">\(z_1\)</span> or <span class="math notranslate nohighlight">\(z_2\)</span> is a zero and the other a value with the same sign, then return positive zero.</p></li>
+<li><p>Else if either <span class="math notranslate nohighlight">\(z_1\)</span> or <span class="math notranslate nohighlight">\(z_2\)</span> is a zero and the other a value with opposite sign, then return negative zero.</p></li>
 <li><p>Else if both <span class="math notranslate nohighlight">\(z_1\)</span> and <span class="math notranslate nohighlight">\(z_2\)</span> are zeroes of equal sign, then return positive zero.</p></li>
 <li><p>Else if both <span class="math notranslate nohighlight">\(z_1\)</span> and <span class="math notranslate nohighlight">\(z_2\)</span> are zeroes of opposite sign, then return negative zero.</p></li>
 <li><p>Else return the result of multiplying <span class="math notranslate nohighlight">\(z_1\)</span> and <span class="math notranslate nohighlight">\(z_2\)</span>, <a class="reference internal" href="#aux-ieee"><span class="std std-ref">rounded</span></a> to the nearest representable value.</p></li>
@@ -997,8 +999,10 @@ then its sign is non-deterministic and the <a class="reference internal" href=".
 \href{../exec/numerics.html#op-fmul}{\mathrm{fmul}}_N(\pm q_1, \mp \infty) &amp;=&amp; -\infty \\
 \href{../exec/numerics.html#op-fmul}{\mathrm{fmul}}_N(\pm \infty, \pm q_2) &amp;=&amp; +\infty \\
 \href{../exec/numerics.html#op-fmul}{\mathrm{fmul}}_N(\pm \infty, \mp q_2) &amp;=&amp; -\infty \\
-\href{../exec/numerics.html#op-fmul}{\mathrm{fmul}}_N(\pm 0, \pm 0) &amp;=&amp; + 0 \\
-\href{../exec/numerics.html#op-fmul}{\mathrm{fmul}}_N(\pm 0, \mp 0) &amp;=&amp; - 0 \\
+\href{../exec/numerics.html#op-fmul}{\mathrm{fmul}}_N(\pm 0, \pm q_2) &amp;=&amp; +0 \\
+\href{../exec/numerics.html#op-fmul}{\mathrm{fmul}}_N(\pm 0, \mp q_2) &amp;=&amp; -0 \\
+\href{../exec/numerics.html#op-fmul}{\mathrm{fmul}}_N(\pm q_1, \pm 0) &amp;=&amp; +0 \\
+\href{../exec/numerics.html#op-fmul}{\mathrm{fmul}}_N(\pm q_1, \mp 0) &amp;=&amp; -0 \\
 \href{../exec/numerics.html#op-fmul}{\mathrm{fmul}}_N(z_1, z_2) &amp;=&amp; \href{../exec/numerics.html#aux-ieee}{\mathrm{float}}_N(z_1 \cdot z_2) \\
 \end{array}\end{split}\]</div>
 </section>
@@ -1042,16 +1046,16 @@ then its sign is non-deterministic and the <a class="reference internal" href=".
 <p>The function <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#op-fma}{\mathrm{fma}}\)</span> is the same as <em>fusedMultiplyAdd</em> defined by <a class="reference external" href="https://ieeexplore.ieee.org/document/8766229">IEEE 754</a> (Section 5.4.1).
 It computes <span class="math notranslate nohighlight">\((z_1 \cdot z_2) + z_3\)</span> as if with unbounded range and precision, rounding only once for the final result.</p>
 <ul class="simple">
-<li><p>If either <span class="math notranslate nohighlight">\(z_1\)</span> or <span class="math notranslate nohighlight">\(z_2\)</span> or <span class="math notranslate nohighlight">\(z_3\)</span> is a NaN, return an element of <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#aux-nans}{\mathrm{nans}}_N{z_1, z_2, z_3}\)</span>.</p></li>
+<li><p>If either <span class="math notranslate nohighlight">\(z_1\)</span> or <span class="math notranslate nohighlight">\(z_2\)</span> or <span class="math notranslate nohighlight">\(z_3\)</span> is a NaN, return an element of <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#aux-nans}{\mathrm{nans}}_N\{z_1, z_2, z_3\}\)</span>.</p></li>
 <li><p>Else if either <span class="math notranslate nohighlight">\(z_1\)</span> or <span class="math notranslate nohighlight">\(z_2\)</span> is a zero and the other is an infinity, then return an element of <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#aux-nans}{\mathrm{nans}}_N\{\}\)</span>.</p></li>
-<li><p>Else if both <span class="math notranslate nohighlight">\(z_1\)</span> or <span class="math notranslate nohighlight">\(z_2\)</span> are infinities of equal sign, and <span class="math notranslate nohighlight">\(z_3\)</span> is a negative infinity, then return an element of <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#aux-nans}{\mathrm{nans}}_N\{\}\)</span>.</p></li>
-<li><p>Else if both <span class="math notranslate nohighlight">\(z_1\)</span> or <span class="math notranslate nohighlight">\(z_2\)</span> are infinities of opposite sign, and <span class="math notranslate nohighlight">\(z_3\)</span> is a positive infinity, then return an element of <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#aux-nans}{\mathrm{nans}}_N\{\}\)</span>.</p></li>
+<li><p>Else if both <span class="math notranslate nohighlight">\(z_1\)</span> and <span class="math notranslate nohighlight">\(z_2\)</span> are infinities of equal sign, and <span class="math notranslate nohighlight">\(z_3\)</span> is a negative infinity, then return an element of <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#aux-nans}{\mathrm{nans}}_N\{\}\)</span>.</p></li>
+<li><p>Else if both <span class="math notranslate nohighlight">\(z_1\)</span> and <span class="math notranslate nohighlight">\(z_2\)</span> are infinities of opposite sign, and <span class="math notranslate nohighlight">\(z_3\)</span> is a positive infinity, then return an element of <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#aux-nans}{\mathrm{nans}}_N\{\}\)</span>.</p></li>
 <li><p>Else if either <span class="math notranslate nohighlight">\(z_1\)</span> or <span class="math notranslate nohighlight">\(z_2\)</span> is an infinity and the other is a value of the same sign, and <span class="math notranslate nohighlight">\(z_3\)</span> is a negative infinity, then return an element of <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#aux-nans}{\mathrm{nans}}_N\{\}\)</span>.</p></li>
 <li><p>Else if either <span class="math notranslate nohighlight">\(z_1\)</span> or <span class="math notranslate nohighlight">\(z_2\)</span> is an infinity and the other is a value of the opposite sign, and <span class="math notranslate nohighlight">\(z_3\)</span> is a positive infinity, then return an element of <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#aux-nans}{\mathrm{nans}}_N\{\}\)</span>.</p></li>
 <li><p>Else if both <span class="math notranslate nohighlight">\(z_1\)</span> and <span class="math notranslate nohighlight">\(z_2\)</span> are zeroes of the same sign and <span class="math notranslate nohighlight">\(z_3\)</span> is a zero, then return positive zero.</p></li>
 <li><p>Else if both <span class="math notranslate nohighlight">\(z_1\)</span> and <span class="math notranslate nohighlight">\(z_2\)</span> are zeroes of the opposite sign and <span class="math notranslate nohighlight">\(z_3\)</span> is a positive zero, then return positive zero.</p></li>
 <li><p>Else if both <span class="math notranslate nohighlight">\(z_1\)</span> and <span class="math notranslate nohighlight">\(z_2\)</span> are zeroes of the opposite sign and <span class="math notranslate nohighlight">\(z_3\)</span> is a negative zero, then return negative zero.</p></li>
-<li><p>Else return the result of multiplying <span class="math notranslate nohighlight">\(z_1\)</span> and <span class="math notranslate nohighlight">\(z_2\)</span>, adding <span class="math notranslate nohighlight">\(z_3\)</span> to the intermediate, and the final result ref:<cite>rounded &lt;aux-ieee&gt;</cite> to the nearest representable value.</p></li>
+<li><p>Else return the result of multiplying <span class="math notranslate nohighlight">\(z_1\)</span> and <span class="math notranslate nohighlight">\(z_2\)</span>, adding <span class="math notranslate nohighlight">\(z_3\)</span> to the intermediate, and the final result <a class="reference internal" href="#aux-ieee"><span class="std std-ref">rounded</span></a> to the nearest representable value.</p></li>
 </ul>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{&#64;{}llcll}
@@ -1774,13 +1778,21 @@ However, some operators consider multiple lanes at once.</p>
 \href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{relaxed\_dot\_add}}{\mathsf\_}\href{../syntax/instructions.html#syntax-sx}{\mathsf{s}}_{\mathsf{i}N_1\mathsf{x}M_1, \mathsf{i}N_2\mathsf{x}M_2}(c_1, c_2, c_3) &amp;=&amp; c
   &amp; (
     \begin{array}[t]{&#64;{}l}
-    \mathrel{\mbox{if}} N = 2\cdot N_1 \\
-    \land~M = 2\cdot M_2 \\
-    \land~c' = \href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{relaxed\_dot}}{\mathsf\_}\href{../syntax/instructions.html#syntax-sx}{\mathsf{s}}_{\mathsf{i}N_1\mathsf{x}M_1, \mathsf{i}N\mathsf{x}M}(c_1, c_2) \\
-    \land~c'' = \href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{extadd\_pairwise}}{\mathsf\_}\href{../syntax/instructions.html#syntax-sx}{\mathsf{s}}_{\mathsf{i}N\mathsf{x}M, \mathsf{i}N_2\mathsf{x}M_2}(c') \\
-    \land~c \in \href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{add}}_{\mathsf{i}N_2\mathsf{x}M_2}(c'', c_3) \\
+    \mathrel{\mbox{if}} N = \href{../exec/numerics.html#aux-relaxed}{\mathrm{relaxed}}(R_{\mathrm{idot\_add}})[2\cdot N_1, N_2] \\
+    \land~i_1^\ast = \href{../exec/numerics.html#aux-lanes}{\mathrm{lanes}}_{\mathsf{i}N_1\mathsf{x}M_1}(c_1) \\
+    \land~i_2^\ast = \href{../exec/numerics.html#aux-lanes}{\mathrm{lanes}}_{\mathsf{i}N_1\mathsf{x}M_1}(c_2) \\
+    \land~{i'_1}^\ast = \href{../exec/numerics.html#op-extend}{\mathrm{extend}}^{\href{../syntax/instructions.html#syntax-sx}{\mathsf{s}}}_{N_1, N}(i_1)^\ast \\
+    \land~{i'_2}^\ast = \href{../exec/numerics.html#op-extend}{\mathrm{extend}}^{\href{../exec/numerics.html#aux-relaxed}{\mathrm{relaxed}}(R_{\mathrm{idot}})[\href{../syntax/instructions.html#syntax-sx}{\mathsf{s}}, \href{../syntax/instructions.html#syntax-sx}{\mathsf{u}}]}_{N_1, N}(i_2)^\ast \\
+    \land~j^\ast = \href{../exec/numerics.html#op-ivrelaxed-dot}{\mathrm{ivrelaxed\_dot}}_N({i'_1}^\ast, {i'_2}^\ast) \\
+    \land~{j'}^\ast = \href{../exec/numerics.html#op-extend}{\mathrm{extend}}^{\href{../syntax/instructions.html#syntax-sx}{\mathsf{s}}}_{N, N_2}(j)^\ast \\
+    \land~c' = \href{../exec/numerics.html#aux-lanes}{\mathrm{lanes}}^{-1}_{\mathsf{i}N_2\mathsf{x}M_2}(\href{../exec/numerics.html#op-ivadd-pairwise}{\mathrm{ivadd\_pairwise}}_{N_2}({j'}^\ast)) \\
+    \land~c \in \href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{add}}_{\mathsf{i}N_2\mathsf{x}M_2}(c', c_3) \\
     \end{array}
 \end{array}\end{split}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Relaxed operations and the parameters <span class="math notranslate nohighlight">\(R_{\mathrm{idot}}\)</span> and <span class="math notranslate nohighlight">\(R_{\mathrm{idot\_add}}\)</span> are introduced <a class="reference internal" href="#relaxed-ops"><span class="std std-ref">below</span></a>.</p>
+</div>
 </section>
 <section id="xref-syntax-instructions-syntax-instr-vec-mathsf-narrow-mathsf-xref-syntax-instructions-syntax-sx-mathit-sx-mathit-sh-1-mathit-sh-2-c-1-c-2">
 <span id="op-vnarrow"></span><h3><span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{narrow}}{\mathsf\_}\href{../syntax/instructions.html#syntax-sx}{\mathit{sx}}_{\mathit{sh}_1, \mathit{sh}_2}(c_1, c_2)\)</span><a class="headerlink" href="#xref-syntax-instructions-syntax-instr-vec-mathsf-narrow-mathsf-xref-syntax-instructions-syntax-sx-mathit-sx-mathit-sh-1-mathit-sh-2-c-1-c-2" title="Link to this heading">¶</a></h3>
@@ -2014,7 +2026,8 @@ it behaves like regular <span class="math notranslate nohighlight">\(\href{../ex
 <section id="xref-exec-numerics-op-ivrelaxed-dot-mathrm-ivrelaxed-dot-n-i-1-2m-i-2-2m">
 <span id="op-irelaxed-dot-add"></span><span id="op-ivrelaxed-dot"></span><h3><span class="math notranslate nohighlight">\(\href{../exec/numerics.html#op-ivrelaxed-dot}{\mathrm{ivrelaxed\_dot}}_N(i_1^{2m}, i_2^{2m})\)</span><a class="headerlink" href="#xref-exec-numerics-op-ivrelaxed-dot-mathrm-ivrelaxed-dot-n-i-1-2m-i-2-2m" title="Link to this heading">¶</a></h3>
 <p>The implementation-specific behaviour of this operation is determined by the global parameter <span class="math notranslate nohighlight">\(R_{\mathrm{idot}} \in \{0, 1\}\)</span>.
-It also affects the behaviour of <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{relaxed\_dot}}\)</span> and <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{relaxed\_dot\_add}}\)</span> specified <a class="reference internal" href="#op-vextbinop"><span class="std std-ref">above</span></a>.</p>
+It also affects the behaviour of <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{relaxed\_dot}}\)</span> specified <a class="reference internal" href="#op-vextbinop"><span class="std std-ref">above</span></a>,
+and of <span class="math notranslate nohighlight">\(\href{../syntax/instructions.html#syntax-instr-vec}{\mathsf{relaxed\_dot\_add}}\)</span> specified <a class="reference internal" href="#op-vextternop"><span class="std std-ref">above</span></a>, which additionally depends on the global parameter <span class="math notranslate nohighlight">\(R_{\mathrm{idot\_add}} \in \{0, 1\}\)</span>.</p>
 <ul class="simple">
 <li><p>Return <span class="math notranslate nohighlight">\(\href{../exec/numerics.html#aux-relaxed}{\mathrm{relaxed}}(R_{\mathrm{idot}})[ \href{../exec/numerics.html#op-ivdot}{\mathrm{ivdot}}_N(i_1^{2m}, i_2^{2m}), \href{../exec/numerics.html#op-ivdot-sat}{\mathrm{ivdotsat}}_N(i_1^{2m}, i_2^{2m}) ]\)</span>.</p></li>
 </ul>

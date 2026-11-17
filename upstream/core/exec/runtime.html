@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Runtime Structure &#8212; WebAssembly 3.0 (2026-10-13)</title>
+    <title>Runtime Structure &#8212; WebAssembly 3.0 (2026-11-17)</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=057308f9" />
-    <script src="../_static/documentation_options.js?v=e67e0c0e"></script>
+    <script src="../_static/documentation_options.js?v=6518b7b1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>window.MathJax = {"tex": {"maxBuffer": 30720, "macros": {"multicolumn": ["", 2]}}, "options": {"menuOptions": {"settings": {"enrich": false}}}}</script>
@@ -611,6 +611,11 @@ but configurations with multiple threads may be supported in the future.</p>
 <li><p>The meta variable <span class="math notranslate nohighlight">\(z\)</span> ranges over frame states where clear from context.</p></li>
 <li><p>The following shorthands are defined for accessing a state <span class="math notranslate nohighlight">\(z = (s ; f)\)</span>:</p>
 <ul>
+<li><p><span class="math notranslate nohighlight">\(\begin{array}[t]{&#64;{}l&#64;{~}c&#64;{~}l&#64;{}l&#64;{}} z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{module}} &amp; = &amp; f{.}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}} \\ \end{array}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\begin{array}[t]{&#64;{}l&#64;{~}c&#64;{~}l&#64;{}l&#64;{}} z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{funcs}}{}[a] &amp; = &amp; s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{funcs}}{}[a] \\ \end{array}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\begin{array}[t]{&#64;{}l&#64;{~}c&#64;{~}l&#64;{}l&#64;{}} z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{structs}}{}[a] &amp; = &amp; s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{structs}}{}[a] \\ \end{array}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\begin{array}[t]{&#64;{}l&#64;{~}c&#64;{~}l&#64;{}l&#64;{}} z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{arrays}}{}[a] &amp; = &amp; s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{arrays}}{}[a] \\ \end{array}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\begin{array}[t]{&#64;{}l&#64;{~}c&#64;{~}l&#64;{}l&#64;{}} z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{exns}}{}[a] &amp; = &amp; s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{exns}}{}[a] \\ \end{array}\)</span></p></li>
 <li><p><span class="math notranslate nohighlight">\(\begin{array}[t]{&#64;{}l&#64;{~}c&#64;{~}l&#64;{}l&#64;{}} z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{types}}{}[x] &amp; = &amp; f{.}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}}{.}\href{../exec/runtime.html#syntax-moduleinst}{\mathsf{types}}{}[x] \\ \end{array}\)</span></p></li>
 <li><p><span class="math notranslate nohighlight">\(\begin{array}[t]{&#64;{}l&#64;{~}c&#64;{~}l&#64;{}l&#64;{}} z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{tags}}{}[x] &amp; = &amp; s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{tags}}{}[f{.}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}}{.}\href{../exec/runtime.html#syntax-moduleinst}{\mathsf{tags}}{}[x]] \\ \end{array}\)</span></p></li>
 <li><p><span class="math notranslate nohighlight">\(\begin{array}[t]{&#64;{}l&#64;{~}c&#64;{~}l&#64;{}l&#64;{}} z{.}\href{../exec/runtime.html#syntax-state}{\mathsf{globals}}{}[x] &amp; = &amp; s{.}\href{../exec/runtime.html#syntax-store}{\mathsf{globals}}{}[f{.}\href{../exec/runtime.html#syntax-frame}{\mathsf{module}}{.}\href{../exec/runtime.html#syntax-moduleinst}{\mathsf{globals}}{}[x]] \\ \end{array}\)</span></p></li>

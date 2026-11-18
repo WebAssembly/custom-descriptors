@@ -272,6 +272,7 @@ test(() => {
   // attached to an exported struct.
   const data = [
     1, // one prototype
+    ...wasmSignedLeb(-1), // no parent prototype
     0, // no constructor
     3, // three method configs
     0x00, // method "count"
@@ -280,7 +281,6 @@ test(() => {
     ...stringToBytes("x"),
     0x02, // setter "x"
     ...stringToBytes("x"),
-    ...wasmSignedLeb(-1), // no parent prototype
   ];
 
   const proto = {};
@@ -326,11 +326,11 @@ test(() => {
   for (let methodKind of [0x00, 0x01, 0x02]) {
     const data = [
       1, // one prototype
+      ...wasmSignedLeb(-1), // no parent prototype
       0, // no constructor
       1, // one method configs
       methodKind, // method, getter, or setter "count"
       ...stringToBytes("count"),
-      ...wasmSignedLeb(-1), // no parent prototype
     ];
 
     const proto = {};
@@ -347,11 +347,11 @@ test(() => {
   // Configuring methods where properties cannot be written fails.
   const data = [
     1, // one prototype
+    ...wasmSignedLeb(-1), // no parent prototype
     0, // no constructor
     1, // one method config
     0x00, // method "x"
     ...stringToBytes("x"),
-    ...wasmSignedLeb(-1), // no parent prototype
   ];
 
   let dataArray = makeDataArray(data);
@@ -388,6 +388,7 @@ test(() => {
   // Configure a static method, getter, and setter on a newly created constructor.
   const data = [
     1, // one prototype
+    ...wasmSignedLeb(-1), // no parent prototype
     1, // one constructor
     ...stringToBytes("MyStruct"),
     3, // three static method configs
@@ -398,7 +399,6 @@ test(() => {
     0x02, // setter "x"
     ...stringToBytes("x"),
     0, // no non-static methods
-    ...wasmSignedLeb(-1), // no parent prototype
   ];
 
   const proto = {};
@@ -499,11 +499,11 @@ test(() => {
   // Configuring a constructor fails if there are no methods.
   const data = [
     1, // one prototype
+    ...wasmSignedLeb(-1), // no parent prototype
     1, // one constructor
     ...stringToBytes("Foo"),
     0, // no static methods
     0, // no non-static methods
-    ...wasmSignedLeb(-1), // no parent prototype
   ];
 
   assert_throws_js(WebAssembly.RuntimeError, () => {
@@ -519,11 +519,11 @@ test(() => {
   // null or otherwise nonextensible constructors object
   const data = [
     1, // one prototype
+    ...wasmSignedLeb(-1), // no parent prototype
     1, // one constructor
     ...stringToBytes("Foo"),
     0, // no static methods,
     0, // no non-static methods
-    ...wasmSignedLeb(-1), // no parent prototype
   ];
 
   const nonextensible = {};
@@ -547,13 +547,13 @@ test(() => {
   for (let methodKind of [0x00, 0x01, 0x02]) {
     const data = [
       1, // one prototype
+      ...wasmSignedLeb(-1), // no parent prototype
       1, // one constructor
       ...stringToBytes("Foo"),
       1, // one static method configs
       methodKind, // method, getter, or setter "method"
       ...stringToBytes("method"),
       0, // no non-static methods
-      ...wasmSignedLeb(-1), // no parent prototype
     ];
 
     const proto = {};
@@ -571,12 +571,12 @@ test(() => {
   // We should be able to set the parent prototype.
   const data = [
     2, // two prototypes
-    0, // no constructor
-    0, // no methods,
     ...wasmSignedLeb(-1), // no parent prototype
     0, // no constructor
     0, // no methods
     0, // parent prototype index 0
+    0, // no constructor
+    0, // no methods
   ];
 
   for (let allowed of [null, {}, Object.getPrototypeOf({}), new Proxy({}, {})]) {
@@ -603,7 +603,6 @@ test(() => {
   // We should be able to configure entire prototype chains.
   const data = [
     4, // four prototypes
-    0, 0, // no constructor or methods
     ...wasmSignedLeb(-1), // no parent prototype
     0, 0, // no constructor or methods
     0, // parent prototype index 0
@@ -611,6 +610,7 @@ test(() => {
     1, // parent prototype index 1
     0, 0, // no constructor or methods
     2, // parent prototype index 2
+    0, 0, // no constructor or methods
   ];
 
   const a = {};
@@ -630,11 +630,72 @@ test(() => {
 }, "prototype chain");
 
 test(() => {
+  // Configure parent prototypes alongside constructors and methods.
+  const data = [
+    2, // two prototypes
+    ...wasmSignedLeb(-1), // no parent prototype
+    1, ...stringToBytes("Base"), 0, // constructor "Base", no static methods
+    1, 0x00, ...stringToBytes("getCount"), // method "getCount"
+    0, // parent prototype index 0
+    1, ...stringToBytes("Sub"), 0, // constructor "Sub", no static methods
+    1, 0x00, ...stringToBytes("setCount"), // method "setCount"
+  ];
+
+  const baseProto = {};
+  const subProto = {};
+  const constructors = {};
+
+  configureAll(
+    makeProtosArray([baseProto, subProto]),
+    makeMethodsArray([
+      makeStructWithProto,
+      getStructCount,
+      makeStructWithProto,
+      setStructCount,
+    ]),
+    makeDataArray(data),
+    constructors,
+  );
+
+  assert_equals(Object.getPrototypeOf(subProto), baseProto);
+  const sub = new constructors.Sub(subProto);
+  assert_true(sub instanceof constructors.Sub);
+  assert_true(sub instanceof constructors.Base);
+  assert_equals(sub.getCount(), 0);
+  sub.setCount(7);
+  assert_equals(sub.getCount(), 7);
+
+  const childProto = {};
+  const failData = [
+    2, // two prototypes
+    ...wasmSignedLeb(-1), // no parent prototype
+    0, 0, // no constructor or methods
+    0, // parent prototype index 0
+    1, ...stringToBytes("Sub"), 0, // constructor "Sub", no static methods
+    0, // no methods
+  ];
+
+  // Passing null as the constructors object causes installing constructor
+  // "Sub" to throw a TypeError. Because parentidx is read and applied before
+  // constructor configuration, childProto's prototype has already been set to
+  // baseProto when that TypeError is thrown.
+  assert_throws_js(TypeError, () => {
+    configureAll(
+      makeProtosArray([baseProto, childProto]),
+      makeMethodsArray([makeStructWithProto]),
+      makeDataArray(failData),
+      null,
+    );
+  });
+  assert_equals(Object.getPrototypeOf(childProto), baseProto);
+}, "parent prototype with constructors and methods");
+
+test(() => {
   // A prototype cannot be its own parent.
   const data = [
     1, // one prototype
-    0, 0, // no constructor or methods
     0, // parent prototype index 0
+    0, 0, // no constructor or methods
   ];
 
   assert_throws_js(WebAssembly.RuntimeError, () => {
@@ -649,14 +710,14 @@ test(() => {
   // Parent prototypes must not be forward references.
   const data = [
     2, // two prototypes
-    0, 0, // no constructor or methods
-    1, // parent prototype index 0
+    1, // parent prototype index 1
     0, 0, // no constructor or methods
     ...wasmSignedLeb(-1), // no parent prototype
+    0, 0, // no constructor or methods
   ];
 
   assert_throws_js(WebAssembly.RuntimeError, () => {
-    configureAll(makeProtosArray([{}]),
+    configureAll(makeProtosArray([{}, {}]),
                  makeMethodsArray([]),
                  makeDataArray(data),
                  null);
@@ -665,29 +726,36 @@ test(() => {
 
 test(() => {
   // Trap if we unexpectedly run out of data.
-  const data = [
-    1, // one prototype
-    0, 0, // no constructor or methods
-    // missing parent prototype index
-  ];
-
-  assert_throws_js(WebAssembly.RuntimeError, () => {
-    configureAll(makeProtosArray([{}]),
-                 makeMethodsArray([]),
-                 makeDataArray(data),
-                 null);
-  });
+  for (const data of [
+    [
+      1, // one prototype
+      // missing parent prototype index
+    ],
+    [
+      1, // one prototype
+      ...wasmSignedLeb(-1), // no parent prototype
+      0, // no constructor
+      // missing method count
+    ],
+  ]) {
+    assert_throws_js(WebAssembly.RuntimeError, () => {
+      configureAll(makeProtosArray([{}]),
+                   makeMethodsArray([]),
+                   makeDataArray(data),
+                   null);
+    });
+  }
 }, "early end of data");
 
 test(() => {
   // Trap on invalid data, e.g. invalid property kinds.
   const data = [
     1, // one prototype
+    ...wasmSignedLeb(-1), // no parent prototype
     0, // no constructor
     1, // one method
     0x03, // invalid property kind
     ...stringToBytes("invalid"),
-    ...wasmSignedLeb(-1), // no parent prototype
   ];
 
   assert_throws_js(WebAssembly.RuntimeError, () => {
@@ -702,11 +770,11 @@ test(() => {
   // Trap if a prototype has more than one constructor.
   const data = [
     1, // one prototype
+    ...wasmSignedLeb(-1), // no parent prototype
     2, // two constructors
     0, // no static methods
     0, // no static methods
     0, // no non-static methods
-    ...wasmSignedLeb(-1), // no parent prototype
   ];
 
   assert_throws_js(WebAssembly.RuntimeError, () => {
@@ -721,6 +789,7 @@ test(() => {
   // Names are encoded as UTF-8.
   const data = [
     1, // one prototype
+    ...wasmSignedLeb(-1), // no parent prototype
     1, // one constructor
     0x4, // four bytes in name
     0xF0, 0x9F, 0x8E, 0xB6, // U+1F3B6 (🎶)
@@ -729,7 +798,6 @@ test(() => {
     0x00, // normal method
     0x3, // three bytes in name
     0xea, 0x99, 0xae, // U+A66E (ꙮ)
-    ...wasmSignedLeb(-1), // no parent prototype
   ];
 
   const proto = {};
@@ -746,12 +814,12 @@ test(() => {
   // Trap if a method name has invalid UTF-8.
   const data = [
     1, // one prototype
+    ...wasmSignedLeb(-1), // no parent prototype
     0, // no constructor
     1, // one method
     0x00, // normal method
     0x2, // two bytes in name
     0b11011111, 0b00000000, // invalid UTF-8
-    ...wasmSignedLeb(-1), // no parent prototype
   ];
 
   assert_throws_js(WebAssembly.RuntimeError, () => {
@@ -766,12 +834,12 @@ test(() => {
   // Trap if a constructor name has invalid UTF-8.
   const data = [
     1, // one prototype
+    ...wasmSignedLeb(-1), // no parent prototype
     1, // one constructor
     0x3, // three bytes in name
     0b11100000, 0b10000000, 0b00000000, // invalid UTF-8
     0, // no static methods
     0, // no non-static methods
-    ...wasmSignedLeb(-1), // no parent prototype
   ];
 
   assert_throws_js(WebAssembly.RuntimeError, () => {

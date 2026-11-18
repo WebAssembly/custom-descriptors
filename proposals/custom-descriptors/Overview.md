@@ -761,9 +761,11 @@ The configuration data is interpreted according to this grammar:
 ```
 data ::= vec(protoconfig)
 
-protoconfig ::= vec(constructorconfig) (with size <= 1)
+protoconfig ::= parentidx
+                vec(constructorconfig) (with size <= 1)
                 vec(methodconfig)
-                parentidx
+
+parentidx ::= s32 ;; -1 for no parent, otherwise parent index
 
 constructorconfig ::= constructorname:name
                       vec(methodconfig)
@@ -771,8 +773,6 @@ constructorconfig ::= constructorname:name
 methodconfig ::= 0x00 name ;; method
                | 0x01 name ;; getter
                | 0x02 name ;; setter
-
-parentidx ::= s32 ;; -1 for no parent, otherwise parent index
 ```
 
 The function `configureAll` parses this data stream
@@ -781,6 +781,13 @@ Each time it moves on to the next `protoconfig`,
 it takes the next entry in the "prototypes" array as the current prototype;
 each time it moves on to the next `constructorconfig` or `methodconfig`,
 it takes the next entry in the "functions" array as the current function.
+
+If the `protoconfig` has a `parentidx` other than -1,
+the prototype of the current prototype
+is set to the object at the given index in the prototypes array.
+The index must be less than the current prototype index
+and the parent prototype must be a valid prototype,
+i.e. it must be a JS object or null.
 
 If a `protoconfig` has a `constructorconfig`,
 the current function is wrapped
@@ -801,13 +808,6 @@ For each top-level `methodconfig` inside a `protoconfig`,
 to take its JS-side receiver as its Wasm-side first parameter.
 The wrapper is installed with the given name and type
 on the current prototype.
-
-If the `protoconfig` has a `parentidx` other than -1,
-the prototype of the current prototype
-is set to the object at the given index in the prototypes array.
-The index must be less than the current prototype index
-and the parent prototype must be a valid prototype,
-i.e. it must be a JS object or null.
 
 Errors are detected lazily,
 so user-visible partial modifications may have occured
@@ -870,6 +870,7 @@ and additionally expose a constructor:
     (ref.func $counter.inc)
   )
   ;; \01  one protoconfig
+  ;; \7f    no parent prototype (-1 s32)
   ;; \01    one constructorconfig
   ;; \07      length of name "Counter"
   ;; Counter    constructor name
@@ -881,8 +882,7 @@ and additionally expose a constructor:
   ;; \00      method (not getter or setter)
   ;; \03        length of name "inc"
   ;; inc        method name
-  ;; \7f    no parent prototype (-1 s32)
-  (data $data "\01\01\07Counter\00\02\00\03get\00\03inc\7f")
+  (data $data "\01\7f\01\07Counter\00\02\00\03get\00\03inc")
 
   (global $counter.vtable (ref (exact $counter.vtable))
     (struct.new $counter.vtable

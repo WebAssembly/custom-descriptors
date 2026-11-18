@@ -591,7 +591,7 @@ The verification of WebAssembly type requirements is deferred to the
         1. Assert: |status| is true.
 
         Note: the validity and uniqueness checks performed during [=WebAssembly module validation=] ensure that each property name is valid and no properties are defined twice.
-    1. Perform [=!=] [$SetIntegrityLevel$](|exportsObject|, `"frozen"`).
+    1. Perform [=!=] [$SetIntegrityLevel$](|exportsObject|, <emu-const>frozen</emu-const>).
     1. Return |exportsObject|.
 </div>
 
@@ -1577,28 +1577,30 @@ The <dfn constructor for="Tag" lt="Tag(type)">new Tag(|type|)</dfn> constructor 
 </div>
 
 
-<h3 id="gc-exotic-objects">Garbage Collected Objects</h3>
+<h3 id="gc-objects" oldids="gc-exotic-objects">Garbage Collected Objects</h3>
 
 A WebAssembly struct or array is made available in JavaScript as an <dfn>Exported GC Object</dfn>.
 An [=Exported GC Object=] is an ordinary object that wraps a garbage collected WebAssembly reference value.
 
-An [=Exported GC Object=] contains an \[[ObjectAddress]] internal slot, which holds a [=object address=] relative to the [=surrounding agent=]'s [=associated store=],
+An [=Exported GC Object=] contains an \[[ObjectAddress]] internal slot, which holds a [=struct address=] or [=array address=] relative to the [=surrounding agent=]'s [=associated store=],
 and an \[[ObjectKind]] internal slot, which holds the string value "struct" or "array".
 
 <div algorithm>
-  To create <dfn>a new Exported GC Object</dfn> from a WebAssembly [=object address=] |objectaddr| and a string |objectkind|, perform the following steps:
+  To create <dfn>a new Exported GC Object</dfn> from a WebAssembly [=struct address=] or [=array address=] |objectaddr| and a string |objectkind|, perform the following steps:
 
     1. Assert: |objectkind| is either "array" or "struct".
-    1. Let |map| be the [=surrounding agent=]'s associated [=exported GC object cache=].
+    1. Let |map| be the [=surrounding agent=]'s associated [=Exported GC Object cache=].
     1. If |map|[|objectaddr|] [=map/exists=],
         1. Return |map|[|objectaddr|].
     1. Let |object| be [$OrdinaryObjectCreate$](null, « \[[ObjectAddress]], \[[ObjectKind]] »).
     1. Set |object|.\[[ObjectAddress]] to |objectaddr|.
     1. Set |object|.\[[ObjectKind]] to |objectkind|.
-    1. Perform [=!=] [$SetIntegrityLevel$](|object|, "frozen").
+    1. Perform [=!=] [$SetIntegrityLevel$](|object|, <emu-const>frozen</emu-const>).
     1. [=map/Set=] |map|[|objectaddr|] to |object|.
     1. Return |object|.
 </div>
+
+Note: Although [=Exported GC Object=]s are frozen and therefore non-extensible, ECMAScript currently still allows private fields, methods, and accessors to be added to non-extensible objects (for example, via a class `constructor` that returns an existing object). Once the TC39 [Non-extensible Applies to Private](https://github.com/tc39/proposal-nonextensible-applies-to-private) proposal is integrated into [[ECMASCRIPT]], non-extensibility will also prevent adding private elements to [=Exported GC Object=]s.
 
 <h3 id="exceptions">Exceptions</h3>
 

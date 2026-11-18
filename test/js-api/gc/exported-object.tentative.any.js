@@ -353,8 +353,28 @@ test(() => {
   class StampField extends Base {
     #field = 42;
   }
+  class StampMethod extends Base {
+    #method() {
+      return 42;
+    }
+  }
+  class StampGetter extends Base {
+    get #getter() {
+      return 42;
+    }
+  }
+  class StampSetter extends Base {
+    set #setter(v) {}
+  }
   const struct = functions.makeStruct();
   const array = functions.makeArray();
-  assert_throws_js(TypeError, () => new StampField(struct));
-  assert_throws_js(TypeError, () => new StampField(array));
-}, "private field stamping");
+  for (const Ctor of [
+    StampField,
+    StampMethod,
+    StampGetter,
+    StampSetter,
+  ]) {
+    assert_throws_js(TypeError, () => new Ctor(struct));
+    assert_throws_js(TypeError, () => new Ctor(array));
+  }
+}, "private field, method, and accessor stamping");

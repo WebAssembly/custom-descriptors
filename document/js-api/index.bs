@@ -1595,12 +1595,12 @@ and an \[[ObjectKind]] internal slot, which holds the string value "struct" or "
     1. Let |object| be [$OrdinaryObjectCreate$](null, « \[[ObjectAddress]], \[[ObjectKind]] »).
     1. Set |object|.\[[ObjectAddress]] to |objectaddr|.
     1. Set |object|.\[[ObjectKind]] to |objectkind|.
-    1. Perform [=!=] [$SetIntegrityLevel$](|object|, <emu-const>frozen</emu-const>).
+    1. Perform [=!=] [$SetIntegrityLevel$](|object|, <emu-const>sealed</emu-const>).
     1. [=map/Set=] |map|[|objectaddr|] to |object|.
     1. Return |object|.
 </div>
 
-Note: Although [=Exported GC Object=]s are frozen and therefore non-extensible, ECMAScript currently still allows private fields, methods, and accessors to be added to non-extensible objects (for example, via a class `constructor` that returns an existing object). Once the TC39 [Non-extensible Applies to Private](https://github.com/tc39/proposal-nonextensible-applies-to-private) proposal is integrated into [[ECMASCRIPT]], non-extensibility will also prevent adding private elements to [=Exported GC Object=]s.
+Note: Although [=Exported GC Object=]s are sealed and therefore non-extensible, ECMAScript currently still allows private fields, methods, and accessors to be added to non-extensible objects (for example, via a class `constructor` that returns an existing object). Once the TC39 [Non-extensible Applies to Private](https://github.com/tc39/proposal-nonextensible-applies-to-private) proposal is integrated into [[ECMASCRIPT]], non-extensibility will also prevent adding private elements to [=Exported GC Object=]s.
 
 <h3 id="exceptions">Exceptions</h3>
 

@@ -260,6 +260,7 @@ test(() => {
 }, "sealing");
 
 test(() => {
+  // Empty sealed objects are also frozen.
   const struct = functions.makeStruct();
   const array = functions.makeArray();
   assert_true(Object.isFrozen(struct));

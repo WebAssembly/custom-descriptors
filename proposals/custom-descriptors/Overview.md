@@ -596,7 +596,7 @@ and in particular they can allow JS prototypes to be associated with the describ
 When the JS-side reflection of a Wasm struct is created,
 if that struct has a descriptor,
 the descriptor's first field is immutable with a type matching `externref`,
-and that field contains a JS object,
+and that field's value (converted to JS) is a JS object,
 then that JS object is installed as the Wasm struct's prototype
 (otherwise its prototype is `null`).
 

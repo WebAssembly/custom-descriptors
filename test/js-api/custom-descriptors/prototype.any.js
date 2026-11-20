@@ -405,7 +405,15 @@ test(() => {
   assert_false(Reflect.setPrototypeOf(obj, null));
   assert_throws_js(TypeError, () => Object.setPrototypeOf(obj, {}));
   assert_false(Reflect.setPrototypeOf(obj, {}));
+  assert_throws_js(TypeError, () => Object.setPrototypeOf(obj, obj));
+  assert_false(Reflect.setPrototypeOf(obj, obj));
+  assert_throws_js(TypeError, () => Object.setPrototypeOf(proto, obj));
+  assert_false(Reflect.setPrototypeOf(proto, obj));
+  const child = Object.create(obj);
+  assert_throws_js(TypeError, () => Object.setPrototypeOf(proto, child));
+  assert_false(Reflect.setPrototypeOf(proto, child));
   assert_equals(Object.getPrototypeOf(obj), proto);
+  assert_equals(Object.getPrototypeOf(proto), Object.prototype);
 }, "setPrototypeOf with prototype");
 
 test(() => {

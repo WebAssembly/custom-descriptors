@@ -106,6 +106,7 @@ urlPrefix: https://webassembly.github.io/spec/core/; spec: WebAssembly; type: df
     urlPrefix: valid/matching.html; for: matches
         text: valtype; url: #match-valtype
         text: reftype; url: #match-reftype
+        text: storagetype; url: #match-storagetype
     text: module grammar; url: binary/modules.html#binary-module
     text: custom section; url: binary/modules.html#custom-section
     text: customsec; url: binary/modules.html#binary-customsec
@@ -239,6 +240,7 @@ urlPrefix: https://webassembly.github.io/spec/core/; spec: WebAssembly; type: df
         text: mut
     url: syntax/types.html#syntax-comptype; for: comp-type
         text: func
+        text: struct
     text: defined type; url: valid/conventions.html#syntax-deftype
     text: expansion; url: valid/conventions.html#aux-expand-deftype
     text: address; url: exec/runtime.html#addresses
@@ -249,6 +251,11 @@ urlPrefix: https://webassembly.github.io/spec/core/; spec: WebAssembly; type: df
     text: current frame; url: exec/conventions.html#exec-notation-textual
     text: module; for: frame; url: exec/runtime.html#syntax-frame
     text: memaddrs; for: moduleinst; url: exec/runtime.html#syntax-moduleinst
+    text: structs; for: store; url: exec/runtime.html#syntax-store
+    url: exec/runtime.html#syntax-structinst; for: structinst
+        text: type
+        text: desc
+        text: fields
     text: signed_64; url: exec/numerics.html#aux-signed
     text: sequence; url: syntax/conventions.html#grammar-notation
     text: exception; for: tagtype/attribute; url: syntax/types.html#syntax-tagtype
@@ -1592,7 +1599,21 @@ and an \[[ObjectKind]] internal slot, which holds the string value "struct" or "
     1. Let |map| be the [=surrounding agent=]'s associated [=Exported GC Object cache=].
     1. If |map|[|objectaddr|] [=map/exists=],
         1. Return |map|[|objectaddr|].
-    1. Let |object| be [$OrdinaryObjectCreate$](null, « \[[ObjectAddress]], \[[ObjectKind]] »).
+    1. Let |proto| be null.
+    1. If |objectkind| is "struct",
+        1. Let |store| be the [=surrounding agent=]'s [=associated store=].
+        1. Let |structinst| be |store|.[=store/structs=][|objectaddr|].
+        1. If |structinst|.[=structinst/desc=] is not empty,
+            1. Let |descaddr| be |structinst|.[=structinst/desc=].
+            1. Let |descinst| be |store|.[=store/structs=][|descaddr|].
+            1. Let [=comp-type/struct=] |fieldtypes| be the [=expansion=] of |descinst|.[=structinst/type=].
+            1. If |fieldtypes| [=list/is empty|is not empty=],
+                1. Let |mut| |storagetype| be |fieldtypes|[0].
+                1. If |mut| is empty and |storagetype| [=matches/storagetype|matches=] [=externref=],
+                    1. Let |v| be [=ToJSValue=](|descinst|.[=structinst/fields=][0]).
+                    1. If |v| [=is an Object=],
+                        1. Set |proto| to |v|.
+    1. Let |object| be [$OrdinaryObjectCreate$](|proto|, « \[[ObjectAddress]], \[[ObjectKind]] »).
     1. Set |object|.\[[ObjectAddress]] to |objectaddr|.
     1. Set |object|.\[[ObjectKind]] to |objectkind|.
     1. Perform [=!=] [$SetIntegrityLevel$](|object|, <emu-const>sealed</emu-const>).

@@ -592,41 +592,25 @@ WebAssembly RTTs correspond to JS shape descriptors.
 Custom descriptors act as first-class handles to the engine-managed RTTs,
 so they can serve as extension points for the JS reflection of the Wasm objects they describe,
 and in particular they can allow JS prototypes to be associated with the described objects.
-To make this work, we allow information about the intended JS reflection of Wasm objects
-to be imported into a Wasm module and held by custom descriptors.
-The `[[GetPrototypeOf]]` algorithm for a WebAssembly object can then look up this information
-on the object's custom descriptor.
 
-The specification of the `[[GetPrototypeOf]]` internal method
-of an Exported GC Object `O` is updated to perform the following steps
-(which will be made more precise in the final spec):
+When the JS-side reflection of a Wasm struct is created,
+if that struct has a descriptor,
+the descriptor's first field is immutable with a type matching `externref`,
+and that field's value (converted to JS) is a JS object,
+then that JS object is installed as the Wasm struct's prototype
+(otherwise its prototype is `null`).
 
- 1. If `O.[[ObjectKind]]` is not "struct":
-     1. Return `null`.
- 1. Let `store` be the surrounding agent's associated store
- 1. Look up the object's heap type from the store.
- 1. If the heap type does not have a descriptor clause:
-     1. Return `null`.
- 1. Get the descriptor value and descriptor type.
- 1. If the descriptor type has has no fields or its first field is not immutable or does not match `externref`:
-     1. Return `null`.
- 1. Get the value `v` of the first field.
- 1. Let `u` be `ToJSValue(v)`.
- 1. If `u` is a JS object:
-     1. return `u`.
- 1. Return `null`.
+Now that we have a way to configure JS interop for Wasm objects,
+we can simplify the behavior of Wasm objects in JS
+to have them act like empty, sealed JS objects.
+The previous behaviors were designed to be maximally future-compatible
+and were always meant to be replaced,
+so this should be a web-compatible change.
 
 > Note: If we need to configure more than just the prototype
 > (e.g. own properties)
 > we could add a `WebAssembly.DescriptorOptions` object
 > that contains the prototype and additional configuration.
-
-The only new capability required in the WebAssembly embedding interface is the
-ability to inspect a reference's heap type.
-The algorithm also needs to access the value's descriptor and its fields,
-but in principle it could do that by synthesizing a new Wasm instance
-exporting the functions necessary to perform that access,
-so those would not be fundamentally new capabilities.
 
 The following is a full example that allows JS
 to call `get()` and `inc()` methods on counter objects implemented in
